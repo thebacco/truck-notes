@@ -395,7 +395,7 @@
 
     .segments {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 7px;
       margin-bottom: 10px;
     }
@@ -751,9 +751,8 @@
           <section class="section composer" aria-labelledby="noteTitle">
             <p class="section-title" id="noteTitle">New note</p>
             <div class="segments" id="categorySegments" role="group" aria-label="Note category">
-              <button class="segment" type="button" data-category="Ops">Ops</button>
-              <button class="segment" type="button" data-category="Stock">Stock</button>
-              <button class="segment" type="button" data-category="Service">Service</button>
+              <button class="segment" type="button" data-category="General">General</button>
+              <button class="segment" type="button" data-category="Inventory">Inventory</button>
             </div>
             <textarea id="noteInput" placeholder="Write a shift note"></textarea>
             <div class="composer-actions">
@@ -828,11 +827,11 @@
     ];
 
     const storageKey = "truckNotes:v1";
-    const categoryLabels = ["Ops", "Stock", "Service"];
+    const categoryLabels = ["General", "Inventory"];
     const defaultState = {
       staff: ["Alex", "Sam"],
       activeStaff: "Alex",
-      activeCategory: "Ops",
+      activeCategory: "General",
       shiftDate: new Date().toISOString().slice(0, 10),
       notes: []
     };
@@ -882,11 +881,13 @@
         const savedStaff = Array.isArray(parsed.staff) ? parsed.staff : parsed[legacyStaffKey];
         const staff = Array.isArray(savedStaff) && savedStaff.length ? savedStaff : [...defaultState.staff];
         const activeStaff = parsed.activeStaff || parsed[legacyActiveStaffKey] || staff[0] || "";
+        const activeCategory = categoryLabels.includes(parsed.activeCategory) ? parsed.activeCategory : defaultState.activeCategory;
         return {
           ...defaultState,
           ...parsed,
           staff,
           activeStaff: staff.includes(activeStaff) ? activeStaff : staff[0] || "",
+          activeCategory,
           notes: parsed.notes.map((note) => ({ ...note, id: note.id || crypto.randomUUID() }))
         };
       } catch {
@@ -1236,7 +1237,4 @@
   </script>
 </body>
 </html>
-
-
-
 
