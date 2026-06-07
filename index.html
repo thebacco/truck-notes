@@ -310,7 +310,7 @@
     .sender-field {
       display: grid;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-top: 12px;
     }
 
     .staff-grid {
@@ -734,18 +734,17 @@
             <div class="metric"><strong id="lastNoteTime">--</strong><span>Last</span></div>
           </div>
 
-          <section class="staff-panel" aria-labelledby="senderTitle">
-            <p class="section-title" id="senderTitle">Sender</p>
-            <label class="sender-field" for="senderSelect">
-              <span class="field-label">Send as</span>
-              <select id="senderSelect"></select>
-            </label>
-            <p class="section-title">Staff</p>
+          <section class="staff-panel" aria-labelledby="staffTitle">
+            <p class="section-title" id="staffTitle">Staff</p>
             <div class="staff-grid" id="staffList"></div>
             <form class="add-staff" id="staffForm">
               <input id="staffNameInput" type="text" autocomplete="off" placeholder="Add staff name">
               <button class="small-button" type="submit">Add</button>
             </form>
+            <label class="sender-field" for="senderSelect">
+              <span class="field-label">Send as</span>
+              <select id="senderSelect"></select>
+            </label>
           </section>
 
           <section class="section composer" aria-labelledby="noteTitle">
