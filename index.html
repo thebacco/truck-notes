@@ -1222,14 +1222,25 @@
     setInterval(updateClock, 30000);
     render();
 
-    if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    const isLocalPreview = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+
+    if (isLocalPreview) {
       const liveReload = new EventSource("/__live-reload");
       liveReload.addEventListener("reload", () => {
         location.reload();
       });
-    }
 
-    if ("serviceWorker" in navigator) {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations()
+          .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+          .catch(() => {});
+      }
+      if ("caches" in window) {
+        caches.keys()
+          .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+          .catch(() => {});
+      }
+    } else if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {});
       });
