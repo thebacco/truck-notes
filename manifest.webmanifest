@@ -1,0 +1,22 @@
+﻿{
+  "name": "Truck Notes",
+  "short_name": "Truck Notes",
+  "description": "A no-login PWA for food truck staff to collect shift notes and email the nightly report.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fffdf8",
+  "theme_color": "#fffdf8",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
+
+

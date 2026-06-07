@@ -1,0 +1,1241 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffdf8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Truck Notes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <title>Truck Notes</title>
+  <style>
+    :root {
+      --ink: #161616;
+      --ink-93: #121110;
+      --ink-84: #2b2926;
+      --muted: #6b6760;
+      --line: #ded8cc;
+      --panel: #fffdf8;
+      --wash: #f3efe6;
+      --accent: #b12f24;
+      --accent-ink: #fff8ef;
+      --gold: #c58d3b;
+      --green: #386a55;
+      --navy: #1f3f66;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(135deg, rgba(177, 47, 36, .12), transparent 34%),
+        linear-gradient(315deg, rgba(56, 106, 85, .14), transparent 38%),
+        #efebe2;
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .phone {
+      width: min(430px, 100vw);
+      height: min(900px, 100vh);
+      background: var(--panel);
+      border: 10px solid #181716;
+      border-radius: 42px;
+      box-shadow: 0 26px 80px rgba(22, 22, 22, .32);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      width: 118px;
+      height: 28px;
+      transform: translateX(-50%);
+      border-radius: 0 0 18px 18px;
+      background: #181716;
+      z-index: 2;
+    }
+
+    .screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, .98), rgba(255, 253, 248, .9)),
+        linear-gradient(160deg, rgba(197, 141, 59, .18), transparent 48%);
+    }
+
+    .status {
+      height: 34px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      padding: 0 24px 6px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    header {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(222, 216, 204, .72);
+    }
+
+    .brand-row,
+    .shift-row,
+    .note-meta,
+    .recipient-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(22, 22, 22, .08);
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink-93);
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .shift-row {
+      margin-top: 14px;
+    }
+
+    .date-field {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .date-field span,
+    .field-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="date"],
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffaf0;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input[type="date"],
+    input[type="text"],
+    select {
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 750;
+    }
+
+    select {
+      appearance: none;
+      background:
+        linear-gradient(45deg, transparent 50%, var(--ink-84) 50%) calc(100% - 18px) 18px / 6px 6px no-repeat,
+        linear-gradient(135deg, var(--ink-84) 50%, transparent 50%) calc(100% - 12px) 18px / 6px 6px no-repeat,
+        #fffaf0;
+      padding-right: 34px;
+    }
+
+    textarea {
+      min-height: 112px;
+      resize: vertical;
+      padding: 12px;
+      line-height: 1.35;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: rgba(31, 63, 102, .76);
+      box-shadow: 0 0 0 3px rgba(31, 63, 102, .1);
+    }
+
+    .icon-button,
+    .small-button,
+    .primary,
+    .secondary,
+    .danger,
+    .chip,
+    .segment {
+      border: 0;
+      cursor: pointer;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--ink-84);
+      color: var(--accent-ink);
+    }
+
+    .icon-button svg,
+    .small-button svg,
+    .primary svg,
+    .secondary svg {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+    }
+
+    .small-button {
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+    }
+
+    main {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 16px 16px 108px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      min-height: 74px;
+      display: grid;
+      align-content: center;
+      gap: 2px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 250, 240, .82);
+    }
+
+    .metric strong {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .section {
+      margin-top: 16px;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .staff-panel,
+    .composer,
+    .note-card,
+    .report-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 250, 240, .9);
+      box-shadow: 0 10px 28px rgba(22, 22, 22, .06);
+    }
+
+    .staff-panel {
+      padding: 12px;
+    }
+
+    .sender-field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 8px;
+    }
+
+    .staff-pill {
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 34px;
+      align-items: center;
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+      overflow: hidden;
+    }
+
+    .staff-pill[data-active="true"] {
+      background: var(--navy);
+      color: var(--accent-ink);
+    }
+
+    .staff-name,
+    .staff-remove {
+      min-height: 42px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font-weight: 850;
+    }
+
+    .staff-name {
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 10px;
+      text-align: left;
+    }
+
+    .staff-name span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .staff-name .dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: .72;
+    }
+
+    .staff-remove {
+      display: grid;
+      place-items: center;
+      border-left: 1px solid rgba(22, 22, 22, .08);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .staff-pill[data-active="true"] .staff-remove {
+      border-left-color: rgba(255, 248, 239, .2);
+    }
+
+    .add-staff {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .composer {
+      padding: 12px;
+    }
+
+    .segments {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+
+    .segment {
+      min-height: 40px;
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+    }
+
+    .segment[aria-pressed="true"] {
+      background: var(--green);
+      color: var(--accent-ink);
+    }
+
+    .composer-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .note-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .note-card {
+      padding: 12px;
+      animation: enter .16s ease-out;
+    }
+
+    @keyframes enter {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .note-meta {
+      margin-bottom: 8px;
+    }
+
+    .note-author {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--ink-93);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .note-author::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--gold);
+    }
+
+    .note-time {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .note-text {
+      margin: 0;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.38;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .note-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: rgba(31, 63, 102, .1);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .delete-note {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .empty {
+      min-height: 118px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      font-weight: 750;
+      text-align: center;
+      padding: 16px;
+    }
+
+    .report-panel {
+      display: grid;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .recipient-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .recipient-row {
+      min-height: 38px;
+      padding: 0 10px;
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .recipient-row span:last-child {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .preview {
+      min-height: 248px;
+      font-size: 13px;
+    }
+
+    .report-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .primary,
+    .secondary,
+    .danger {
+      min-height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 0 14px;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+
+    .secondary {
+      background: var(--navy);
+      color: var(--accent-ink);
+    }
+
+    .danger {
+      background: var(--wash);
+      color: var(--accent);
+    }
+
+    .primary:disabled,
+    .secondary:disabled {
+      cursor: default;
+      opacity: .48;
+    }
+
+    .footer {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 4;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 13px 16px calc(16px + env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(222, 216, 204, .72);
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, .2), var(--panel) 24%),
+        var(--panel);
+      box-shadow: 0 -14px 24px rgba(22, 22, 22, .08);
+    }
+
+    .view {
+      display: block;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: end center;
+      padding: 16px;
+      background: rgba(22, 22, 22, .3);
+    }
+
+    .dialog {
+      width: 100%;
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 18px 48px rgba(22, 22, 22, .22);
+    }
+
+    .dialog h2 {
+      margin: 0;
+      color: var(--ink-93);
+      font-size: 19px;
+      line-height: 1.1;
+    }
+
+    .dialog p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .dialog-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .toast {
+      position: absolute;
+      right: 16px;
+      bottom: 94px;
+      left: 16px;
+      z-index: 12;
+      min-height: 44px;
+      display: grid;
+      place-items: center;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: var(--ink-84);
+      color: var(--accent-ink);
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 14px 30px rgba(22, 22, 22, .2);
+    }
+
+    @media (max-width: 520px) {
+      body {
+        display: block;
+        background: var(--panel);
+      }
+
+      .phone {
+        width: 100vw;
+        height: 100vh;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .notch,
+      .status {
+        display: none;
+      }
+
+      header {
+        padding-top: calc(16px + env(safe-area-inset-top));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone" role="application" aria-label="Food truck shift notes">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="status"><span id="statusTime">9:41</span><span>5G 100%</span></div>
+
+      <header>
+        <div class="brand-row">
+          <div class="brand">
+            <img src="icon.png" alt="">
+            <div>
+              <p class="eyebrow">Food Truck</p>
+              <h1>Truck Notes</h1>
+            </div>
+          </div>
+          <button class="icon-button" id="installButton" type="button" aria-label="Install app">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3v11"></path><path d="m8 10 4 4 4-4"></path><path d="M5 20h14"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="shift-row">
+          <label class="date-field" for="shiftDate">
+            <span>Shift date</span>
+            <input id="shiftDate" type="date">
+          </label>
+          <button class="small-button" id="resetButton" type="button">Reset</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="notesView" class="view">
+          <div class="metrics" aria-live="polite">
+            <div class="metric"><strong id="noteCount">0</strong><span>Notes</span></div>
+            <div class="metric"><strong id="staffCount">0</strong><span>Staff</span></div>
+            <div class="metric"><strong id="lastNoteTime">--</strong><span>Last</span></div>
+          </div>
+
+          <section class="staff-panel" aria-labelledby="senderTitle">
+            <p class="section-title" id="senderTitle">Sender</p>
+            <label class="sender-field" for="senderSelect">
+              <span class="field-label">Send as</span>
+              <select id="senderSelect"></select>
+            </label>
+            <p class="section-title">Staff</p>
+            <div class="staff-grid" id="staffList"></div>
+            <form class="add-staff" id="staffForm">
+              <input id="staffNameInput" type="text" autocomplete="off" placeholder="Add staff name">
+              <button class="small-button" type="submit">Add</button>
+            </form>
+          </section>
+
+          <section class="section composer" aria-labelledby="noteTitle">
+            <p class="section-title" id="noteTitle">New note</p>
+            <div class="segments" id="categorySegments" role="group" aria-label="Note category">
+              <button class="segment" type="button" data-category="Ops">Ops</button>
+              <button class="segment" type="button" data-category="Stock">Stock</button>
+              <button class="segment" type="button" data-category="Service">Service</button>
+            </div>
+            <textarea id="noteInput" placeholder="Write a shift note"></textarea>
+            <div class="composer-actions">
+              <button class="secondary" id="quickNoteButton" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 5v14"></path><path d="M5 12h14"></path>
+                </svg>
+                Add Note
+              </button>
+              <button class="small-button" id="clearNoteButton" type="button">Clear</button>
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="feedTitle">
+            <p class="section-title" id="feedTitle">Shift feed</p>
+            <div class="note-list" id="noteList"></div>
+          </section>
+        </section>
+
+        <section id="reportView" class="view hidden">
+          <div class="report-panel">
+            <div>
+              <p class="section-title">Fixed recipients</p>
+              <div class="recipient-list" id="recipientList"></div>
+            </div>
+            <label>
+              <span class="field-label">Report preview</span>
+              <textarea class="preview" id="reportPreview"></textarea>
+            </label>
+            <div class="report-actions">
+              <button class="secondary" id="copyReportButton" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M8 8h10v12H8z"></path><path d="M6 16H4V4h12v2"></path>
+                </svg>
+                Copy
+              </button>
+              <button class="primary" id="emailReportButton" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path>
+                </svg>
+                Email
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="footer">
+        <button class="secondary" id="toggleViewButton" type="button">Review Report</button>
+        <button class="primary" id="sendButton" type="button">Send Night Notes</button>
+      </div>
+    </div>
+
+    <div class="scrim hidden" id="resetDialog" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+      <div class="dialog">
+        <h2 id="resetTitle">Reset this shift?</h2>
+        <p>This clears notes and keeps the fixed recipient list.</p>
+        <div class="dialog-actions">
+          <button class="secondary" id="cancelResetButton" type="button">Cancel</button>
+          <button class="danger" id="confirmResetButton" type="button">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    const RECIPIENTS = [
+      { name: "Operations", email: "operations@example.com" },
+      { name: "Owner", email: "owner@example.com" }
+    ];
+
+    const storageKey = "truckNotes:v1";
+    const categoryLabels = ["Ops", "Stock", "Service"];
+    const defaultState = {
+      staff: ["Alex", "Sam"],
+      activeStaff: "Alex",
+      activeCategory: "Ops",
+      shiftDate: new Date().toISOString().slice(0, 10),
+      notes: []
+    };
+
+    const state = loadState();
+    let currentView = "notes";
+    let toastTimer = null;
+    let deferredInstallPrompt = null;
+
+    const refs = {
+      statusTime: document.getElementById("statusTime"),
+      shiftDate: document.getElementById("shiftDate"),
+      resetButton: document.getElementById("resetButton"),
+      senderSelect: document.getElementById("senderSelect"),
+      staffList: document.getElementById("staffList"),
+      staffForm: document.getElementById("staffForm"),
+      staffNameInput: document.getElementById("staffNameInput"),
+      categorySegments: document.getElementById("categorySegments"),
+      noteInput: document.getElementById("noteInput"),
+      quickNoteButton: document.getElementById("quickNoteButton"),
+      clearNoteButton: document.getElementById("clearNoteButton"),
+      noteList: document.getElementById("noteList"),
+      noteCount: document.getElementById("noteCount"),
+      staffCount: document.getElementById("staffCount"),
+      lastNoteTime: document.getElementById("lastNoteTime"),
+      notesView: document.getElementById("notesView"),
+      reportView: document.getElementById("reportView"),
+      recipientList: document.getElementById("recipientList"),
+      reportPreview: document.getElementById("reportPreview"),
+      copyReportButton: document.getElementById("copyReportButton"),
+      emailReportButton: document.getElementById("emailReportButton"),
+      toggleViewButton: document.getElementById("toggleViewButton"),
+      sendButton: document.getElementById("sendButton"),
+      resetDialog: document.getElementById("resetDialog"),
+      cancelResetButton: document.getElementById("cancelResetButton"),
+      confirmResetButton: document.getElementById("confirmResetButton"),
+      toast: document.getElementById("toast"),
+      installButton: document.getElementById("installButton")
+    };
+
+    function loadState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(storageKey) || "null");
+        if (!parsed || !Array.isArray(parsed.notes)) return { ...defaultState };
+        const legacyStaffKey = String.fromCharCode(99, 114, 101, 119);
+        const legacyActiveStaffKey = `active${legacyStaffKey[0].toUpperCase()}${legacyStaffKey.slice(1)}`;
+        const savedStaff = Array.isArray(parsed.staff) ? parsed.staff : parsed[legacyStaffKey];
+        const staff = Array.isArray(savedStaff) && savedStaff.length ? savedStaff : [...defaultState.staff];
+        const activeStaff = parsed.activeStaff || parsed[legacyActiveStaffKey] || staff[0] || "";
+        return {
+          ...defaultState,
+          ...parsed,
+          staff,
+          activeStaff: staff.includes(activeStaff) ? activeStaff : staff[0] || "",
+          notes: parsed.notes.map((note) => ({ ...note, id: note.id || crypto.randomUUID() }))
+        };
+      } catch {
+        return { ...defaultState };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatTime(iso) {
+      return new Intl.DateTimeFormat([], { hour: "numeric", minute: "2-digit" }).format(new Date(iso));
+    }
+
+    function formatDate(dateKey) {
+      const date = new Date(`${dateKey}T12:00:00`);
+      return new Intl.DateTimeFormat([], { weekday: "short", month: "short", day: "numeric" }).format(date);
+    }
+
+    function reportLines() {
+      const staff = state.staff.join(", ");
+      const lines = [
+        "Truck Notes",
+        `Date: ${formatDate(state.shiftDate)}`,
+        `Staff: ${staff || "None listed"}`,
+        `Notes: ${state.notes.length}`,
+        ""
+      ];
+
+      if (!state.notes.length) {
+        lines.push("No notes logged.");
+        return lines;
+      }
+
+      for (const category of categoryLabels) {
+        const categoryNotes = state.notes.filter((note) => note.category === category);
+        if (!categoryNotes.length) continue;
+        lines.push(`${category}:`);
+        for (const note of categoryNotes) {
+          lines.push(`- ${formatTime(note.createdAt)} ${note.author}: ${note.text}`);
+        }
+        lines.push("");
+      }
+
+      const otherNotes = state.notes.filter((note) => !categoryLabels.includes(note.category));
+      if (otherNotes.length) {
+        lines.push("Other:");
+        for (const note of otherNotes) {
+          lines.push(`- ${formatTime(note.createdAt)} ${note.author}: ${note.text}`);
+        }
+      }
+
+      return lines;
+    }
+
+    function buildReport() {
+      return reportLines().join("\n").trim();
+    }
+
+    function renderStaff() {
+      refs.senderSelect.innerHTML = state.staff.map((name) => `
+        <option value="${escapeHtml(name)}" ${name === state.activeStaff ? "selected" : ""}>${escapeHtml(name)}</option>
+      `).join("");
+      refs.staffList.innerHTML = state.staff.map((name) => `
+        <div class="staff-pill" data-active="${name === state.activeStaff}">
+          <button class="staff-name" type="button" data-staff="${escapeHtml(name)}">
+            <span class="dot" aria-hidden="true"></span><span>${escapeHtml(name)}</span>
+          </button>
+          <button class="staff-remove" type="button" data-remove-staff="${escapeHtml(name)}" aria-label="Remove ${escapeHtml(name)}">&times;</button>
+        </div>
+      `).join("");
+    }
+
+    function renderCategories() {
+      refs.categorySegments.querySelectorAll(".segment").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.category === state.activeCategory));
+      });
+    }
+
+    function renderMetrics() {
+      refs.noteCount.textContent = state.notes.length;
+      refs.staffCount.textContent = state.staff.length;
+      refs.lastNoteTime.textContent = state.notes.length ? formatTime(state.notes[0].createdAt) : "--";
+    }
+
+    function renderNotes() {
+      refs.noteList.innerHTML = state.notes.length
+        ? state.notes.map((note) => `
+          <article class="note-card">
+            <div class="note-meta">
+              <span class="note-author">${escapeHtml(note.author)}</span>
+              <span class="note-time">${formatTime(note.createdAt)}</span>
+            </div>
+            <p class="note-text">${escapeHtml(note.text)}</p>
+            <div class="note-footer">
+              <span class="tag">${escapeHtml(note.category)}</span>
+              <button class="delete-note" type="button" data-delete-note="${note.id}">Delete</button>
+            </div>
+          </article>
+        `).join("")
+        : `<div class="empty">No shift notes yet.</div>`;
+    }
+
+    function renderRecipients() {
+      refs.recipientList.innerHTML = RECIPIENTS.map((recipient) => `
+        <div class="recipient-row">
+          <strong>${escapeHtml(recipient.name)}</strong>
+          <span>${escapeHtml(recipient.email)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderReport() {
+      refs.reportPreview.value = buildReport();
+    }
+
+    function renderView() {
+      const showingReport = currentView === "report";
+      refs.notesView.classList.toggle("hidden", showingReport);
+      refs.reportView.classList.toggle("hidden", !showingReport);
+      refs.toggleViewButton.textContent = showingReport ? "Back to Notes" : "Review Report";
+      refs.sendButton.textContent = showingReport ? "Email Report" : "Send Night Notes";
+    }
+
+    function render() {
+      refs.shiftDate.value = state.shiftDate;
+      renderStaff();
+      renderCategories();
+      renderMetrics();
+      renderNotes();
+      renderRecipients();
+      renderReport();
+      renderView();
+      saveState();
+    }
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      refs.toast.textContent = message;
+      refs.toast.classList.remove("hidden");
+      toastTimer = setTimeout(() => refs.toast.classList.add("hidden"), 2200);
+    }
+
+    function addNote() {
+      const text = refs.noteInput.value.trim();
+      if (!text) {
+        refs.noteInput.focus();
+        showToast("Add a note first.");
+        return;
+      }
+
+      if (!state.activeStaff) {
+        showToast("Add a sender first.");
+        return;
+      }
+
+      state.notes.unshift({
+        id: crypto.randomUUID(),
+        author: state.activeStaff,
+        category: state.activeCategory,
+        text,
+        createdAt: new Date().toISOString()
+      });
+      refs.noteInput.value = "";
+      currentView = "notes";
+      render();
+      showToast("Note added.");
+    }
+
+    function addStaff(name) {
+      const clean = name.trim().replace(/\s+/g, " ");
+      if (!clean) return;
+      if (!state.staff.some((existing) => existing.toLowerCase() === clean.toLowerCase())) {
+        state.staff.push(clean);
+      }
+      state.activeStaff = state.staff.find((existing) => existing.toLowerCase() === clean.toLowerCase()) || clean;
+      refs.staffNameInput.value = "";
+      render();
+    }
+
+    function removeStaff(name) {
+      if (state.staff.length <= 1) {
+        showToast("Keep at least one sender.");
+        return;
+      }
+
+      state.staff = state.staff.filter((existing) => existing !== name);
+      if (state.activeStaff === name) {
+        state.activeStaff = state.staff[0] || "";
+      }
+      render();
+      showToast("Staff removed.");
+    }
+
+    async function copyReport() {
+      const text = refs.reportPreview.value || buildReport();
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Report copied.");
+      } catch {
+        refs.reportPreview.focus();
+        refs.reportPreview.select();
+        showToast("Report selected.");
+      }
+    }
+
+    function emailReport() {
+      const recipients = RECIPIENTS.map((recipient) => recipient.email).join(",");
+      const subject = `Truck Notes - ${formatDate(state.shiftDate)}`;
+      const body = refs.reportPreview.value || buildReport();
+      window.location.href = `mailto:${recipients}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    function resetShift() {
+      state.notes = [];
+      state.shiftDate = new Date().toISOString().slice(0, 10);
+      currentView = "notes";
+      refs.resetDialog.classList.add("hidden");
+      render();
+      showToast("Shift reset.");
+    }
+
+    function updateClock() {
+      refs.statusTime.textContent = new Intl.DateTimeFormat([], { hour: "numeric", minute: "2-digit" }).format(new Date());
+    }
+
+    refs.shiftDate.addEventListener("change", () => {
+      state.shiftDate = refs.shiftDate.value || defaultState.shiftDate;
+      render();
+    });
+
+    refs.senderSelect.addEventListener("change", () => {
+      state.activeStaff = refs.senderSelect.value;
+      render();
+    });
+
+    refs.staffForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      addStaff(refs.staffNameInput.value);
+    });
+
+    refs.staffList.addEventListener("click", (event) => {
+      const removeButton = event.target.closest("[data-remove-staff]");
+      if (removeButton) {
+        removeStaff(removeButton.dataset.removeStaff);
+        return;
+      }
+
+      const staffButton = event.target.closest("[data-staff]");
+      if (!staffButton) return;
+      state.activeStaff = staffButton.dataset.staff;
+      render();
+    });
+
+    refs.categorySegments.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-category]");
+      if (!button) return;
+      state.activeCategory = button.dataset.category;
+      render();
+    });
+
+    refs.quickNoteButton.addEventListener("click", addNote);
+    refs.clearNoteButton.addEventListener("click", () => {
+      refs.noteInput.value = "";
+      refs.noteInput.focus();
+    });
+
+    refs.noteInput.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        event.preventDefault();
+        addNote();
+      }
+    });
+
+    refs.noteList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-delete-note]");
+      if (!button) return;
+      state.notes = state.notes.filter((note) => note.id !== button.dataset.deleteNote);
+      render();
+      showToast("Note deleted.");
+    });
+
+    refs.toggleViewButton.addEventListener("click", () => {
+      currentView = currentView === "notes" ? "report" : "notes";
+      render();
+    });
+
+    refs.sendButton.addEventListener("click", () => {
+      if (currentView !== "report") {
+        currentView = "report";
+        render();
+        return;
+      }
+      emailReport();
+    });
+
+    refs.copyReportButton.addEventListener("click", copyReport);
+    refs.emailReportButton.addEventListener("click", emailReport);
+    refs.resetButton.addEventListener("click", () => refs.resetDialog.classList.remove("hidden"));
+    refs.cancelResetButton.addEventListener("click", () => refs.resetDialog.classList.add("hidden"));
+    refs.confirmResetButton.addEventListener("click", resetShift);
+    refs.resetDialog.addEventListener("click", (event) => {
+      if (event.target === refs.resetDialog) refs.resetDialog.classList.add("hidden");
+    });
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+    });
+
+    refs.installButton.addEventListener("click", async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        return;
+      }
+      showToast("Use browser install or Add to Home Screen.");
+    });
+
+    updateClock();
+    setInterval(updateClock, 30000);
+    render();
+
+    if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+      const liveReload = new EventSource("/__live-reload");
+      liveReload.addEventListener("reload", () => {
+        location.reload();
+      });
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
+
+
+
