@@ -452,23 +452,11 @@
       border: 1px solid rgba(22, 22, 22, .14);
       border-radius: 8px;
       background: #fffaf0;
-      color: var(--ink-84);
+      color: #403d38;
       cursor: pointer;
       font-size: 12px;
       font-weight: 900;
       text-transform: uppercase;
-    }
-
-    .decision-button[data-tabs-closed="yes"],
-    .decision-button[data-decision-value="yes"] {
-      border-color: rgba(56, 106, 85, .46);
-      color: var(--green);
-    }
-
-    .decision-button[data-tabs-closed="no"],
-    .decision-button[data-decision-value="no"] {
-      border-color: rgba(177, 47, 36, .42);
-      color: var(--accent);
     }
 
     .decision-button[aria-pressed="true"] {
@@ -479,12 +467,14 @@
     .decision-button[data-decision-value="yes"][aria-pressed="true"] {
       border-color: var(--green);
       background: rgba(56, 106, 85, .12);
+      color: var(--green);
     }
 
     .decision-button[data-tabs-closed="no"][aria-pressed="true"],
     .decision-button[data-decision-value="no"][aria-pressed="true"] {
       border-color: var(--accent);
       background: rgba(177, 47, 36, .1);
+      color: var(--accent);
     }
 
     .check-answer {
