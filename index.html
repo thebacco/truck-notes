@@ -727,11 +727,13 @@
       place-items: center;
       padding: 8px 14px;
       border-radius: 8px;
-      background: var(--ink-84);
-      color: var(--accent-ink);
+      border: 1px solid rgba(197, 141, 59, .52);
+      background: #fff3c9;
+      color: var(--ink-84);
       font-size: 13px;
       font-weight: 800;
-      box-shadow: 0 14px 30px rgba(22, 22, 22, .2);
+      text-align: center;
+      box-shadow: 0 14px 30px rgba(197, 141, 59, .22);
     }
 
     @media (max-width: 520px) {
@@ -1208,7 +1210,7 @@
       clearTimeout(toastTimer);
       refs.toast.textContent = message;
       refs.toast.classList.remove("hidden");
-      toastTimer = setTimeout(() => refs.toast.classList.add("hidden"), 2200);
+      toastTimer = setTimeout(() => refs.toast.classList.add("hidden"), 4400);
     }
 
     function addNote() {
@@ -1250,7 +1252,7 @@
 
     function removeStaff(name) {
       if (state.staff.length <= 1) {
-        showToast("Keep at least one sender.");
+        showToast("At least one staff member is required.");
         return;
       }
 
