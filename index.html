@@ -470,6 +470,11 @@
       color: var(--ink-93);
     }
 
+    .decision-button[data-decision-value="no"][aria-pressed="true"] {
+      background: var(--gold);
+      color: var(--ink-93);
+    }
+
     .check-answer {
       margin-left: auto;
       color: var(--muted);
@@ -871,16 +876,20 @@
           <section class="section check-panel" aria-labelledby="truckCheckTitle">
             <p class="section-title" id="truckCheckTitle">Truck check</p>
             <div class="check-list">
-              <label class="check-row" for="propaneFilledInput">
+              <div class="decision-row" id="propaneFilledGroup" role="group" aria-label="Propane filled">
                 <span>Propane filled?</span>
-                <span class="check-answer" id="propaneFilledStatus">No</span>
-                <input id="propaneFilledInput" type="checkbox">
-              </label>
-              <label class="check-row" for="gasFilledInput">
+                <div class="decision-buttons">
+                  <button class="decision-button" type="button" data-decision-field="propaneFilled" data-decision-value="yes" aria-pressed="false">Yes</button>
+                  <button class="decision-button" type="button" data-decision-field="propaneFilled" data-decision-value="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="decision-row" id="gasFilledGroup" role="group" aria-label="Gas filled">
                 <span>Gas filled?</span>
-                <span class="check-answer" id="gasFilledStatus">No</span>
-                <input id="gasFilledInput" type="checkbox">
-              </label>
+                <div class="decision-buttons">
+                  <button class="decision-button" type="button" data-decision-field="gasFilled" data-decision-value="yes" aria-pressed="false">Yes</button>
+                  <button class="decision-button" type="button" data-decision-field="gasFilled" data-decision-value="no" aria-pressed="false">No</button>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -985,8 +994,8 @@
       netSales: "",
       changeBox: "",
       tabsClosed: "",
-      propaneFilled: false,
-      gasFilled: false,
+      propaneFilled: "",
+      gasFilled: "",
       notes: []
     };
 
@@ -1007,10 +1016,8 @@
       netSalesInput: document.getElementById("netSalesInput"),
       changeBoxInput: document.getElementById("changeBoxInput"),
       tabsClosedGroup: document.getElementById("tabsClosedGroup"),
-      propaneFilledInput: document.getElementById("propaneFilledInput"),
-      propaneFilledStatus: document.getElementById("propaneFilledStatus"),
-      gasFilledInput: document.getElementById("gasFilledInput"),
-      gasFilledStatus: document.getElementById("gasFilledStatus"),
+      propaneFilledGroup: document.getElementById("propaneFilledGroup"),
+      gasFilledGroup: document.getElementById("gasFilledGroup"),
       categorySegments: document.getElementById("categorySegments"),
       noteInput: document.getElementById("noteInput"),
       quickNoteButton: document.getElementById("quickNoteButton"),
@@ -1054,6 +1061,8 @@
           activeStaff: staff.includes(activeStaff) ? activeStaff : staff[0] || "",
           activeCategory,
           tabsClosed: normalizeTabsClosed(parsed.tabsClosed),
+          propaneFilled: normalizeDecision(parsed.propaneFilled),
+          gasFilled: normalizeDecision(parsed.gasFilled),
           notes: parsed.notes.map((note) => ({ ...note, id: note.id || crypto.randomUUID() }))
         };
       } catch {
@@ -1108,6 +1117,12 @@
       return "";
     }
 
+    function normalizeDecision(value) {
+      if (value === "yes" || value === true) return "yes";
+      if (value === "no") return "no";
+      return "";
+    }
+
     function formatTabsClosed(value) {
       if (value === "yes") return "Yes";
       if (value === "no") return "No";
@@ -1127,8 +1142,8 @@
         `- All tabs closed: ${formatTabsClosed(state.tabsClosed)}`,
         "",
         "Truck check:",
-        `- Propane filled: ${formatYesNo(state.propaneFilled)}`,
-        `- Gas filled: ${formatYesNo(state.gasFilled)}`,
+        `- Propane filled: ${formatTabsClosed(state.propaneFilled)}`,
+        `- Gas filled: ${formatTabsClosed(state.gasFilled)}`,
         "",
         `Notes: ${state.notes.length}`,
         ""
@@ -1193,13 +1208,15 @@
     function renderCloseoutFields() {
       refs.netSalesInput.value = state.netSales;
       refs.changeBoxInput.value = state.changeBox;
-      refs.propaneFilledInput.checked = Boolean(state.propaneFilled);
-      refs.gasFilledInput.checked = Boolean(state.gasFilled);
       refs.tabsClosedGroup.querySelectorAll("[data-tabs-closed]").forEach((button) => {
         button.setAttribute("aria-pressed", String(button.dataset.tabsClosed === state.tabsClosed));
       });
-      refs.propaneFilledStatus.textContent = formatYesNo(state.propaneFilled);
-      refs.gasFilledStatus.textContent = formatYesNo(state.gasFilled);
+      refs.propaneFilledGroup.querySelectorAll("[data-decision-value]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.decisionValue === state.propaneFilled));
+      });
+      refs.gasFilledGroup.querySelectorAll("[data-decision-value]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.decisionValue === state.gasFilled));
+      });
     }
 
     function renderNotes() {
@@ -1324,17 +1341,23 @@
       }
     }
 
-    function requireTabsClosedDecision() {
-      if (state.tabsClosed) return true;
+    function requireCloseoutDecisions() {
+      const missingDecisions = [
+        { value: state.tabsClosed, element: refs.tabsClosedGroup, message: "Choose Yes or No for all tabs closed." },
+        { value: state.propaneFilled, element: refs.propaneFilledGroup, message: "Choose Yes or No for propane filled." },
+        { value: state.gasFilled, element: refs.gasFilledGroup, message: "Choose Yes or No for gas filled." }
+      ];
+      const missingDecision = missingDecisions.find((decision) => !decision.value);
+      if (!missingDecision) return true;
       currentView = "notes";
       render();
-      refs.tabsClosedGroup.scrollIntoView({ behavior: "smooth", block: "center" });
-      showToast("Choose Yes or No for all tabs closed.");
+      missingDecision.element.scrollIntoView({ behavior: "smooth", block: "center" });
+      showToast(missingDecision.message);
       return false;
     }
 
     function emailReport() {
-      if (!requireTabsClosedDecision()) return;
+      if (!requireCloseoutDecisions()) return;
       const recipients = RECIPIENTS.map((recipient) => recipient.email).join(",");
       const subject = `Truck Notes - ${formatDate(state.shiftDate)}`;
       const body = refs.reportPreview.value || buildReport();
@@ -1347,8 +1370,8 @@
       state.netSales = "";
       state.changeBox = "";
       state.tabsClosed = "";
-      state.propaneFilled = false;
-      state.gasFilled = false;
+      state.propaneFilled = "";
+      state.gasFilled = "";
       currentView = "notes";
       refs.resetDialog.classList.add("hidden");
       render();
@@ -1456,17 +1479,21 @@
       renderReport();
     });
 
-    refs.propaneFilledInput.addEventListener("change", () => {
-      state.propaneFilled = refs.propaneFilledInput.checked;
+    refs.propaneFilledGroup.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-decision-value]");
+      if (!button) return;
+      state.propaneFilled = button.dataset.decisionValue;
       saveState();
-      refs.propaneFilledStatus.textContent = formatYesNo(state.propaneFilled);
+      renderCloseoutFields();
       renderReport();
     });
 
-    refs.gasFilledInput.addEventListener("change", () => {
-      state.gasFilled = refs.gasFilledInput.checked;
+    refs.gasFilledGroup.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-decision-value]");
+      if (!button) return;
+      state.gasFilled = button.dataset.decisionValue;
       saveState();
-      refs.gasFilledStatus.textContent = formatYesNo(state.gasFilled);
+      renderCloseoutFields();
       renderReport();
     });
 
@@ -1522,7 +1549,7 @@
     });
 
     refs.sendButton.addEventListener("click", () => {
-      if (!requireTabsClosedDecision()) return;
+      if (!requireCloseoutDecisions()) return;
       if (currentView !== "report") {
         currentView = "report";
         render();
