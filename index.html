@@ -730,7 +730,7 @@
       inset: 0;
       z-index: 10;
       display: grid;
-      place-items: end center;
+      place-items: center;
       padding: 16px;
       background: rgba(22, 22, 22, .3);
     }
@@ -1629,6 +1629,12 @@
 
     const isLocalPreview = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        if (shouldShowInstallPrompt()) openInstallDialog();
+      }, 1200);
+    });
+
     if (isLocalPreview) {
       const liveReload = new EventSource("/__live-reload");
       liveReload.addEventListener("reload", () => {
@@ -1668,11 +1674,6 @@
             scheduleProductionUpdateChecks(registration);
           })
           .catch(() => {});
-      });
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          if (shouldShowInstallPrompt()) openInstallDialog();
-        }, 1200);
       });
     }
   </script>
