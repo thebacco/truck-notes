@@ -1134,6 +1134,11 @@
       renderReport();
     }
 
+    function selectMoneyInput(input) {
+      if (!input.value) return;
+      setTimeout(() => input.select(), 0);
+    }
+
     function formatYesNo(value) {
       return value ? "Yes" : "No";
     }
@@ -1491,6 +1496,10 @@
       renderReport();
     });
 
+    refs.netSalesInput.addEventListener("focus", () => {
+      selectMoneyInput(refs.netSalesInput);
+    });
+
     refs.netSalesInput.addEventListener("blur", () => {
       commitMoneyInput(refs.netSalesInput, "netSales");
     });
@@ -1499,6 +1508,10 @@
       state.changeBox = parseMoneyInput(refs.changeBoxInput.value);
       saveState();
       renderReport();
+    });
+
+    refs.changeBoxInput.addEventListener("focus", () => {
+      selectMoneyInput(refs.changeBoxInput);
     });
 
     refs.changeBoxInput.addEventListener("blur", () => {
