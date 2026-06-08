@@ -758,6 +758,10 @@
       gap: 8px;
     }
 
+    .dialog-actions.single-action {
+      grid-template-columns: 1fr;
+    }
+
     .toast {
       position: absolute;
       right: 16px;
@@ -968,10 +972,9 @@
     <div class="scrim hidden" id="installDialog" role="dialog" aria-modal="true" aria-labelledby="installTitle">
       <div class="dialog">
         <h2 id="installTitle">Add Truck Notes to Home Screen</h2>
-        <p>Install this app for faster access during shifts. Notes and staff stay saved on this device.</p>
-        <div class="dialog-actions">
-          <button class="secondary" id="installLaterButton" type="button">Got it</button>
-          <button class="primary" id="installNowButton" type="button">Install</button>
+        <p>For faster access, add this app to your Home Screen from your browser menu. Notes and staff stay saved on this device.</p>
+        <div class="dialog-actions single-action">
+          <button class="primary" id="installLaterButton" type="button">Got it</button>
         </div>
       </div>
     </div>
@@ -1004,7 +1007,6 @@
     const state = loadState();
     let currentView = "notes";
     let toastTimer = null;
-    let deferredInstallPrompt = null;
     let refreshingForUpdate = false;
 
     const refs = {
@@ -1040,7 +1042,6 @@
       confirmResetButton: document.getElementById("confirmResetButton"),
       installDialog: document.getElementById("installDialog"),
       installLaterButton: document.getElementById("installLaterButton"),
-      installNowButton: document.getElementById("installNowButton"),
       toast: document.getElementById("toast"),
       installButton: document.getElementById("installButton")
     };
@@ -1417,17 +1418,6 @@
       if (markSeen) localStorage.setItem(installPromptSeenKey, "true");
     }
 
-    async function promptInstall() {
-      closeInstallDialog(true);
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        return;
-      }
-      showToast("Use browser install or Add to Home Screen.");
-    }
-
     function reloadWhenServiceWorkerUpdates() {
       if (!("serviceWorker" in navigator)) return;
       navigator.serviceWorker.addEventListener("controllerchange", () => {
@@ -1603,20 +1593,13 @@
       if (event.target === refs.installDialog) closeInstallDialog(true);
     });
     refs.installLaterButton.addEventListener("click", () => closeInstallDialog(true));
-    refs.installNowButton.addEventListener("click", promptInstall);
 
     window.addEventListener("beforeinstallprompt", (event) => {
       event.preventDefault();
-      deferredInstallPrompt = event;
       if (shouldShowInstallPrompt()) openInstallDialog();
     });
 
     refs.installButton.addEventListener("click", () => {
-      localStorage.setItem(installPromptSeenKey, "true");
-      if (deferredInstallPrompt) {
-        promptInstall();
-        return;
-      }
       openInstallDialog();
     });
 
