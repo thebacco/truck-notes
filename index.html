@@ -891,11 +891,11 @@
             <div class="money-grid">
               <label class="pill-field" for="netSalesInput">
                 <span class="field-label">Net sales</span>
-                <input id="netSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
+                <input id="netSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0" required>
               </label>
               <label class="pill-field" for="changeBoxInput">
                 <span class="field-label">Change box</span>
-                <input id="changeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
+                <input id="changeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0" required>
               </label>
             </div>
             <div class="check-list section">
@@ -1197,6 +1197,11 @@
       return "Needs answer";
     }
 
+    function isCompleteMoney(value) {
+      if (value === "" || value === null || value === undefined) return false;
+      return Number.isFinite(Number(value));
+    }
+
     function reportLines() {
       const staff = state.staff.join(", ");
       const lines = [
@@ -1407,23 +1412,26 @@
       }
     }
 
-    function requireCloseoutDecisions() {
-      const missingDecisions = [
-        { value: state.tabsClosed, element: refs.tabsClosedGroup, message: "Choose Yes or No for all tabs closed." },
-        { value: state.propaneFilled, element: refs.propaneFilledGroup, message: "Choose Yes or No for propane filled." },
-        { value: state.gasFilled, element: refs.gasFilledGroup, message: "Choose Yes or No for gas filled." }
+    function requireRequiredFields() {
+      const requiredFields = [
+        { complete: isCompleteMoney(state.netSales), element: refs.netSalesInput, message: "Enter net sales." },
+        { complete: isCompleteMoney(state.changeBox), element: refs.changeBoxInput, message: "Enter change box value." },
+        { complete: Boolean(state.tabsClosed), element: refs.tabsClosedGroup, message: "Choose Yes or No for all tabs closed." },
+        { complete: Boolean(state.propaneFilled), element: refs.propaneFilledGroup, message: "Choose Yes or No for propane filled." },
+        { complete: Boolean(state.gasFilled), element: refs.gasFilledGroup, message: "Choose Yes or No for gas filled." }
       ];
-      const missingDecision = missingDecisions.find((decision) => !decision.value);
-      if (!missingDecision) return true;
+      const missingField = requiredFields.find((field) => !field.complete);
+      if (!missingField) return true;
       currentView = "notes";
       render();
-      missingDecision.element.scrollIntoView({ behavior: "smooth", block: "center" });
-      showToast(missingDecision.message);
+      missingField.element.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (typeof missingField.element.focus === "function") missingField.element.focus();
+      showToast(missingField.message);
       return false;
     }
 
     function emailReport() {
-      if (!requireCloseoutDecisions()) return;
+      if (!requireRequiredFields()) return;
       const recipients = RECIPIENTS.map((recipient) => recipient.email).join(",");
       const subject = `Truck Notes - ${formatDate(state.shiftDate)}`;
       const body = refs.reportPreview.value || buildReport();
@@ -1620,7 +1628,7 @@
     });
 
     refs.sendButton.addEventListener("click", () => {
-      if (!requireCloseoutDecisions()) return;
+      if (!requireRequiredFields()) return;
       if (currentView !== "report") {
         currentView = "report";
         render();
