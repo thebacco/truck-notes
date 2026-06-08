@@ -682,13 +682,20 @@
     }
 
     .primary {
-      background: var(--accent);
-      color: var(--accent-ink);
+      background: var(--gold);
+      color: var(--ink-93);
     }
 
     .secondary {
       background: var(--navy);
       color: var(--accent-ink);
+    }
+
+    .gold-outline {
+      border: 1px solid rgba(197, 141, 59, .72);
+      background: transparent;
+      color: var(--ink-93);
+      box-shadow: inset 0 0 0 1px rgba(197, 141, 59, .18);
     }
 
     .danger {
@@ -913,7 +920,7 @@
             </div>
             <textarea id="noteInput" placeholder="Write a shift note"></textarea>
             <div class="composer-actions">
-              <button class="secondary" id="quickNoteButton" type="button">
+              <button class="primary" id="quickNoteButton" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M12 5v14"></path><path d="M5 12h14"></path>
                 </svg>
@@ -958,7 +965,7 @@
       </main>
 
       <div class="footer">
-        <button class="secondary" id="toggleViewButton" type="button">Review Report</button>
+        <button class="secondary gold-outline" id="toggleViewButton" type="button">Review Report</button>
         <button class="primary" id="sendButton" type="button">Publish</button>
       </div>
     </div>
