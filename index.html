@@ -1062,16 +1062,24 @@
         const staff = Array.isArray(savedStaff) && savedStaff.length ? savedStaff : [...defaultState.staff];
         const activeStaff = parsed.activeStaff || parsed[legacyActiveStaffKey] || staff[0] || "";
         const activeCategory = categoryLabels.includes(parsed.activeCategory) ? parsed.activeCategory : defaultState.activeCategory;
+        const savedNotes = parsed.notes.map((note) => ({ ...note, id: note.id || crypto.randomUUID() }));
+        const hasSessionInProgress = savedNotes.length > 0
+          || Boolean(parsed.netSales)
+          || Boolean(parsed.changeBox)
+          || Boolean(normalizeTabsClosed(parsed.tabsClosed))
+          || Boolean(normalizeDecision(parsed.propaneFilled))
+          || Boolean(normalizeDecision(parsed.gasFilled));
         return {
           ...defaultState,
           ...parsed,
+          shiftDate: hasSessionInProgress ? (parsed.shiftDate || defaultState.shiftDate) : defaultState.shiftDate,
           staff,
           activeStaff: staff.includes(activeStaff) ? activeStaff : staff[0] || "",
           activeCategory,
           tabsClosed: normalizeTabsClosed(parsed.tabsClosed),
           propaneFilled: normalizeDecision(parsed.propaneFilled),
           gasFilled: normalizeDecision(parsed.gasFilled),
-          notes: parsed.notes.map((note) => ({ ...note, id: note.id || crypto.randomUUID() }))
+          notes: savedNotes
         };
       } catch {
         return { ...defaultState };
