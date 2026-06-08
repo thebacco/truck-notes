@@ -258,7 +258,7 @@
 
     .metrics {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
       margin-bottom: 14px;
     }
@@ -566,12 +566,6 @@
       background: var(--gold);
     }
 
-    .note-time {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 750;
-    }
-
     .note-text {
       margin: 0;
       color: var(--ink);
@@ -844,7 +838,6 @@
           <div class="metrics" aria-live="polite">
             <div class="metric"><strong id="noteCount">0</strong><span>Notes</span></div>
             <div class="metric"><strong id="staffCount">0</strong><span>Staff</span></div>
-            <div class="metric"><strong id="lastNoteTime">--</strong><span>Last</span></div>
           </div>
 
           <section class="staff-panel" aria-labelledby="staffTitle">
@@ -1034,7 +1027,6 @@
       noteList: document.getElementById("noteList"),
       noteCount: document.getElementById("noteCount"),
       staffCount: document.getElementById("staffCount"),
-      lastNoteTime: document.getElementById("lastNoteTime"),
       notesView: document.getElementById("notesView"),
       reportView: document.getElementById("reportView"),
       recipientList: document.getElementById("recipientList"),
@@ -1094,10 +1086,6 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-    }
-
-    function formatTime(iso) {
-      return new Intl.DateTimeFormat([], { hour: "numeric", minute: "2-digit" }).format(new Date(iso));
     }
 
     function formatDate(dateKey) {
@@ -1190,7 +1178,7 @@
         if (!categoryNotes.length) continue;
         lines.push(`${category}:`);
         for (const note of categoryNotes) {
-          lines.push(`- ${formatTime(note.createdAt)} ${note.author}: ${note.text}`);
+          lines.push(`- ${note.author}: ${note.text}`);
         }
         lines.push("");
       }
@@ -1199,7 +1187,7 @@
       if (otherNotes.length) {
         lines.push("Other:");
         for (const note of otherNotes) {
-          lines.push(`- ${formatTime(note.createdAt)} ${note.author}: ${note.text}`);
+          lines.push(`- ${note.author}: ${note.text}`);
         }
       }
 
@@ -1233,7 +1221,6 @@
     function renderMetrics() {
       refs.noteCount.textContent = state.notes.length;
       refs.staffCount.textContent = state.staff.length;
-      refs.lastNoteTime.textContent = state.notes.length ? formatTime(state.notes[0].createdAt) : "--";
     }
 
     function renderCloseoutFields() {
@@ -1256,7 +1243,6 @@
           <article class="note-card">
             <div class="note-meta">
               <span class="note-author">${escapeHtml(note.author)}</span>
-              <span class="note-time">${formatTime(note.createdAt)}</span>
             </div>
             <p class="note-text">${escapeHtml(note.text)}</p>
             <div class="note-footer">
