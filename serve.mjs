@@ -1,7 +1,7 @@
 ﻿import { createServer } from "node:http";
 import { extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readFile, watch } from "node:fs/promises";
+import { readFile, readdir, stat, watch } from "node:fs/promises";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const host = process.env.HOST || "0.0.0.0";
@@ -25,6 +25,20 @@ function broadcastReload() {
   for (const response of reloadClients) {
     response.write("event: reload\ndata: now\n\n");
   }
+}
+
+async function getReloadVersion() {
+  const entries = await readdir(root);
+  const mtimes = await Promise.all(entries
+    .filter((entry) => reloadExtensions.has(extname(entry)))
+    .map(async (entry) => {
+      try {
+        return (await stat(resolve(root, entry))).mtimeMs;
+      } catch {
+        return 0;
+      }
+    }));
+  return String(Math.max(0, ...mtimes));
 }
 
 async function watchForReloads() {
@@ -52,6 +66,15 @@ const server = createServer(async (request, response) => {
       response.write("event: connected\ndata: ok\n\n");
       reloadClients.add(response);
       request.on("close", () => reloadClients.delete(response));
+      return;
+    }
+
+    if (url.pathname === "/__version") {
+      response.writeHead(200, {
+        "content-type": "text/plain; charset=utf-8",
+        "cache-control": "no-store"
+      });
+      response.end(await getReloadVersion());
       return;
     }
 

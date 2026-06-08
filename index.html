@@ -1634,6 +1634,20 @@
       liveReload.addEventListener("reload", () => {
         location.reload();
       });
+      let localPreviewVersion = null;
+      async function checkLocalPreviewVersion() {
+        try {
+          const response = await fetch("/__version", { cache: "no-store" });
+          const version = await response.text();
+          if (localPreviewVersion === null) {
+            localPreviewVersion = version;
+            return;
+          }
+          if (version !== localPreviewVersion) location.reload();
+        } catch {}
+      }
+      checkLocalPreviewVersion();
+      setInterval(checkLocalPreviewVersion, 1500);
 
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.getRegistrations()
