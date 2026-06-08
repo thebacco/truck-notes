@@ -862,11 +862,11 @@
             <div class="money-grid">
               <label class="pill-field" for="netSalesInput">
                 <span class="field-label">Net sales</span>
-                <input id="netSalesInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$0">
+                <input id="netSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
               </label>
               <label class="pill-field" for="changeBoxInput">
                 <span class="field-label">Change box</span>
-                <input id="changeBoxInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$0">
+                <input id="changeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
               </label>
             </div>
             <div class="check-list section">
@@ -1114,6 +1114,23 @@
       }).format(numericValue);
     }
 
+    function parseMoneyInput(value) {
+      const cleaned = String(value).replace(/[^0-9.]/g, "");
+      const firstDecimal = cleaned.indexOf(".");
+      const normalized = firstDecimal === -1
+        ? cleaned
+        : `${cleaned.slice(0, firstDecimal + 1)}${cleaned.slice(firstDecimal + 1).replaceAll(".", "")}`;
+      return normalized;
+    }
+
+    function commitMoneyInput(input, key) {
+      const normalized = parseMoneyInput(input.value);
+      state[key] = normalized;
+      input.value = normalized ? formatMoney(normalized) : "";
+      saveState();
+      renderReport();
+    }
+
     function formatYesNo(value) {
       return value ? "Yes" : "No";
     }
@@ -1213,8 +1230,8 @@
     }
 
     function renderCloseoutFields() {
-      refs.netSalesInput.value = state.netSales;
-      refs.changeBoxInput.value = state.changeBox;
+      if (document.activeElement !== refs.netSalesInput) refs.netSalesInput.value = state.netSales ? formatMoney(state.netSales) : "";
+      if (document.activeElement !== refs.changeBoxInput) refs.changeBoxInput.value = state.changeBox ? formatMoney(state.changeBox) : "";
       refs.tabsClosedGroup.querySelectorAll("[data-tabs-closed]").forEach((button) => {
         button.setAttribute("aria-pressed", String(button.dataset.tabsClosed === state.tabsClosed));
       });
@@ -1466,15 +1483,23 @@
     });
 
     refs.netSalesInput.addEventListener("input", () => {
-      state.netSales = refs.netSalesInput.value;
+      state.netSales = parseMoneyInput(refs.netSalesInput.value);
       saveState();
       renderReport();
     });
 
+    refs.netSalesInput.addEventListener("blur", () => {
+      commitMoneyInput(refs.netSalesInput, "netSales");
+    });
+
     refs.changeBoxInput.addEventListener("input", () => {
-      state.changeBox = refs.changeBoxInput.value;
+      state.changeBox = parseMoneyInput(refs.changeBoxInput.value);
       saveState();
       renderReport();
+    });
+
+    refs.changeBoxInput.addEventListener("blur", () => {
+      commitMoneyInput(refs.changeBoxInput, "changeBox");
     });
 
     refs.tabsClosedGroup.addEventListener("click", (event) => {
