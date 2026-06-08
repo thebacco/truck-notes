@@ -449,7 +449,7 @@
 
     .decision-button {
       min-height: 32px;
-      border: 1px solid rgba(22, 22, 22, .1);
+      border: 1px solid rgba(22, 22, 22, .14);
       border-radius: 8px;
       background: #fffaf0;
       color: var(--ink-84);
@@ -459,20 +459,32 @@
       text-transform: uppercase;
     }
 
+    .decision-button[data-tabs-closed="yes"],
+    .decision-button[data-decision-value="yes"] {
+      border-color: rgba(56, 106, 85, .46);
+      color: var(--green);
+    }
+
+    .decision-button[data-tabs-closed="no"],
+    .decision-button[data-decision-value="no"] {
+      border-color: rgba(177, 47, 36, .42);
+      color: var(--accent);
+    }
+
     .decision-button[aria-pressed="true"] {
-      border-color: transparent;
-      background: var(--gold);
-      color: var(--ink-93);
+      box-shadow: inset 0 0 0 1px currentColor;
     }
 
-    .decision-button[data-tabs-closed="no"][aria-pressed="true"] {
-      background: var(--navy);
-      color: var(--accent-ink);
+    .decision-button[data-tabs-closed="yes"][aria-pressed="true"],
+    .decision-button[data-decision-value="yes"][aria-pressed="true"] {
+      border-color: var(--green);
+      background: rgba(56, 106, 85, .12);
     }
 
+    .decision-button[data-tabs-closed="no"][aria-pressed="true"],
     .decision-button[data-decision-value="no"][aria-pressed="true"] {
-      background: var(--navy);
-      color: var(--accent-ink);
+      border-color: var(--accent);
+      background: rgba(177, 47, 36, .1);
     }
 
     .check-answer {
