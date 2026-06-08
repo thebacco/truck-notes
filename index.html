@@ -163,6 +163,7 @@
 
     input[type="date"],
     input[type="text"],
+    input[type="number"],
     select,
     textarea {
       width: 100%;
@@ -175,6 +176,7 @@
 
     input[type="date"],
     input[type="text"],
+    input[type="number"],
     select {
       min-height: 40px;
       padding: 8px 10px;
@@ -198,6 +200,7 @@
     }
 
     input:focus,
+    input[type="number"]:focus,
     textarea:focus {
       border-color: rgba(31, 63, 102, .76);
       box-shadow: 0 0 0 3px rgba(31, 63, 102, .1);
@@ -294,6 +297,8 @@
     }
 
     .staff-panel,
+    .money-panel,
+    .check-panel,
     .composer,
     .note-card,
     .report-panel {
@@ -303,7 +308,9 @@
       box-shadow: 0 10px 28px rgba(22, 22, 22, .06);
     }
 
-    .staff-panel {
+    .staff-panel,
+    .money-panel,
+    .check-panel {
       padding: 12px;
     }
 
@@ -387,6 +394,62 @@
       grid-template-columns: 1fr auto;
       gap: 8px;
       margin-top: 10px;
+    }
+
+    .money-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .pill-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .pill-field input {
+      min-height: 42px;
+      border-radius: 8px;
+      background: var(--wash);
+      font-weight: 850;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .check-row {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+      font-weight: 850;
+    }
+
+    .check-row span {
+      min-width: 0;
+    }
+
+    .check-answer {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .check-row input {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      accent-color: var(--green);
     }
 
     .composer {
@@ -747,6 +810,43 @@
             </label>
           </section>
 
+          <section class="section money-panel" aria-labelledby="moneyTitle">
+            <p class="section-title" id="moneyTitle">Money</p>
+            <div class="money-grid">
+              <label class="pill-field" for="netSalesInput">
+                <span class="field-label">Net sales</span>
+                <input id="netSalesInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$0">
+              </label>
+              <label class="pill-field" for="changeBoxInput">
+                <span class="field-label">Change box</span>
+                <input id="changeBoxInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$0">
+              </label>
+            </div>
+            <div class="check-list section">
+              <label class="check-row" for="tabsClosedInput">
+                <span>All tabs closed?</span>
+                <span class="check-answer" id="tabsClosedStatus">No</span>
+                <input id="tabsClosedInput" type="checkbox">
+              </label>
+            </div>
+          </section>
+
+          <section class="section check-panel" aria-labelledby="truckCheckTitle">
+            <p class="section-title" id="truckCheckTitle">Truck check</p>
+            <div class="check-list">
+              <label class="check-row" for="propaneFilledInput">
+                <span>Propane filled?</span>
+                <span class="check-answer" id="propaneFilledStatus">No</span>
+                <input id="propaneFilledInput" type="checkbox">
+              </label>
+              <label class="check-row" for="gasFilledInput">
+                <span>Gas filled?</span>
+                <span class="check-answer" id="gasFilledStatus">No</span>
+                <input id="gasFilledInput" type="checkbox">
+              </label>
+            </div>
+          </section>
+
           <section class="section composer" aria-labelledby="noteTitle">
             <p class="section-title" id="noteTitle">New note</p>
             <div class="segments" id="categorySegments" role="group" aria-label="Note category">
@@ -801,7 +901,7 @@
 
       <div class="footer">
         <button class="secondary" id="toggleViewButton" type="button">Review Report</button>
-        <button class="primary" id="sendButton" type="button">Send Night Notes</button>
+        <button class="primary" id="sendButton" type="button">Publish</button>
       </div>
     </div>
 
@@ -845,6 +945,11 @@
       activeStaff: "Alex",
       activeCategory: "General",
       shiftDate: new Date().toISOString().slice(0, 10),
+      netSales: "",
+      changeBox: "",
+      tabsClosed: false,
+      propaneFilled: false,
+      gasFilled: false,
       notes: []
     };
 
@@ -862,6 +967,14 @@
       staffList: document.getElementById("staffList"),
       staffForm: document.getElementById("staffForm"),
       staffNameInput: document.getElementById("staffNameInput"),
+      netSalesInput: document.getElementById("netSalesInput"),
+      changeBoxInput: document.getElementById("changeBoxInput"),
+      tabsClosedInput: document.getElementById("tabsClosedInput"),
+      tabsClosedStatus: document.getElementById("tabsClosedStatus"),
+      propaneFilledInput: document.getElementById("propaneFilledInput"),
+      propaneFilledStatus: document.getElementById("propaneFilledStatus"),
+      gasFilledInput: document.getElementById("gasFilledInput"),
+      gasFilledStatus: document.getElementById("gasFilledStatus"),
       categorySegments: document.getElementById("categorySegments"),
       noteInput: document.getElementById("noteInput"),
       quickNoteButton: document.getElementById("quickNoteButton"),
@@ -937,12 +1050,37 @@
       return new Intl.DateTimeFormat([], { weekday: "short", month: "short", day: "numeric" }).format(date);
     }
 
+    function formatMoney(value) {
+      if (value === "" || value === null || value === undefined) return "Not entered";
+      const numericValue = Number(value);
+      if (!Number.isFinite(numericValue)) return String(value);
+      return new Intl.NumberFormat([], {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: numericValue % 1 === 0 ? 0 : 2
+      }).format(numericValue);
+    }
+
+    function formatYesNo(value) {
+      return value ? "Yes" : "No";
+    }
+
     function reportLines() {
       const staff = state.staff.join(", ");
       const lines = [
         "Truck Notes",
         `Date: ${formatDate(state.shiftDate)}`,
         `Staff: ${staff || "None listed"}`,
+        "",
+        "Money:",
+        `- Net sales: ${formatMoney(state.netSales)}`,
+        `- Change box: ${formatMoney(state.changeBox)}`,
+        `- All tabs closed: ${formatYesNo(state.tabsClosed)}`,
+        "",
+        "Truck check:",
+        `- Propane filled: ${formatYesNo(state.propaneFilled)}`,
+        `- Gas filled: ${formatYesNo(state.gasFilled)}`,
+        "",
         `Notes: ${state.notes.length}`,
         ""
       ];
@@ -1003,6 +1141,17 @@
       refs.lastNoteTime.textContent = state.notes.length ? formatTime(state.notes[0].createdAt) : "--";
     }
 
+    function renderCloseoutFields() {
+      refs.netSalesInput.value = state.netSales;
+      refs.changeBoxInput.value = state.changeBox;
+      refs.tabsClosedInput.checked = Boolean(state.tabsClosed);
+      refs.propaneFilledInput.checked = Boolean(state.propaneFilled);
+      refs.gasFilledInput.checked = Boolean(state.gasFilled);
+      refs.tabsClosedStatus.textContent = formatYesNo(state.tabsClosed);
+      refs.propaneFilledStatus.textContent = formatYesNo(state.propaneFilled);
+      refs.gasFilledStatus.textContent = formatYesNo(state.gasFilled);
+    }
+
     function renderNotes() {
       refs.noteList.innerHTML = state.notes.length
         ? state.notes.map((note) => `
@@ -1039,12 +1188,13 @@
       refs.notesView.classList.toggle("hidden", showingReport);
       refs.reportView.classList.toggle("hidden", !showingReport);
       refs.toggleViewButton.textContent = showingReport ? "Back to Notes" : "Review Report";
-      refs.sendButton.textContent = showingReport ? "Email Report" : "Send Night Notes";
+      refs.sendButton.textContent = showingReport ? "Email Report" : "Publish";
     }
 
     function render() {
       refs.shiftDate.value = state.shiftDate;
       renderStaff();
+      renderCloseoutFields();
       renderCategories();
       renderMetrics();
       renderNotes();
@@ -1134,6 +1284,11 @@
     function resetShift() {
       state.notes = [];
       state.shiftDate = new Date().toISOString().slice(0, 10);
+      state.netSales = "";
+      state.changeBox = "";
+      state.tabsClosed = false;
+      state.propaneFilled = false;
+      state.gasFilled = false;
       currentView = "notes";
       refs.resetDialog.classList.add("hidden");
       render();
@@ -1218,6 +1373,39 @@
     refs.senderSelect.addEventListener("change", () => {
       state.activeStaff = refs.senderSelect.value;
       render();
+    });
+
+    refs.netSalesInput.addEventListener("input", () => {
+      state.netSales = refs.netSalesInput.value;
+      saveState();
+      renderReport();
+    });
+
+    refs.changeBoxInput.addEventListener("input", () => {
+      state.changeBox = refs.changeBoxInput.value;
+      saveState();
+      renderReport();
+    });
+
+    refs.tabsClosedInput.addEventListener("change", () => {
+      state.tabsClosed = refs.tabsClosedInput.checked;
+      saveState();
+      refs.tabsClosedStatus.textContent = formatYesNo(state.tabsClosed);
+      renderReport();
+    });
+
+    refs.propaneFilledInput.addEventListener("change", () => {
+      state.propaneFilled = refs.propaneFilledInput.checked;
+      saveState();
+      refs.propaneFilledStatus.textContent = formatYesNo(state.propaneFilled);
+      renderReport();
+    });
+
+    refs.gasFilledInput.addEventListener("change", () => {
+      state.gasFilled = refs.gasFilledInput.checked;
+      saveState();
+      refs.gasFilledStatus.textContent = formatYesNo(state.gasFilled);
+      renderReport();
     });
 
     refs.staffForm.addEventListener("submit", (event) => {
