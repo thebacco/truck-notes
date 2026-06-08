@@ -461,18 +461,18 @@
 
     .decision-button[aria-pressed="true"] {
       border-color: transparent;
+      background: var(--gold);
+      color: var(--ink-93);
+    }
+
+    .decision-button[data-tabs-closed="no"][aria-pressed="true"] {
       background: var(--navy);
       color: var(--accent-ink);
     }
 
-    .decision-button[data-tabs-closed="no"][aria-pressed="true"] {
-      background: var(--gold);
-      color: var(--ink-93);
-    }
-
     .decision-button[data-decision-value="no"][aria-pressed="true"] {
-      background: var(--gold);
-      color: var(--ink-93);
+      background: var(--navy);
+      color: var(--accent-ink);
     }
 
     .check-answer {
@@ -509,8 +509,8 @@
     }
 
     .segment[aria-pressed="true"] {
-      background: var(--green);
-      color: var(--accent-ink);
+      background: var(--gold);
+      color: var(--ink-93);
     }
 
     .composer-actions {
