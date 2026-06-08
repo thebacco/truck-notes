@@ -835,7 +835,7 @@
             <span>Shift date</span>
             <input id="shiftDate" type="date">
           </label>
-          <button class="small-button" id="resetButton" type="button">Reset</button>
+          <button class="small-button" id="resetButton" type="button">Start New Day</button>
         </div>
       </header>
 
@@ -963,11 +963,11 @@
 
     <div class="scrim hidden" id="resetDialog" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
       <div class="dialog">
-        <h2 id="resetTitle">Reset this shift?</h2>
-        <p>This clears notes and keeps the fixed recipient list.</p>
+        <h2 id="resetTitle">Start a new day?</h2>
+        <p>This clears today's notes and closeout fields, and keeps staff and recipients.</p>
         <div class="dialog-actions">
           <button class="secondary" id="cancelResetButton" type="button">Cancel</button>
-          <button class="danger" id="confirmResetButton" type="button">Reset</button>
+          <button class="danger" id="confirmResetButton" type="button">Start New Day</button>
         </div>
       </div>
     </div>
@@ -1406,7 +1406,7 @@
       currentView = "notes";
       refs.resetDialog.classList.add("hidden");
       render();
-      showToast("Shift reset.");
+      showToast("New day started.");
     }
 
     function updateClock() {
