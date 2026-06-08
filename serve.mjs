@@ -4,8 +4,9 @@ import { fileURLToPath } from "node:url";
 import { readFile, watch } from "node:fs/promises";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
-const host = process.env.HOST || "127.0.0.1";
+const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT || 8010);
+const displayHost = host === "0.0.0.0" ? "localhost" : host;
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -40,7 +41,7 @@ async function watchForReloads() {
 
 const server = createServer(async (request, response) => {
   try {
-    const url = new URL(request.url || "/", `http://${host}:${port}`);
+    const url = new URL(request.url || "/", `http://${displayHost}:${port}`);
 
     if (url.pathname === "/__live-reload") {
       response.writeHead(200, {
@@ -76,7 +77,7 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`Serving truck-notes at http://${host}:${port}/`);
+  console.log(`Serving truck-notes at http://${displayHost}:${port}/`);
 });
 
 watchForReloads();
