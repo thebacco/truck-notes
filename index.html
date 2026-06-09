@@ -863,11 +863,6 @@
               <h1>Truck Notes</h1>
             </div>
           </div>
-          <button class="icon-button" id="installButton" type="button" aria-label="Install app">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 3v11"></path><path d="m8 10 4 4 4-4"></path><path d="M5 20h14"></path>
-            </svg>
-          </button>
         </div>
         <div class="shift-row">
           <label class="date-field" for="shiftDate">
@@ -1094,8 +1089,7 @@
       confirmResetButton: document.getElementById("confirmResetButton"),
       installDialog: document.getElementById("installDialog"),
       installLaterButton: document.getElementById("installLaterButton"),
-      toast: document.getElementById("toast"),
-      installButton: document.getElementById("installButton")
+      toast: document.getElementById("toast")
     };
 
     function loadState() {
@@ -1665,10 +1659,6 @@
     window.addEventListener("beforeinstallprompt", (event) => {
       event.preventDefault();
       if (shouldShowInstallPrompt()) openInstallDialog();
-    });
-
-    refs.installButton.addEventListener("click", () => {
-      openInstallDialog();
     });
 
     window.addEventListener("pagehide", persistStateNow);
