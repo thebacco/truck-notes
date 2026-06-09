@@ -1588,6 +1588,7 @@
       refs.toggleViewButton.textContent = showingReport || showingSettings ? "Back to Notes" : "Review Report";
       refs.sendButton.textContent = showingReport ? "Email Report" : "Publish";
       refs.sendButton.classList.toggle("hidden", showingSettings);
+      refs.settingsButton.classList.toggle("hidden", showingSettings);
       refs.toggleViewButton.classList.toggle("wide-action", showingSettings);
       refs.shiftControls.classList.toggle("hidden", showingSettings);
     }
@@ -1607,11 +1608,11 @@
       saveState();
     }
 
-    function showToast(message) {
+    function showToast(message, duration = 4400) {
       clearTimeout(toastTimer);
       refs.toast.textContent = message;
       refs.toast.classList.remove("hidden");
-      toastTimer = setTimeout(() => refs.toast.classList.add("hidden"), 4400);
+      toastTimer = setTimeout(() => refs.toast.classList.add("hidden"), duration);
     }
 
     function addNote() {
@@ -1925,7 +1926,7 @@
       if (!button) return;
       state.notes = state.notes.filter((note) => note.id !== button.dataset.deleteNote);
       render();
-      showToast("Note deleted.");
+      showToast("Note deleted.", 3100);
     });
 
     refs.toggleViewButton.addEventListener("click", () => {
