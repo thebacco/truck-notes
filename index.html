@@ -137,7 +137,7 @@
     .eyebrow {
       margin: 0 0 1px;
       color: var(--green);
-      font-family: var(--brand-font);
+      font-family: "voltage", sans-serif;
       font-size: 18px;
       font-weight: 700;
       letter-spacing: 0;
@@ -377,74 +377,53 @@
       margin-bottom: 12px;
     }
 
-    .staff-grid {
+    .staff-transfer {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
+      align-items: stretch;
     }
 
-    .staff-pill {
-      min-height: 42px;
+    .staff-transfer-column {
+      min-width: 0;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 34px;
-      align-items: center;
+      gap: 6px;
+      padding: 8px;
+      border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--wash);
+    }
+
+    .staff-transfer-list {
+      display: grid;
+      align-content: start;
+      gap: 5px;
+      height: 132px;
+      overflow-y: auto;
+      padding-right: 1px;
+    }
+
+    .staff-transfer-option {
+      min-height: 29px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffaf0;
       color: var(--ink-84);
-      overflow: hidden;
-    }
-
-    .staff-pill[data-active="true"] {
-      background: var(--gold);
-      color: var(--ink-93);
-    }
-
-    .staff-name,
-    .staff-remove {
-      min-height: 42px;
-      border: 0;
-      background: transparent;
-      color: inherit;
       cursor: pointer;
-      font-weight: 850;
-    }
-
-    .staff-name {
-      min-width: 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 0 10px;
-      font-family: var(--display-font);
+      font-family: var(--copy-font);
+      font-size: 11px;
+      font-weight: 500;
       text-align: left;
-    }
-
-    .staff-name span:last-child {
-      min-width: 0;
+      padding: 0 8px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .staff-name .dot {
-      width: 8px;
-      height: 8px;
-      flex: 0 0 auto;
-      border-radius: 999px;
-      background: currentColor;
-      opacity: .72;
-    }
-
-    .staff-remove {
-      display: grid;
-      place-items: center;
-      border-left: 1px solid rgba(22, 22, 22, .08);
-      font-size: 20px;
-      line-height: 1;
-    }
-
-    .staff-pill[data-active="true"] .staff-remove {
-      border-left-color: rgba(22, 22, 22, .12);
+    .staff-transfer-option.active {
+      background: var(--gold);
+      color: var(--ink-93);
+      border-color: transparent;
     }
 
     .add-staff {
@@ -1059,9 +1038,18 @@
 
           <section class="staff-panel" aria-labelledby="staffTitle">
             <p class="section-title" id="staffTitle">Staff</p>
-            <div class="staff-grid" id="staffList"></div>
+            <div class="staff-transfer">
+              <div class="staff-transfer-column">
+                <div class="settings-list-header">Roster</div>
+                <div class="staff-transfer-list" id="defaultStaffDayList"></div>
+              </div>
+              <div class="staff-transfer-column">
+                <div class="settings-list-header">Today</div>
+                <div class="staff-transfer-list" id="staffList"></div>
+              </div>
+            </div>
             <form class="add-staff" id="staffForm">
-              <input id="staffNameInput" type="text" autocomplete="off" placeholder="Add staff name">
+              <input id="staffNameInput" type="text" autocomplete="off" placeholder="Add one-off staff">
               <button class="small-button" type="submit">Add</button>
             </form>
           </section>
@@ -1163,9 +1151,9 @@
         <section id="settingsView" class="view hidden">
           <div class="report-panel settings-panel">
             <section>
-              <p class="section-title">Default staff</p>
+              <p class="section-title">Staff roster</p>
               <form class="settings-form" id="settingsStaffForm">
-                <input id="settingsStaffNameInput" type="text" autocomplete="off" placeholder="Add default staff">
+                <input id="settingsStaffNameInput" type="text" autocomplete="off" placeholder="Add roster staff">
                 <button class="small-button settings-action" type="submit">Add</button>
               </form>
               <div class="settings-list" id="settingsStaffList"></div>
@@ -1200,7 +1188,7 @@
     <div class="scrim hidden" id="resetDialog" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
       <div class="dialog">
         <h2 id="resetTitle">Start a new day?</h2>
-        <p>This clears today's notes and closeout fields, and keeps staff and recipients.</p>
+        <p>This clears today's notes, staff, and closeout fields, and keeps the roster and recipients.</p>
         <div class="dialog-actions">
           <button class="secondary" id="cancelResetButton" type="button">Cancel</button>
           <button class="danger" id="confirmResetButton" type="button">Start New Day</button>
@@ -1242,7 +1230,8 @@
     const updateCheckIntervalMs = 30 * 60 * 1000;
     const categoryLabels = ["General", "Inventory"];
     const defaultState = {
-      staff: ["Alex", "Sam"],
+      defaultStaff: ["Alex", "Sam"],
+      shiftStaff: [],
       activeSender: DEFAULT_RECIPIENTS[0].name,
       activeCategory: "General",
       shiftDate: new Date().toISOString().slice(0, 10),
@@ -1267,6 +1256,7 @@
       resetButton: document.getElementById("resetButton"),
       senderSelect: document.getElementById("senderSelect"),
       staffList: document.getElementById("staffList"),
+      defaultStaffDayList: document.getElementById("defaultStaffDayList"),
       staffForm: document.getElementById("staffForm"),
       staffNameInput: document.getElementById("staffNameInput"),
       netSalesInput: document.getElementById("netSalesInput"),
@@ -1313,7 +1303,7 @@
         const legacyStaffKey = String.fromCharCode(99, 114, 101, 119);
         const legacyActiveStaffKey = `active${legacyStaffKey[0].toUpperCase()}${legacyStaffKey.slice(1)}`;
         const savedStaff = Array.isArray(parsed.staff) ? parsed.staff : parsed[legacyStaffKey];
-        const staff = Array.isArray(savedStaff) && savedStaff.length ? savedStaff : [...defaultState.staff];
+        const defaultStaff = normalizeNameList(parsed.defaultStaff || savedStaff || defaultState.defaultStaff);
         const recipients = normalizeRecipients(parsed.recipients);
         const savedActiveSender = parsed.activeSender || parsed.activeStaff || parsed[legacyActiveStaffKey] || recipients[0]?.name || "";
         const activeCategory = categoryLabels.includes(parsed.activeCategory) ? parsed.activeCategory : defaultState.activeCategory;
@@ -1324,11 +1314,13 @@
           || Boolean(normalizeTabsClosed(parsed.tabsClosed))
           || Boolean(normalizeDecision(parsed.propaneFilled))
           || Boolean(normalizeDecision(parsed.gasFilled));
+        const shiftStaff = normalizeNameList(parsed.shiftStaff || (hasSessionInProgress ? savedStaff : []));
         return {
           ...defaultState,
           ...parsed,
           shiftDate: hasSessionInProgress ? (parsed.shiftDate || defaultState.shiftDate) : defaultState.shiftDate,
-          staff,
+          defaultStaff,
+          shiftStaff: hasSessionInProgress ? shiftStaff : [],
           activeSender: recipients.some((recipient) => recipient.name === savedActiveSender) ? savedActiveSender : recipients[0]?.name || "",
           activeCategory,
           tabsClosed: normalizeTabsClosed(parsed.tabsClosed),
@@ -1360,6 +1352,18 @@
             .filter((recipient) => recipient.name && recipient.email.includes("@"))
         : [];
       return cleanRecipients.length ? cleanRecipients : DEFAULT_RECIPIENTS.map((recipient) => ({ ...recipient }));
+    }
+
+    function normalizeNameList(names = []) {
+      const seen = new Set();
+      return (Array.isArray(names) ? names : [])
+        .map((name) => String(name || "").trim().replace(/\s+/g, " "))
+        .filter((name) => {
+          const key = name.toLowerCase();
+          if (!name || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
     }
 
     function escapeHtml(value) {
@@ -1437,7 +1441,7 @@
     }
 
     function reportLines() {
-      const staff = state.staff.join(", ");
+      const staff = state.shiftStaff.join(", ");
       const lines = [
         "Truck Notes",
         `Date: ${formatDate(state.shiftDate)}`,
@@ -1498,13 +1502,19 @@
     }
 
     function renderStaff() {
-      refs.staffList.innerHTML = state.staff.map((name) => `
-        <div class="staff-pill" data-active="false">
-          <button class="staff-name" type="button">
-            <span class="dot" aria-hidden="true"></span><span>${escapeHtml(name)}</span>
-          </button>
-          <button class="staff-remove" type="button" data-remove-staff="${escapeHtml(name)}" aria-label="Remove ${escapeHtml(name)}">&times;</button>
-        </div>
+      const availableDefaultStaff = state.defaultStaff.filter((name) => (
+        !state.shiftStaff.some((shiftName) => shiftName.toLowerCase() === name.toLowerCase())
+      ));
+      refs.defaultStaffDayList.innerHTML = availableDefaultStaff.map((name) => `
+        <button class="staff-transfer-option" type="button" data-default-staff-day="${escapeHtml(name)}">
+          ${escapeHtml(name)}
+        </button>
+      `).join("");
+      refs.defaultStaffDayList.classList.toggle("hidden", availableDefaultStaff.length === 0);
+      refs.staffList.innerHTML = state.shiftStaff.map((name) => `
+        <button class="staff-transfer-option active" type="button" data-active-staff-day="${escapeHtml(name)}">
+          ${escapeHtml(name)}
+        </button>
       `).join("");
     }
 
@@ -1516,7 +1526,7 @@
 
     function renderMetrics() {
       refs.noteCount.textContent = state.notes.length;
-      refs.staffCount.textContent = state.staff.length;
+      refs.staffCount.textContent = state.shiftStaff.length;
     }
 
     function renderCloseoutFields() {
@@ -1560,7 +1570,7 @@
     }
 
     function renderSettings() {
-      refs.settingsStaffList.innerHTML = state.staff.map((name) => `
+      refs.settingsStaffList.innerHTML = state.defaultStaff.map((name) => `
         <div class="settings-row">
           <span class="settings-staff-name">${escapeHtml(name)}</span>
           <button class="settings-remove" type="button" data-settings-remove-staff="${escapeHtml(name)}">Remove</button>
@@ -1641,25 +1651,38 @@
       showToast("Note added.");
     }
 
-    function addStaff(name) {
+    function addShiftStaff(name, input = refs.staffNameInput) {
       const clean = name.trim().replace(/\s+/g, " ");
       if (!clean) return;
-      if (!state.staff.some((existing) => existing.toLowerCase() === clean.toLowerCase())) {
-        state.staff.push(clean);
+      if (!state.shiftStaff.some((existing) => existing.toLowerCase() === clean.toLowerCase())) {
+        state.shiftStaff.push(clean);
       }
-      refs.staffNameInput.value = "";
+      if ("value" in input && input.tagName !== "SELECT") input.value = "";
       render();
+      if (input.tagName === "INPUT") input.focus();
     }
 
-    function removeStaff(name) {
-      if (state.staff.length <= 1) {
-        showToast("At least one staff member is required.");
-        return;
-      }
-
-      state.staff = state.staff.filter((existing) => existing !== name);
+    function removeShiftStaff(name) {
+      state.shiftStaff = state.shiftStaff.filter((existing) => existing !== name);
       render();
       showToast("Staff removed.");
+    }
+
+    function addDefaultStaff(name, input = refs.settingsStaffNameInput) {
+      const clean = name.trim().replace(/\s+/g, " ");
+      if (!clean) return;
+      if (!state.defaultStaff.some((existing) => existing.toLowerCase() === clean.toLowerCase())) {
+        state.defaultStaff.push(clean);
+      }
+      input.value = "";
+      render();
+      input.focus();
+    }
+
+    function removeDefaultStaff(name) {
+      state.defaultStaff = state.defaultStaff.filter((existing) => existing !== name);
+      render();
+      showToast("Roster staff removed.");
     }
 
     function addRecipient(name, email) {
@@ -1675,6 +1698,7 @@
       refs.settingsRecipientNameInput.value = "";
       refs.settingsRecipientEmailInput.value = "";
       render();
+      refs.settingsRecipientNameInput.focus();
       showToast("Recipient added.");
     }
 
@@ -1728,6 +1752,7 @@
 
     function resetShift() {
       state.notes = [];
+      state.shiftStaff = [];
       state.shiftDate = new Date().toISOString().slice(0, 10);
       state.netSales = "";
       state.changeBox = "";
@@ -1866,28 +1891,30 @@
 
     refs.staffForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      addStaff(refs.staffNameInput.value);
+      addShiftStaff(refs.staffNameInput.value);
+    });
+
+    refs.defaultStaffDayList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-default-staff-day]");
+      if (!button) return;
+      addShiftStaff(button.dataset.defaultStaffDay, button);
     });
 
     refs.settingsStaffForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      addStaff(refs.settingsStaffNameInput.value);
-      refs.settingsStaffNameInput.value = "";
+      addDefaultStaff(refs.settingsStaffNameInput.value, refs.settingsStaffNameInput);
     });
 
     refs.staffList.addEventListener("click", (event) => {
-      const removeButton = event.target.closest("[data-remove-staff]");
-      if (removeButton) {
-        removeStaff(removeButton.dataset.removeStaff);
-        return;
-      }
-
+      const button = event.target.closest("[data-active-staff-day]");
+      if (!button) return;
+      removeShiftStaff(button.dataset.activeStaffDay);
     });
 
     refs.settingsStaffList.addEventListener("click", (event) => {
       const removeButton = event.target.closest("[data-settings-remove-staff]");
       if (!removeButton) return;
-      removeStaff(removeButton.dataset.settingsRemoveStaff);
+      removeDefaultStaff(removeButton.dataset.settingsRemoveStaff);
     });
 
     refs.settingsRecipientForm.addEventListener("submit", (event) => {
