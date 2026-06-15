@@ -312,7 +312,8 @@
     .secondary,
     .danger,
     .chip,
-    .segment {
+    .segment,
+    .work-tab {
       border: 0;
       cursor: pointer;
       font-family: var(--display-font);
@@ -366,6 +367,55 @@
       min-height: 0;
       overflow-y: auto;
       padding: 16px 16px 108px;
+    }
+
+    .work-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin: -2px 0 12px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 250, 240, .86);
+      backdrop-filter: blur(12px);
+    }
+
+    .work-tab {
+      min-height: 38px;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .work-tab[aria-selected="true"] {
+      background: var(--gold);
+      color: var(--ink-93);
+    }
+
+    .work-sections {
+      touch-action: pan-y;
+    }
+
+    .work-section {
+      animation: sectionEnter .14s ease-out;
+    }
+
+    @keyframes sectionEnter {
+      from {
+        opacity: .55;
+        transform: translateX(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
 
     .metrics {
@@ -1030,6 +1080,7 @@
     }
 
     body.theme-dark .metric,
+    body.theme-dark .work-tabs,
     body.theme-dark .staff-panel,
     body.theme-dark .sender-panel,
     body.theme-dark .money-panel,
@@ -1324,101 +1375,115 @@
 
       <main>
         <section id="notesView" class="view">
+          <div class="work-tabs" id="workTabs" role="tablist" aria-label="Shift sections">
+            <button class="work-tab" id="workTabNotes" type="button" role="tab" data-work-section="notes" aria-controls="notesSection">Notes</button>
+            <button class="work-tab" id="workTabStaff" type="button" role="tab" data-work-section="staff" aria-controls="staffSection">Staff</button>
+            <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection">Closeout</button>
+          </div>
+
           <div class="metrics" aria-live="polite">
             <div class="metric"><strong id="noteCount">0</strong><span>Notes</span></div>
             <div class="metric"><strong id="staffCount">0</strong><span>Staff</span></div>
           </div>
 
-          <section class="section sender-panel" aria-label="Sent by">
-            <label class="sender-field" for="senderSelect">
-              <span class="sender-title">Sent by:</span>
-              <select id="senderSelect"></select>
-            </label>
-          </section>
-
-          <section class="staff-panel" aria-labelledby="staffTitle">
-            <p class="section-title" id="staffTitle">Staff</p>
-            <div class="staff-transfer">
-              <div class="staff-transfer-column">
-                <div class="settings-list-header">Pool</div>
-                <div class="staff-transfer-list" id="defaultStaffDayList"></div>
-              </div>
-              <div class="staff-transfer-column">
-                <div class="settings-list-header">Current shift</div>
-                <div class="staff-transfer-list" id="staffList"></div>
-              </div>
-            </div>
-            <form class="add-staff" id="staffForm" autocomplete="off">
-              <input id="staffNameInput" type="text" autocomplete="off" placeholder="Add one-off staff">
-              <button class="small-button" type="submit">Add</button>
-            </form>
-          </section>
-
-          <section class="section money-panel" aria-labelledby="moneyTitle">
-            <p class="section-title" id="moneyTitle">Money</p>
-            <div class="money-grid">
-              <label class="pill-field" for="netSalesInput">
-                <span class="field-label">Net sales</span>
-                <input id="netSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0" required>
-              </label>
-              <label class="pill-field" for="changeBoxInput">
-                <span class="field-label">Change box</span>
-                <input id="changeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0" required>
-              </label>
-            </div>
-            <div class="check-list section">
-              <div class="decision-row" id="tabsClosedGroup" role="group" aria-label="All tabs closed">
-                <span><u>All</u> tabs closed?</span>
-                <div class="decision-buttons">
-                  <button class="decision-button" type="button" data-tabs-closed="yes" aria-pressed="false">Yes</button>
-                  <button class="decision-button" type="button" data-tabs-closed="no" aria-pressed="false">No</button>
+          <div class="work-sections" id="workSections">
+            <section class="work-section" id="notesSection" data-work-panel="notes" role="tabpanel" aria-labelledby="workTabNotes">
+              <section class="composer" aria-labelledby="noteTitle">
+                <p class="section-title" id="noteTitle">New note</p>
+                <div class="segments" id="categorySegments" role="group" aria-label="Note category">
+                  <button class="segment" type="button" data-category="General">General</button>
+                  <button class="segment" type="button" data-category="Inventory">Inventory</button>
                 </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="section check-panel" aria-labelledby="truckCheckTitle">
-            <p class="section-title" id="truckCheckTitle">Truck check</p>
-            <div class="check-list">
-              <div class="decision-row" id="propaneFilledGroup" role="group" aria-label="Propane filled">
-                <span>Propane filled?</span>
-                <div class="decision-buttons">
-                  <button class="decision-button" type="button" data-decision-field="propaneFilled" data-decision-value="yes" aria-pressed="false">Yes</button>
-                  <button class="decision-button" type="button" data-decision-field="propaneFilled" data-decision-value="no" aria-pressed="false">No</button>
+                <textarea id="noteInput" autocomplete="off" spellcheck="true" placeholder="Write a shift note"></textarea>
+                <div class="composer-actions">
+                  <button class="primary" id="quickNoteButton" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 5v14"></path><path d="M5 12h14"></path>
+                    </svg>
+                    Add Note
+                  </button>
+                  <button class="small-button" id="clearNoteButton" type="button">Clear</button>
                 </div>
-              </div>
-              <div class="decision-row" id="gasFilledGroup" role="group" aria-label="Gas filled">
-                <span>Gas filled?</span>
-                <div class="decision-buttons">
-                  <button class="decision-button" type="button" data-decision-field="gasFilled" data-decision-value="yes" aria-pressed="false">Yes</button>
-                  <button class="decision-button" type="button" data-decision-field="gasFilled" data-decision-value="no" aria-pressed="false">No</button>
+              </section>
+
+              <section class="section" aria-labelledby="feedTitle">
+                <p class="section-title" id="feedTitle">Shift notes</p>
+                <div class="note-list" id="noteList"></div>
+              </section>
+            </section>
+
+            <section class="work-section hidden" id="staffSection" data-work-panel="staff" role="tabpanel" aria-labelledby="workTabStaff">
+              <section class="sender-panel" aria-label="Sent by">
+                <label class="sender-field" for="senderSelect">
+                  <span class="sender-title">Sent by:</span>
+                  <select id="senderSelect"></select>
+                </label>
+              </section>
+
+              <section class="staff-panel section" aria-labelledby="staffTitle">
+                <p class="section-title" id="staffTitle">Staff</p>
+                <div class="staff-transfer">
+                  <div class="staff-transfer-column">
+                    <div class="settings-list-header">Pool</div>
+                    <div class="staff-transfer-list" id="defaultStaffDayList"></div>
+                  </div>
+                  <div class="staff-transfer-column">
+                    <div class="settings-list-header">Current shift</div>
+                    <div class="staff-transfer-list" id="staffList"></div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </section>
+                <form class="add-staff" id="staffForm" autocomplete="off">
+                  <input id="staffNameInput" type="text" autocomplete="off" placeholder="Add one-off staff">
+                  <button class="small-button" type="submit">Add</button>
+                </form>
+              </section>
+            </section>
 
-          <section class="section composer" aria-labelledby="noteTitle">
-            <p class="section-title" id="noteTitle">New note</p>
-            <div class="segments" id="categorySegments" role="group" aria-label="Note category">
-              <button class="segment" type="button" data-category="General">General</button>
-              <button class="segment" type="button" data-category="Inventory">Inventory</button>
-            </div>
-            <textarea id="noteInput" autocomplete="off" spellcheck="true" placeholder="Write a shift note"></textarea>
-            <div class="composer-actions">
-              <button class="primary" id="quickNoteButton" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M12 5v14"></path><path d="M5 12h14"></path>
-                </svg>
-                Add Note
-              </button>
-              <button class="small-button" id="clearNoteButton" type="button">Clear</button>
-            </div>
-          </section>
+            <section class="work-section hidden" id="closeoutSection" data-work-panel="closeout" role="tabpanel" aria-labelledby="workTabCloseout">
+              <section class="money-panel" aria-labelledby="moneyTitle">
+                <p class="section-title" id="moneyTitle">Money</p>
+                <div class="money-grid">
+                  <label class="pill-field" for="netSalesInput">
+                    <span class="field-label">Net sales</span>
+                    <input id="netSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0" required>
+                  </label>
+                  <label class="pill-field" for="changeBoxInput">
+                    <span class="field-label">Change box</span>
+                    <input id="changeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0" required>
+                  </label>
+                </div>
+                <div class="check-list section">
+                  <div class="decision-row" id="tabsClosedGroup" role="group" aria-label="All tabs closed">
+                    <span><u>All</u> tabs closed?</span>
+                    <div class="decision-buttons">
+                      <button class="decision-button" type="button" data-tabs-closed="yes" aria-pressed="false">Yes</button>
+                      <button class="decision-button" type="button" data-tabs-closed="no" aria-pressed="false">No</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
 
-          <section class="section" aria-labelledby="feedTitle">
-            <p class="section-title" id="feedTitle">Shift notes</p>
-            <div class="note-list" id="noteList"></div>
-          </section>
+              <section class="check-panel section" aria-labelledby="truckCheckTitle">
+                <p class="section-title" id="truckCheckTitle">Truck check</p>
+                <div class="check-list">
+                  <div class="decision-row" id="propaneFilledGroup" role="group" aria-label="Propane filled">
+                    <span>Propane filled?</span>
+                    <div class="decision-buttons">
+                      <button class="decision-button" type="button" data-decision-field="propaneFilled" data-decision-value="yes" aria-pressed="false">Yes</button>
+                      <button class="decision-button" type="button" data-decision-field="propaneFilled" data-decision-value="no" aria-pressed="false">No</button>
+                    </div>
+                  </div>
+                  <div class="decision-row" id="gasFilledGroup" role="group" aria-label="Gas filled">
+                    <span>Gas filled?</span>
+                    <div class="decision-buttons">
+                      <button class="decision-button" type="button" data-decision-field="gasFilled" data-decision-value="yes" aria-pressed="false">Yes</button>
+                      <button class="decision-button" type="button" data-decision-field="gasFilled" data-decision-value="no" aria-pressed="false">No</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </section>
+          </div>
         </section>
 
         <section id="reportView" class="view hidden">
@@ -1556,6 +1621,7 @@
     const installPromptSeenKey = "truckNotesInstallPromptSeen";
     const updateCheckIntervalMs = 30 * 60 * 1000;
     const categoryLabels = ["General", "Inventory"];
+    const workSectionOrder = ["notes", "staff", "closeout"];
     const settingsPin = "1521";
     const defaultState = {
       defaultStaff: ["Alex", "Sam"],
@@ -1574,10 +1640,12 @@
 
     const state = loadState();
     let currentView = "notes";
+    let activeWorkSection = "notes";
     let toastTimer = null;
     let refreshingForUpdate = false;
     let settingsPinEntry = "";
     let requiredHighlightActive = false;
+    let workSwipeStart = null;
 
     const refs = {
       statusTime: document.getElementById("statusTime"),
@@ -1603,6 +1671,11 @@
       noteList: document.getElementById("noteList"),
       noteCount: document.getElementById("noteCount"),
       staffCount: document.getElementById("staffCount"),
+      appMain: document.querySelector("main"),
+      workTabs: document.getElementById("workTabs"),
+      workSections: document.getElementById("workSections"),
+      workTabButtons: Array.from(document.querySelectorAll("[data-work-section]")),
+      workPanels: Array.from(document.querySelectorAll("[data-work-panel]")),
       notesView: document.getElementById("notesView"),
       reportView: document.getElementById("reportView"),
       settingsView: document.getElementById("settingsView"),
@@ -1877,6 +1950,33 @@
       refs.staffCount.textContent = state.shiftStaff.length;
     }
 
+    function setWorkSection(section, shouldScroll = true) {
+      if (!workSectionOrder.includes(section)) return;
+      activeWorkSection = section;
+      renderWorkSections();
+      if (shouldScroll && refs.appMain) refs.appMain.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function moveWorkSection(direction) {
+      const currentIndex = workSectionOrder.indexOf(activeWorkSection);
+      const nextIndex = currentIndex + direction;
+      if (nextIndex < 0 || nextIndex >= workSectionOrder.length) return;
+      setWorkSection(workSectionOrder[nextIndex]);
+    }
+
+    function renderWorkSections() {
+      refs.workTabButtons.forEach((button) => {
+        const isSelected = button.dataset.workSection === activeWorkSection;
+        button.setAttribute("aria-selected", String(isSelected));
+        button.tabIndex = isSelected ? 0 : -1;
+      });
+      refs.workPanels.forEach((panel) => {
+        const isSelected = panel.dataset.workPanel === activeWorkSection;
+        panel.classList.toggle("hidden", !isSelected);
+        panel.toggleAttribute("hidden", !isSelected);
+      });
+    }
+
     function getRequiredFields() {
       return [
         {
@@ -2066,6 +2166,7 @@
       renderCloseoutFields();
       renderCategories();
       renderMetrics();
+      renderWorkSections();
       renderNotes();
       renderRecipients();
       renderSettings();
@@ -2184,6 +2285,7 @@
         return true;
       }
       currentView = "notes";
+      activeWorkSection = "closeout";
       requiredHighlightActive = true;
       render();
       const missingSections = [...new Set(missingFields.map((field) => field.sectionElement))]
@@ -2221,6 +2323,7 @@
       state.gasFilled = "";
       requiredHighlightActive = false;
       currentView = "notes";
+      activeWorkSection = "notes";
       refs.resetDialog.classList.add("hidden");
       render();
       showToast("New day started.");
@@ -2284,6 +2387,35 @@
       window.addEventListener("focus", checkForUpdate);
       setInterval(checkForUpdate, updateCheckIntervalMs);
     }
+
+    refs.workTabs.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-work-section]");
+      if (!button) return;
+      setWorkSection(button.dataset.workSection);
+    });
+
+    refs.workTabs.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      moveWorkSection(event.key === "ArrowRight" ? 1 : -1);
+      refs.workTabButtons.find((button) => button.dataset.workSection === activeWorkSection)?.focus();
+    });
+
+    refs.workSections.addEventListener("touchstart", (event) => {
+      if (event.target.closest("button, input, select, textarea, summary")) return;
+      const touch = event.touches[0];
+      workSwipeStart = { x: touch.clientX, y: touch.clientY };
+    }, { passive: true });
+
+    refs.workSections.addEventListener("touchend", (event) => {
+      if (!workSwipeStart) return;
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - workSwipeStart.x;
+      const deltaY = touch.clientY - workSwipeStart.y;
+      workSwipeStart = null;
+      if (Math.abs(deltaX) < 56 || Math.abs(deltaX) < Math.abs(deltaY) * 1.35) return;
+      moveWorkSection(deltaX < 0 ? 1 : -1);
+    }, { passive: true });
 
     refs.shiftDate.addEventListener("change", () => {
       state.shiftDate = refs.shiftDate.value || defaultState.shiftDate;
