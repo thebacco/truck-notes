@@ -177,7 +177,6 @@
 
     .brand-row,
     .shift-row,
-    .note-meta,
     .recipient-row {
       display: flex;
       align-items: center;
@@ -669,25 +668,9 @@
       }
     }
 
-    .note-meta {
-      margin-bottom: 8px;
-    }
-
-    .note-number {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
+    .note-index {
       color: var(--ink-93);
-      font-size: 13px;
       font-weight: 900;
-    }
-
-    .note-number::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--gold);
     }
 
     .note-text {
@@ -1171,14 +1154,12 @@
     }
 
     .pin-entry {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      position: relative;
+      width: 152px;
     }
 
     .pin-input {
-      width: 132px;
+      width: 100%;
       height: 48px;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -1188,6 +1169,7 @@
       font-size: 22px;
       font-weight: 800;
       letter-spacing: 2px;
+      padding: 0 43px 0 12px;
       text-align: center;
     }
 
@@ -1198,15 +1180,20 @@
     }
 
     .pin-visibility {
-      width: 44px;
-      height: 44px;
+      position: absolute;
+      top: 50%;
+      right: 4px;
+      width: 38px;
+      height: 38px;
+      transform: translateY(-50%);
       display: grid;
       place-items: center;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--wash);
+      border: 0;
+      border-radius: 0;
+      background: transparent;
       color: var(--ink-84);
       cursor: pointer;
+      padding: 0;
     }
 
     .pin-visibility svg {
@@ -1971,10 +1958,7 @@
       refs.noteList.innerHTML = state.notes.length
         ? state.notes.map((note, index) => `
           <article class="note-card">
-            <div class="note-meta">
-              <span class="note-number">Note ${index + 1}</span>
-            </div>
-            <p class="note-text">${escapeHtml(note.text)}</p>
+            <p class="note-text"><span class="note-index">${index + 1}.</span> ${escapeHtml(note.text)}</p>
             <div class="note-footer">
               <span class="tag">${escapeHtml(note.category)}</span>
               <button class="delete-note" type="button" data-delete-note="${note.id}">Delete</button>
