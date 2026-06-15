@@ -963,6 +963,10 @@
       line-height: 1.1;
     }
 
+    #settingsLockTitle {
+      text-align: center;
+    }
+
     .dialog p {
       margin: 0;
       color: var(--muted);
@@ -978,11 +982,12 @@
 
     .pin-form {
       display: grid;
+      justify-items: center;
       gap: 10px;
     }
 
     .pin-input {
-      width: 100%;
+      width: 132px;
       height: 48px;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -1304,10 +1309,9 @@
 
     <div class="scrim hidden" id="settingsLockDialog" role="dialog" aria-modal="true" aria-labelledby="settingsLockTitle">
       <div class="dialog">
-        <h2 id="settingsLockTitle">Settings</h2>
+        <h2 id="settingsLockTitle">Enter passcode</h2>
         <form class="pin-form" id="settingsPinForm" autocomplete="off">
-          <label for="settingsPinInput">
-            <span class="field-label">Settings code</span>
+          <label class="pin-label" for="settingsPinInput">
             <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
           </label>
           <button class="primary pin-submit" type="submit">Unlock</button>
@@ -1819,7 +1823,7 @@
       settingsPinEntry = "";
       renderSettingsPin();
       refs.settingsPinInput.focus();
-      showToast("Wrong settings code.");
+      showToast("Wrong passcode.");
     }
 
     function renderView() {
