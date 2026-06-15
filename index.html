@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fffdf8">
+  <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
@@ -50,6 +50,71 @@
         linear-gradient(315deg, rgba(56, 106, 85, .14), transparent 38%),
         #efebe2;
       color: var(--ink);
+    }
+
+    body.theme-dark {
+      --ink: #f3eee4;
+      --ink-93: #fff8ed;
+      --ink-84: #dfd4c4;
+      --muted: #aaa091;
+      --line: rgba(243, 238, 228, .16);
+      --panel: #211e1a;
+      --wash: #2b261f;
+      --accent: #d0675c;
+      --accent-ink: #fff8ef;
+      --gold: #c79a58;
+      --green: #76a88e;
+      --yes: #2f9f62;
+      --no: #d0554f;
+      --navy: #88a7c9;
+      background:
+        linear-gradient(135deg, rgba(176, 70, 55, .18), transparent 34%),
+        linear-gradient(315deg, rgba(118, 168, 142, .14), transparent 38%),
+        #141210;
+      color: var(--ink);
+    }
+
+    body.theme-dark .phone {
+      border-color: #070605;
+      box-shadow: 0 26px 80px rgba(0, 0, 0, .58);
+    }
+
+    body.theme-dark .notch {
+      background: #070605;
+    }
+
+    body.theme-dark .screen {
+      background:
+        linear-gradient(180deg, rgba(33, 30, 26, .98), rgba(33, 30, 26, .92)),
+        linear-gradient(160deg, rgba(199, 154, 88, .12), transparent 50%);
+    }
+
+    body.theme-dark header {
+      border-bottom-color: rgba(243, 238, 228, .12);
+    }
+
+    body.theme-dark,
+    body.theme-dark * {
+      scrollbar-color: #5e5144 #211e1a;
+    }
+
+    body.theme-dark ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    body.theme-dark ::-webkit-scrollbar-track {
+      background: #211e1a;
+    }
+
+    body.theme-dark ::-webkit-scrollbar-thumb {
+      border: 2px solid #211e1a;
+      border-radius: 999px;
+      background: #5e5144;
+    }
+
+    body.theme-dark ::-webkit-scrollbar-thumb:hover {
+      background: #786858;
     }
 
     button,
@@ -435,8 +500,8 @@
       color: var(--ink-84);
       cursor: pointer;
       font-family: var(--copy-font);
-      font-size: 11px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 650;
       text-align: left;
       padding: 0 8px;
       overflow: hidden;
@@ -608,7 +673,7 @@
       margin-bottom: 8px;
     }
 
-    .note-author {
+    .note-number {
       display: inline-flex;
       align-items: center;
       gap: 7px;
@@ -617,7 +682,7 @@
       font-weight: 900;
     }
 
-    .note-author::before {
+    .note-number::before {
       content: "";
       width: 8px;
       height: 8px;
@@ -954,6 +1019,125 @@
       box-shadow: 0 18px 48px rgba(22, 22, 22, .22);
     }
 
+    body.theme-dark input[type="date"],
+    body.theme-dark input[type="text"],
+    body.theme-dark input[type="email"],
+    body.theme-dark input[type="number"],
+    body.theme-dark input[type="password"],
+    body.theme-dark select,
+    body.theme-dark textarea,
+    body.theme-dark .staff-transfer-option,
+    body.theme-dark .decision-button,
+    body.theme-dark .recipient-summary summary {
+      border-color: var(--line);
+      background: #312b23;
+      color: var(--ink);
+    }
+
+    body.theme-dark input::placeholder,
+    body.theme-dark textarea::placeholder {
+      color: rgba(243, 238, 228, .38);
+    }
+
+    body.theme-dark select {
+      background:
+        linear-gradient(45deg, transparent 50%, var(--ink-84) 50%) calc(100% - 18px) 18px / 6px 6px no-repeat,
+        linear-gradient(135deg, var(--ink-84) 50%, transparent 50%) calc(100% - 12px) 18px / 6px 6px no-repeat,
+        #312b23;
+    }
+
+    body.theme-dark .metric,
+    body.theme-dark .staff-panel,
+    body.theme-dark .sender-panel,
+    body.theme-dark .money-panel,
+    body.theme-dark .check-panel,
+    body.theme-dark .composer,
+    body.theme-dark .note-card,
+    body.theme-dark .report-panel,
+    body.theme-dark .dialog {
+      background: rgba(42, 38, 32, .9);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .24);
+    }
+
+    body.theme-dark .money-panel.required-missing,
+    body.theme-dark .check-panel.required-missing {
+      background: rgba(60, 40, 34, .96);
+    }
+
+    body.theme-dark .pill-field.required-missing input,
+    body.theme-dark .decision-row.required-missing {
+      background: rgba(208, 103, 92, .13);
+    }
+
+    body.theme-dark .staff-transfer-column,
+    body.theme-dark .pill-field input,
+    body.theme-dark .check-row,
+    body.theme-dark .decision-row,
+    body.theme-dark .segment,
+    body.theme-dark .recipient-row,
+    body.theme-dark .settings-row,
+    body.theme-dark .pin-visibility {
+      background: var(--wash);
+      color: var(--ink-84);
+    }
+
+    body.theme-dark .staff-transfer-option.active,
+    body.theme-dark .segment[aria-pressed="true"],
+    body.theme-dark .primary,
+    body.theme-dark .settings-action {
+      background: var(--gold);
+      color: #17130f;
+    }
+
+    body.theme-dark .secondary {
+      background: #233244;
+      color: var(--accent-ink);
+    }
+
+    body.theme-dark .gold-outline {
+      border-color: rgba(199, 154, 88, .56);
+      color: var(--ink-93);
+      box-shadow: inset 0 0 0 1px rgba(199, 154, 88, .16);
+    }
+
+    body.theme-dark .danger {
+      background: var(--wash);
+      color: var(--accent);
+    }
+
+    body.theme-dark .tag {
+      background: rgba(136, 167, 201, .14);
+      color: #bcd2e9;
+    }
+
+    body.theme-dark .settings-panel section {
+      border-color: var(--line);
+      background: rgba(33, 30, 26, .58);
+    }
+
+    body.theme-dark .settings-list-header::before,
+    body.theme-dark .settings-list-header::after {
+      background: rgba(243, 238, 228, .16);
+    }
+
+    body.theme-dark .footer {
+      border-top-color: rgba(243, 238, 228, .12);
+      background:
+        linear-gradient(180deg, rgba(33, 30, 26, .2), var(--panel) 24%),
+        var(--panel);
+      box-shadow: 0 -14px 24px rgba(0, 0, 0, .3);
+    }
+
+    body.theme-dark .scrim {
+      background: rgba(0, 0, 0, .56);
+    }
+
+    body.theme-dark .toast {
+      border-color: rgba(243, 238, 228, .16);
+      background: rgba(18, 16, 14, .96);
+      color: var(--ink-93);
+    }
+
     .dialog h2 {
       margin: 0;
       color: var(--ink-93);
@@ -986,6 +1170,13 @@
       gap: 10px;
     }
 
+    .pin-entry {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
     .pin-input {
       width: 132px;
       height: 48px;
@@ -1006,8 +1197,22 @@
       outline-offset: 2px;
     }
 
-    .pin-submit {
-      min-height: 44px;
+    .pin-visibility {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+      cursor: pointer;
+    }
+
+    .pin-visibility svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
     }
 
     .install-steps {
@@ -1100,7 +1305,7 @@
     }
   </style>
 </head>
-<body>
+<body class="theme-dark">
   <div class="phone" role="application" aria-label="Food truck shift notes">
     <div class="notch"></div>
     <div class="screen">
@@ -1152,7 +1357,7 @@
                 <div class="staff-transfer-list" id="defaultStaffDayList"></div>
               </div>
               <div class="staff-transfer-column">
-                <div class="settings-list-header">Today</div>
+                <div class="settings-list-header">Current shift</div>
                 <div class="staff-transfer-list" id="staffList"></div>
               </div>
             </div>
@@ -1311,10 +1516,22 @@
       <div class="dialog">
         <h2 id="settingsLockTitle">Enter passcode</h2>
         <form class="pin-form" id="settingsPinForm" autocomplete="off">
-          <label class="pin-label" for="settingsPinInput">
-            <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
-          </label>
-          <button class="primary pin-submit" type="submit">Unlock</button>
+          <div class="pin-entry">
+            <label class="pin-label" for="settingsPinInput">
+              <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
+            </label>
+            <button class="pin-visibility" id="settingsPinVisibilityButton" type="button" aria-label="Show passcode" aria-pressed="false">
+              <svg class="pin-eye-show" viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="pin-eye-hide hidden" viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 12s3.5-6 10-6c2.1 0 3.9.62 5.35 1.47"></path>
+                <path d="M22 12s-3.5 6-10 6c-2.1 0-3.9-.62-5.35-1.47"></path>
+                <path d="M4 4l16 16"></path>
+              </svg>
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -1356,7 +1573,7 @@
     const defaultState = {
       defaultStaff: ["Alex", "Sam"],
       shiftStaff: [],
-      activeSender: DEFAULT_RECIPIENTS[0].name,
+      activeSender: "",
       activeCategory: "General",
       shiftDate: new Date().toISOString().slice(0, 10),
       netSales: "",
@@ -1423,6 +1640,7 @@
       settingsLockDialog: document.getElementById("settingsLockDialog"),
       settingsPinForm: document.getElementById("settingsPinForm"),
       settingsPinInput: document.getElementById("settingsPinInput"),
+      settingsPinVisibilityButton: document.getElementById("settingsPinVisibilityButton"),
       installDialog: document.getElementById("installDialog"),
       installLaterButton: document.getElementById("installLaterButton"),
       toast: document.getElementById("toast")
@@ -1437,7 +1655,7 @@
         const savedStaff = Array.isArray(parsed.staff) ? parsed.staff : parsed[legacyStaffKey];
         const defaultStaff = normalizeNameList(parsed.defaultStaff || savedStaff || defaultState.defaultStaff);
         const recipients = normalizeRecipients(parsed.recipients);
-        const savedActiveSender = parsed.activeSender || parsed.activeStaff || parsed[legacyActiveStaffKey] || recipients[0]?.name || "";
+        const savedActiveSender = parsed.activeSender || parsed.activeStaff || parsed[legacyActiveStaffKey] || "";
         const activeCategory = categoryLabels.includes(parsed.activeCategory) ? parsed.activeCategory : defaultState.activeCategory;
         const savedNotes = parsed.notes.map((note) => ({ ...note, id: note.id || crypto.randomUUID() }));
         const hasSessionInProgress = savedNotes.length > 0
@@ -1453,7 +1671,7 @@
           shiftDate: hasSessionInProgress ? (parsed.shiftDate || defaultState.shiftDate) : defaultState.shiftDate,
           defaultStaff,
           shiftStaff: hasSessionInProgress ? shiftStaff : [],
-          activeSender: recipients.some((recipient) => recipient.name === savedActiveSender) ? savedActiveSender : recipients[0]?.name || "",
+          activeSender: recipients.some((recipient) => recipient.name === savedActiveSender) ? savedActiveSender : "",
           activeCategory,
           tabsClosed: normalizeTabsClosed(parsed.tabsClosed),
           propaneFilled: normalizeDecision(parsed.propaneFilled),
@@ -1608,7 +1826,8 @@
         if (!categoryNotes.length) continue;
         lines.push(`${category}:`);
         for (const note of categoryNotes) {
-          lines.push(`- ${note.author}: ${note.text}`);
+          const noteNumber = state.notes.indexOf(note) + 1;
+          lines.push(`${noteNumber}. ${note.text}`);
         }
         lines.push("");
       }
@@ -1617,7 +1836,8 @@
       if (otherNotes.length) {
         lines.push("Other:");
         for (const note of otherNotes) {
-          lines.push(`- ${note.author}: ${note.text}`);
+          const noteNumber = state.notes.indexOf(note) + 1;
+          lines.push(`${noteNumber}. ${note.text}`);
         }
       }
 
@@ -1629,11 +1849,15 @@
     }
 
     function renderSender() {
-      const senderNames = state.recipients.map((recipient) => recipient.name);
-      if (!senderNames.includes(state.activeSender)) {
-        state.activeSender = senderNames[0] || "";
+      const senderNames = state.recipients
+        .map((recipient) => recipient.name)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+      if (state.activeSender && !senderNames.includes(state.activeSender)) {
+        state.activeSender = "";
       }
-      refs.senderSelect.innerHTML = senderNames.map((name) => `
+      refs.senderSelect.innerHTML = `
+        <option value="" ${state.activeSender ? "" : "selected"}>Choose sender</option>
+      ` + senderNames.map((name) => `
         <option value="${escapeHtml(name)}" ${name === state.activeSender ? "selected" : ""}>${escapeHtml(name)}</option>
       `).join("");
     }
@@ -1745,10 +1969,10 @@
 
     function renderNotes() {
       refs.noteList.innerHTML = state.notes.length
-        ? state.notes.map((note) => `
+        ? state.notes.map((note, index) => `
           <article class="note-card">
             <div class="note-meta">
-              <span class="note-author">${escapeHtml(note.author)}</span>
+              <span class="note-number">Note ${index + 1}</span>
             </div>
             <p class="note-text">${escapeHtml(note.text)}</p>
             <div class="note-footer">
@@ -1795,9 +2019,18 @@
       refs.settingsPinInput.value = settingsPinEntry;
     }
 
+    function setSettingsPinVisible(isVisible) {
+      refs.settingsPinInput.type = isVisible ? "text" : "password";
+      refs.settingsPinVisibilityButton.setAttribute("aria-pressed", String(isVisible));
+      refs.settingsPinVisibilityButton.setAttribute("aria-label", isVisible ? "Hide passcode" : "Show passcode");
+      refs.settingsPinVisibilityButton.querySelector(".pin-eye-show").classList.toggle("hidden", isVisible);
+      refs.settingsPinVisibilityButton.querySelector(".pin-eye-hide").classList.toggle("hidden", !isVisible);
+    }
+
     function openSettingsLock() {
       settingsPinEntry = "";
       renderSettingsPin();
+      setSettingsPinVisible(false);
       refs.settingsLockDialog.classList.remove("hidden");
       window.setTimeout(() => refs.settingsPinInput.focus(), 0);
     }
@@ -1872,14 +2105,8 @@
         return;
       }
 
-      if (!state.activeSender) {
-        showToast("Add a sender first.");
-        return;
-      }
-
       state.notes.unshift({
         id: crypto.randomUUID(),
-        author: state.activeSender,
         category: state.activeCategory,
         text,
         createdAt: new Date().toISOString()
@@ -2226,6 +2453,11 @@
       settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "").slice(0, settingsPin.length);
       renderSettingsPin();
       if (settingsPinEntry.length === settingsPin.length) checkSettingsPin();
+    });
+
+    refs.settingsPinVisibilityButton.addEventListener("click", () => {
+      setSettingsPinVisible(refs.settingsPinInput.type === "password");
+      refs.settingsPinInput.focus();
     });
 
     refs.settingsLockDialog.addEventListener("click", (event) => {
