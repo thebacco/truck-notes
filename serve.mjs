@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { readFile, readdir, stat, watch } from "node:fs/promises";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
+const appName = "truck-notes";
 const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT || 8010);
 const displayHost = host === "0.0.0.0" ? "localhost" : host;
@@ -41,6 +42,21 @@ async function getReloadVersion() {
   return String(Math.max(0, ...mtimes));
 }
 
+async function getGitCommit() {
+  try {
+    const gitPath = resolve(root, ".git");
+    const head = (await readFile(resolve(gitPath, "HEAD"), "utf8")).trim();
+
+    if (!head.startsWith("ref: ")) return head.slice(0, 7);
+
+    const refPath = head.slice(5).trim();
+    const commit = (await readFile(resolve(gitPath, refPath), "utf8")).trim();
+    return commit.slice(0, 7);
+  } catch {
+    return "unknown";
+  }
+}
+
 async function watchForReloads() {
   try {
     for await (const event of watch(root)) {
@@ -75,6 +91,21 @@ const server = createServer(async (request, response) => {
         "cache-control": "no-store"
       });
       response.end(await getReloadVersion());
+      return;
+    }
+
+    if (url.pathname === "/__health") {
+      response.writeHead(200, {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store"
+      });
+      response.end(JSON.stringify({
+        app: appName,
+        root,
+        commit: await getGitCommit(),
+        host: displayHost,
+        port
+      }, null, 2));
       return;
     }
 

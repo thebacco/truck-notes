@@ -976,53 +976,33 @@
       text-transform: uppercase;
     }
 
-    .pin-display {
-      min-height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--wash);
-    }
-
-    .pin-dot {
-      width: 10px;
-      height: 10px;
-      border: 1px solid rgba(43, 41, 38, .48);
-      border-radius: 50%;
-      background: transparent;
-    }
-
-    .pin-dot.filled {
-      border-color: var(--ink-84);
-      background: var(--ink-84);
-    }
-
-    .pin-pad {
+    .pin-form {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 10px;
     }
 
-    .pin-key {
-      min-height: 52px;
+    .pin-input {
+      width: 100%;
+      height: 48px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fffdf8;
       color: var(--ink-93);
-      cursor: pointer;
       font-family: var(--display-font);
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 800;
+      letter-spacing: 2px;
+      text-align: center;
     }
 
-    .pin-key.utility {
-      background: var(--wash);
-      color: var(--ink-84);
-      font-size: 12px;
-      text-transform: uppercase;
+    .pin-input:focus {
+      border-color: var(--accent);
+      outline: 2px solid rgba(177, 47, 36, .18);
+      outline-offset: 2px;
+    }
+
+    .pin-submit {
+      min-height: 44px;
     }
 
     .install-steps {
@@ -1090,7 +1070,7 @@
       box-shadow: 0 14px 30px rgba(20, 19, 18, .24);
     }
 
-    @media (max-width: 520px) {
+    @media (display-mode: standalone) and (max-width: 520px) {
       body {
         display: block;
         background: var(--panel);
@@ -1286,7 +1266,7 @@
             </section>
 
             <section>
-              <p class="section-title">Default recipients</p>
+              <p class="section-title">Recipients</p>
               <form class="recipient-settings-form" id="settingsRecipientForm" autocomplete="off">
                 <label for="settingsRecipientNameInput">
                   <span class="field-label">Name</span>
@@ -1325,21 +1305,13 @@
     <div class="scrim hidden" id="settingsLockDialog" role="dialog" aria-modal="true" aria-labelledby="settingsLockTitle">
       <div class="dialog">
         <h2 id="settingsLockTitle">Settings</h2>
-        <div class="pin-display" id="settingsPinDisplay" aria-label="Settings PIN"></div>
-        <div class="pin-pad" id="settingsPinPad">
-          <button class="pin-key" type="button" data-pin-key="1">1</button>
-          <button class="pin-key" type="button" data-pin-key="2">2</button>
-          <button class="pin-key" type="button" data-pin-key="3">3</button>
-          <button class="pin-key" type="button" data-pin-key="4">4</button>
-          <button class="pin-key" type="button" data-pin-key="5">5</button>
-          <button class="pin-key" type="button" data-pin-key="6">6</button>
-          <button class="pin-key" type="button" data-pin-key="7">7</button>
-          <button class="pin-key" type="button" data-pin-key="8">8</button>
-          <button class="pin-key" type="button" data-pin-key="9">9</button>
-          <button class="pin-key utility" type="button" data-pin-action="clear">Clear</button>
-          <button class="pin-key" type="button" data-pin-key="0">0</button>
-          <button class="pin-key utility" type="button" data-pin-action="back">Back</button>
-        </div>
+        <form class="pin-form" id="settingsPinForm" autocomplete="off">
+          <label for="settingsPinInput">
+            <span class="field-label">Settings code</span>
+            <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
+          </label>
+          <button class="primary pin-submit" type="submit">Unlock</button>
+        </form>
       </div>
     </div>
 
@@ -1445,8 +1417,8 @@
       cancelResetButton: document.getElementById("cancelResetButton"),
       confirmResetButton: document.getElementById("confirmResetButton"),
       settingsLockDialog: document.getElementById("settingsLockDialog"),
-      settingsPinDisplay: document.getElementById("settingsPinDisplay"),
-      settingsPinPad: document.getElementById("settingsPinPad"),
+      settingsPinForm: document.getElementById("settingsPinForm"),
+      settingsPinInput: document.getElementById("settingsPinInput"),
       installDialog: document.getElementById("installDialog"),
       installLaterButton: document.getElementById("installLaterButton"),
       toast: document.getElementById("toast")
@@ -1816,15 +1788,14 @@
     }
 
     function renderSettingsPin() {
-      refs.settingsPinDisplay.innerHTML = Array.from({ length: settingsPin.length }, (_, index) => `
-        <span class="pin-dot ${index < settingsPinEntry.length ? "filled" : ""}" aria-hidden="true"></span>
-      `).join("");
+      refs.settingsPinInput.value = settingsPinEntry;
     }
 
     function openSettingsLock() {
       settingsPinEntry = "";
       renderSettingsPin();
       refs.settingsLockDialog.classList.remove("hidden");
+      window.setTimeout(() => refs.settingsPinInput.focus(), 0);
     }
 
     function closeSettingsLock() {
@@ -1840,12 +1811,14 @@
     }
 
     function checkSettingsPin() {
+      settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "").slice(0, settingsPin.length);
       if (settingsPinEntry === settingsPin) {
         unlockSettings();
         return;
       }
       settingsPinEntry = "";
       renderSettingsPin();
+      refs.settingsPinInput.focus();
       showToast("Wrong settings code.");
     }
 
@@ -2240,19 +2213,15 @@
       openSettingsLock();
     });
 
-    refs.settingsPinPad.addEventListener("click", (event) => {
-      const keyButton = event.target.closest("[data-pin-key]");
-      const actionButton = event.target.closest("[data-pin-action]");
-      if (keyButton) {
-        settingsPinEntry = `${settingsPinEntry}${keyButton.dataset.pinKey}`.slice(0, settingsPin.length);
-        renderSettingsPin();
-        if (settingsPinEntry.length === settingsPin.length) checkSettingsPin();
-        return;
-      }
-      if (!actionButton) return;
-      if (actionButton.dataset.pinAction === "clear") settingsPinEntry = "";
-      if (actionButton.dataset.pinAction === "back") settingsPinEntry = settingsPinEntry.slice(0, -1);
+    refs.settingsPinForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      checkSettingsPin();
+    });
+
+    refs.settingsPinInput.addEventListener("input", () => {
+      settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "").slice(0, settingsPin.length);
       renderSettingsPin();
+      if (settingsPinEntry.length === settingsPin.length) checkSettingsPin();
     });
 
     refs.settingsLockDialog.addEventListener("click", (event) => {
