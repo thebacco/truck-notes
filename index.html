@@ -1255,6 +1255,25 @@
       width: 152px;
     }
 
+    .pin-entry.shake {
+      animation: pinShake .22s ease-in-out;
+    }
+
+    @keyframes pinShake {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      75% {
+        transform: translateX(5px);
+      }
+    }
+
     .pin-input {
       width: 100%;
       height: 48px;
@@ -1268,6 +1287,12 @@
       letter-spacing: 2px;
       padding: 0 43px 0 12px;
       text-align: center;
+    }
+
+    .pin-entry.invalid .pin-input {
+      border-color: var(--accent);
+      outline: 2px solid rgba(177, 47, 36, .3);
+      outline-offset: 2px;
     }
 
     .pin-input:focus {
@@ -1624,7 +1649,7 @@
         <form class="pin-form" id="settingsPinForm" autocomplete="off">
           <div class="pin-entry">
             <label class="pin-label" for="settingsPinInput">
-              <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
+              <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
             </label>
             <button class="pin-visibility" id="settingsPinVisibilityButton" type="button" aria-label="Show passcode" aria-pressed="false">
               <svg class="pin-eye-show" viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2167,6 +2192,15 @@
       refs.settingsPinInput.value = settingsPinEntry;
     }
 
+    function setSettingsPinInvalid(isInvalid, shouldShake = false) {
+      const pinEntry = refs.settingsPinInput.closest(".pin-entry");
+      pinEntry.classList.toggle("invalid", isInvalid);
+      if (!shouldShake) return;
+      pinEntry.classList.remove("shake");
+      void pinEntry.offsetWidth;
+      pinEntry.classList.add("shake");
+    }
+
     function setSettingsPinVisible(isVisible) {
       refs.settingsPinInput.type = isVisible ? "text" : "password";
       refs.settingsPinVisibilityButton.setAttribute("aria-pressed", String(isVisible));
@@ -2178,14 +2212,20 @@
     function openSettingsLock() {
       settingsPinEntry = "";
       renderSettingsPin();
+      setSettingsPinInvalid(false);
       setSettingsPinVisible(false);
       refs.settingsLockDialog.classList.remove("hidden");
-      window.setTimeout(() => refs.settingsPinInput.focus(), 0);
+      try {
+        refs.settingsPinInput.focus({ preventScroll: true });
+      } catch {
+        refs.settingsPinInput.focus();
+      }
     }
 
     function closeSettingsLock() {
       settingsPinEntry = "";
       renderSettingsPin();
+      setSettingsPinInvalid(false);
       refs.settingsLockDialog.classList.add("hidden");
     }
 
@@ -2196,15 +2236,15 @@
     }
 
     function checkSettingsPin() {
-      settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "").slice(0, settingsPin.length);
+      settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "");
+      renderSettingsPin();
       if (settingsPinEntry === settingsPin) {
         unlockSettings();
         return;
       }
-      settingsPinEntry = "";
-      renderSettingsPin();
+      setSettingsPinInvalid(settingsPinEntry.length >= settingsPin.length, settingsPinEntry.length >= settingsPin.length);
       refs.settingsPinInput.focus();
-      showToast("Wrong passcode.");
+      if (settingsPinEntry.length >= settingsPin.length) showToast("Wrong passcode.");
     }
 
     function renderView() {
@@ -2636,9 +2676,10 @@
     });
 
     refs.settingsPinInput.addEventListener("input", () => {
-      settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "").slice(0, settingsPin.length);
+      settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "");
       renderSettingsPin();
-      if (settingsPinEntry.length === settingsPin.length) checkSettingsPin();
+      if (settingsPinEntry.length < settingsPin.length) setSettingsPinInvalid(false);
+      if (settingsPinEntry.length >= settingsPin.length) checkSettingsPin();
     });
 
     refs.settingsPinVisibilityButton.addEventListener("click", () => {
