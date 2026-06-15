@@ -867,6 +867,52 @@
       font-weight: 700;
     }
 
+    .settings-toggle-row {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+      font-weight: 750;
+    }
+
+    .toggle-button {
+      width: 58px;
+      height: 32px;
+      position: relative;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(107, 103, 96, .24);
+      cursor: pointer;
+    }
+
+    .toggle-button::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--panel);
+      box-shadow: 0 2px 8px rgba(22, 22, 22, .22);
+      transition: transform .16s ease;
+    }
+
+    .toggle-button[aria-pressed="true"] {
+      background: var(--gold);
+      border-color: transparent;
+    }
+
+    .toggle-button[aria-pressed="true"]::after {
+      transform: translateX(26px);
+    }
+
     .settings-list {
       display: grid;
       gap: 6px;
@@ -1110,7 +1156,7 @@
     body.theme-dark .segment,
     body.theme-dark .recipient-row,
     body.theme-dark .settings-row,
-    body.theme-dark .pin-visibility {
+    body.theme-dark .settings-toggle-row {
       background: var(--wash);
       color: var(--ink-84);
     }
@@ -1519,6 +1565,14 @@
         <section id="settingsView" class="view hidden">
           <div class="report-panel settings-panel">
             <section>
+              <p class="section-title">Appearance</p>
+              <div class="settings-toggle-row">
+                <span>Night mode</span>
+                <button class="toggle-button" id="nightModeToggle" type="button" aria-label="Night mode" aria-pressed="true"></button>
+              </div>
+            </section>
+
+            <section>
               <p class="section-title">Staff pool</p>
               <form class="settings-form" id="settingsStaffForm" autocomplete="off">
                 <input id="settingsStaffNameInput" type="text" autocomplete="off" placeholder="Add pool staff">
@@ -1634,6 +1688,7 @@
       tabsClosed: "",
       propaneFilled: "",
       gasFilled: "",
+      nightMode: true,
       recipients: DEFAULT_RECIPIENTS.map((recipient) => ({ ...recipient })),
       notes: []
     };
@@ -1687,6 +1742,7 @@
       settingsRecipientForm: document.getElementById("settingsRecipientForm"),
       settingsRecipientNameInput: document.getElementById("settingsRecipientNameInput"),
       settingsRecipientEmailInput: document.getElementById("settingsRecipientEmailInput"),
+      nightModeToggle: document.getElementById("nightModeToggle"),
       recipientCount: document.getElementById("recipientCount"),
       recipientList: document.getElementById("recipientList"),
       reportPreview: document.getElementById("reportPreview"),
@@ -2079,6 +2135,8 @@
     }
 
     function renderSettings() {
+      refs.nightModeToggle.setAttribute("aria-pressed", String(Boolean(state.nightMode)));
+
       const sortedDefaultStaff = normalizeNameList(state.defaultStaff);
       refs.settingsStaffList.innerHTML = sortedDefaultStaff.map((name) => `
         <div class="settings-row">
@@ -2097,6 +2155,12 @@
 
     function renderReport() {
       refs.reportPreview.value = buildReport();
+    }
+
+    function applyTheme() {
+      const isNightMode = Boolean(state.nightMode);
+      document.body.classList.toggle("theme-dark", isNightMode);
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isNightMode ? "#191613" : "#fffdf8");
     }
 
     function renderSettingsPin() {
@@ -2159,6 +2223,7 @@
 
     function render() {
       state.defaultStaff = normalizeNameList(state.defaultStaff);
+      applyTheme();
       refs.shiftDate.value = state.shiftDate;
       renderSettingsPin();
       renderSender();
@@ -2521,6 +2586,11 @@
       const removeButton = event.target.closest("[data-remove-recipient]");
       if (!removeButton) return;
       removeRecipient(Number(removeButton.dataset.removeRecipient));
+    });
+
+    refs.nightModeToggle.addEventListener("click", () => {
+      state.nightMode = !state.nightMode;
+      render();
     });
 
     refs.categorySegments.addEventListener("click", (event) => {
