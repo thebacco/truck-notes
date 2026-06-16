@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-16-foreground-refresh">
+  <meta name="app-version" content="2026-06-16-staff-pool">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1837,11 +1837,14 @@
     const installPromptSeenKey = "truckNotesInstallPromptSeen";
     const updateCheckIntervalMs = 30 * 60 * 1000;
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
+    const testerDataVersion = "staff-pool-2026-06-16";
+    const DEFAULT_STAFF_POOL = ["Annie", "Casey", "Danny", "Mandy", "Jen", "Nicole", "Jamie", "Matt"];
     const categoryLabels = ["General", "Inventory"];
     const workSectionOrder = ["notes", "staff", "closeout"];
     const settingsPin = "1521";
     const defaultState = {
-      defaultStaff: ["Alex", "Sam"],
+      testerDataVersion,
+      defaultStaff: DEFAULT_STAFF_POOL,
       shiftStaff: [],
       activeSender: "",
       activeCategory: "General",
@@ -1934,7 +1937,10 @@
         const legacyStaffKey = String.fromCharCode(99, 114, 101, 119);
         const legacyActiveStaffKey = `active${legacyStaffKey[0].toUpperCase()}${legacyStaffKey.slice(1)}`;
         const savedStaff = Array.isArray(parsed.staff) ? parsed.staff : parsed[legacyStaffKey];
-        const defaultStaff = normalizeNameList(parsed.defaultStaff || savedStaff || defaultState.defaultStaff);
+        const shouldApplyTesterDefaults = parsed.testerDataVersion !== testerDataVersion;
+        const defaultStaff = shouldApplyTesterDefaults
+          ? normalizeNameList(defaultState.defaultStaff)
+          : normalizeNameList(parsed.defaultStaff || savedStaff || defaultState.defaultStaff);
         const recipients = normalizeRecipients(parsed.recipients);
         const savedActiveSender = parsed.activeSender || parsed.activeStaff || parsed[legacyActiveStaffKey] || "";
         const activeCategory = categoryLabels.includes(parsed.activeCategory) ? parsed.activeCategory : defaultState.activeCategory;
@@ -1949,6 +1955,7 @@
         return {
           ...defaultState,
           ...parsed,
+          testerDataVersion,
           shiftDate: hasSessionInProgress ? (parsed.shiftDate || defaultState.shiftDate) : defaultState.shiftDate,
           defaultStaff,
           shiftStaff: hasSessionInProgress ? shiftStaff : [],
