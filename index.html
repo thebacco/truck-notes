@@ -376,7 +376,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-      margin: -2px 0 12px;
+      margin: -2px 0 8px;
       padding: 4px;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -399,45 +399,72 @@
     }
 
     .work-sections {
+      overflow: hidden;
       touch-action: pan-y;
+      transition: height .18s ease;
+    }
+
+    .work-sections.dragging {
+      touch-action: none;
+    }
+
+    .work-track {
+      display: flex;
+      align-items: flex-start;
+      transition: transform .24s cubic-bezier(.22, .72, .2, 1);
+      will-change: transform;
+    }
+
+    .work-sections.dragging .work-track {
+      transition: none;
     }
 
     .work-section {
-      animation: sectionEnter .14s ease-out;
+      width: 100%;
+      min-width: 100%;
+      flex: 0 0 100%;
     }
 
-    @keyframes sectionEnter {
-      from {
-        opacity: .55;
-        transform: translateX(8px);
-      }
+    .section-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin: 0 0 13px;
+    }
 
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+    .section-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(107, 103, 96, .36);
+      transition: width .16s ease, background .16s ease;
+    }
+
+    .section-dot.active {
+      width: 22px;
+      background: var(--gold);
     }
 
     .metrics {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
+      display: flex;
+      justify-content: center;
+      margin: 0 0 8px;
     }
 
     .metric {
-      min-height: 74px;
-      display: grid;
-      align-content: center;
-      gap: 2px;
-      padding: 10px;
+      min-height: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: rgba(255, 250, 240, .82);
     }
 
     .metric strong {
-      font-size: 24px;
+      font-size: 14px;
       line-height: 1;
     }
 
@@ -746,11 +773,21 @@
       align-items: center;
       padding: 0 9px;
       border-radius: 999px;
-      background: rgba(31, 63, 102, .1);
-      color: var(--navy);
+      background: rgba(78, 82, 88, .1);
+      color: var(--muted);
       font-size: 11px;
       font-weight: 900;
       text-transform: uppercase;
+    }
+
+    .tag.general {
+      background: rgba(199, 154, 88, .24);
+      color: #77511f;
+    }
+
+    .tag.inventory {
+      background: rgba(78, 82, 88, .1);
+      color: var(--ink-84);
     }
 
     .delete-note {
@@ -1186,8 +1223,18 @@
     }
 
     body.theme-dark .tag {
-      background: rgba(136, 167, 201, .14);
-      color: #bcd2e9;
+      background: rgba(243, 238, 228, .12);
+      color: #c7c0b5;
+    }
+
+    body.theme-dark .tag.general {
+      background: rgba(199, 154, 88, .22);
+      color: #f0c579;
+    }
+
+    body.theme-dark .tag.inventory {
+      background: rgba(243, 238, 228, .12);
+      color: #d2cabd;
     }
 
     body.theme-dark .settings-panel section {
@@ -1452,12 +1499,18 @@
             <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection">Closeout</button>
           </div>
 
+          <div class="section-indicator" id="sectionIndicator" aria-hidden="true">
+            <span class="section-dot" data-work-dot="notes"></span>
+            <span class="section-dot" data-work-dot="staff"></span>
+            <span class="section-dot" data-work-dot="closeout"></span>
+          </div>
+
           <div class="metrics" aria-live="polite">
-            <div class="metric"><strong id="noteCount">0</strong><span>Notes</span></div>
-            <div class="metric"><strong id="staffCount">0</strong><span>Staff</span></div>
+            <div class="metric"><strong id="staffCount">0</strong><span>staff</span><strong id="noteCount">0</strong><span>notes</span></div>
           </div>
 
           <div class="work-sections" id="workSections">
+            <div class="work-track" id="workTrack">
             <section class="work-section" id="notesSection" data-work-panel="notes" role="tabpanel" aria-labelledby="workTabNotes">
               <section class="composer" aria-labelledby="noteTitle">
                 <p class="section-title" id="noteTitle">New note</p>
@@ -1554,6 +1607,7 @@
                 </div>
               </section>
             </section>
+            </div>
           </div>
         </section>
 
@@ -1754,8 +1808,10 @@
       appMain: document.querySelector("main"),
       workTabs: document.getElementById("workTabs"),
       workSections: document.getElementById("workSections"),
+      workTrack: document.getElementById("workTrack"),
       workTabButtons: Array.from(document.querySelectorAll("[data-work-section]")),
       workPanels: Array.from(document.querySelectorAll("[data-work-panel]")),
+      workDots: Array.from(document.querySelectorAll("[data-work-dot]")),
       notesView: document.getElementById("notesView"),
       reportView: document.getElementById("reportView"),
       settingsView: document.getElementById("settingsView"),
@@ -2038,11 +2094,29 @@
       if (shouldScroll && refs.appMain) refs.appMain.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    function getWorkSectionIndex(section = activeWorkSection) {
+      const index = workSectionOrder.indexOf(section);
+      return index < 0 ? 0 : index;
+    }
+
     function moveWorkSection(direction) {
-      const currentIndex = workSectionOrder.indexOf(activeWorkSection);
+      const currentIndex = getWorkSectionIndex();
       const nextIndex = currentIndex + direction;
       if (nextIndex < 0 || nextIndex >= workSectionOrder.length) return;
       setWorkSection(workSectionOrder[nextIndex]);
+    }
+
+    function updateWorkTrackTransform(dragOffset = 0) {
+      const index = getWorkSectionIndex();
+      refs.workTrack.style.transform = dragOffset
+        ? `translateX(calc(${-index * 100}% + ${dragOffset}px))`
+        : `translateX(${-index * 100}%)`;
+    }
+
+    function updateWorkSectionHeight() {
+      const activePanel = refs.workPanels.find((panel) => panel.dataset.workPanel === activeWorkSection);
+      if (!activePanel) return;
+      refs.workSections.style.height = `${activePanel.offsetHeight}px`;
     }
 
     function renderWorkSections() {
@@ -2053,9 +2127,16 @@
       });
       refs.workPanels.forEach((panel) => {
         const isSelected = panel.dataset.workPanel === activeWorkSection;
-        panel.classList.toggle("hidden", !isSelected);
-        panel.toggleAttribute("hidden", !isSelected);
+        panel.classList.remove("hidden");
+        panel.toggleAttribute("hidden", false);
+        panel.setAttribute("aria-hidden", String(!isSelected));
+        if ("inert" in panel) panel.inert = !isSelected;
       });
+      refs.workDots.forEach((dot) => {
+        dot.classList.toggle("active", dot.dataset.workDot === activeWorkSection);
+      });
+      updateWorkTrackTransform();
+      window.requestAnimationFrame(updateWorkSectionHeight);
     }
 
     function getRequiredFields() {
@@ -2137,15 +2218,18 @@
 
     function renderNotes() {
       refs.noteList.innerHTML = state.notes.length
-        ? state.notes.map((note, index) => `
+        ? state.notes.map((note, index) => {
+          const categoryClass = note.category === "Inventory" ? "inventory" : "general";
+          return `
           <article class="note-card">
             <p class="note-text"><span class="note-index">${index + 1}.</span> ${escapeHtml(note.text)}</p>
             <div class="note-footer">
-              <span class="tag">${escapeHtml(note.category)}</span>
+              <span class="tag ${categoryClass}">${escapeHtml(note.category)}</span>
               <button class="delete-note" type="button" data-delete-note="${note.id}">Delete</button>
             </div>
           </article>
-        `).join("")
+        `;
+        }).join("")
         : `<div class="empty">No shift notes yet.</div>`;
     }
 
@@ -2271,8 +2355,8 @@
       renderCloseoutFields();
       renderCategories();
       renderMetrics();
-      renderWorkSections();
       renderNotes();
+      renderWorkSections();
       renderRecipients();
       renderSettings();
       renderReport();
@@ -2507,20 +2591,71 @@
     });
 
     refs.workSections.addEventListener("touchstart", (event) => {
-      if (event.target.closest("button, input, select, textarea, summary")) return;
       const touch = event.touches[0];
-      workSwipeStart = { x: touch.clientX, y: touch.clientY };
+      workSwipeStart = {
+        x: touch.clientX,
+        y: touch.clientY,
+        startedAt: performance.now(),
+        dragging: false
+      };
     }, { passive: true });
+
+    refs.workSections.addEventListener("touchmove", (event) => {
+      if (!workSwipeStart) return;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - workSwipeStart.x;
+      const deltaY = touch.clientY - workSwipeStart.y;
+
+      if (!workSwipeStart.dragging) {
+        if (Math.abs(deltaX) < 10 || Math.abs(deltaX) < Math.abs(deltaY) * 1.1) return;
+        workSwipeStart.dragging = true;
+        refs.workSections.classList.add("dragging");
+      }
+
+      event.preventDefault();
+      const currentIndex = getWorkSectionIndex();
+      const atStart = currentIndex === 0 && deltaX > 0;
+      const atEnd = currentIndex === workSectionOrder.length - 1 && deltaX < 0;
+      const resistedDelta = atStart || atEnd ? deltaX * .28 : deltaX;
+      updateWorkTrackTransform(resistedDelta);
+    }, { passive: false });
+
+    function finishWorkSwipe(deltaX, deltaY, elapsedMs) {
+      refs.workSections.classList.remove("dragging");
+      updateWorkTrackTransform();
+
+      if (Math.abs(deltaX) < 42 || Math.abs(deltaX) < Math.abs(deltaY) * 1.15) return;
+
+      const width = refs.workSections.getBoundingClientRect().width || 1;
+      const velocity = Math.abs(deltaX) / Math.max(elapsedMs, 1);
+      const shouldAdvance = Math.abs(deltaX) > width * .22 || velocity > .55;
+      if (!shouldAdvance) return;
+
+      moveWorkSection(deltaX < 0 ? 1 : -1);
+    }
 
     refs.workSections.addEventListener("touchend", (event) => {
       if (!workSwipeStart) return;
       const touch = event.changedTouches[0];
       const deltaX = touch.clientX - workSwipeStart.x;
       const deltaY = touch.clientY - workSwipeStart.y;
+      const elapsedMs = performance.now() - workSwipeStart.startedAt;
+      const wasDragging = workSwipeStart.dragging;
       workSwipeStart = null;
-      if (Math.abs(deltaX) < 56 || Math.abs(deltaX) < Math.abs(deltaY) * 1.35) return;
-      moveWorkSection(deltaX < 0 ? 1 : -1);
+      if (!wasDragging) return;
+      finishWorkSwipe(deltaX, deltaY, elapsedMs);
     }, { passive: true });
+
+    refs.workSections.addEventListener("touchcancel", () => {
+      workSwipeStart = null;
+      refs.workSections.classList.remove("dragging");
+      updateWorkTrackTransform();
+    }, { passive: true });
+
+    window.addEventListener("resize", () => {
+      updateWorkTrackTransform();
+      updateWorkSectionHeight();
+    });
 
     refs.shiftDate.addEventListener("change", () => {
       state.shiftDate = refs.shiftDate.value || defaultState.shiftDate;
