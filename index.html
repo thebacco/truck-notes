@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-16-staff-pool">
+  <meta name="app-version" content="2026-06-16-closeout-update-reset">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -405,19 +405,26 @@
       padding: 16px 16px 116px;
     }
 
-    .work-tabs {
+    .work-nav {
       position: sticky;
       top: 0;
       z-index: 3;
+      margin: -2px 0 8px;
+      padding-bottom: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, .98), rgba(255, 253, 248, .92));
+      backdrop-filter: blur(12px);
+    }
+
+    .work-tabs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-      margin: -2px 0 8px;
+      margin: 0 0 8px;
       padding: 4px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: rgba(255, 250, 240, .86);
-      backdrop-filter: blur(12px);
     }
 
     .work-tab {
@@ -487,7 +494,7 @@
     .metrics {
       display: flex;
       justify-content: center;
-      margin: 0 0 8px;
+      margin: 0;
     }
 
     .metric {
@@ -996,7 +1003,26 @@
     .settings-list.scroll-list {
       max-height: 270px;
       overflow-y: auto;
-      padding-right: 2px;
+      padding-right: 4px;
+      scrollbar-color: rgba(199, 154, 88, .72) rgba(107, 103, 96, .16);
+      scrollbar-gutter: stable;
+      scrollbar-width: thin;
+    }
+
+    .settings-list.scroll-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .settings-list.scroll-list::-webkit-scrollbar-track {
+      border-radius: 999px;
+      background: rgba(107, 103, 96, .16);
+    }
+
+    .settings-list.scroll-list::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(199, 154, 88, .72);
+      background-clip: content-box;
     }
 
     .settings-list-header {
@@ -1207,6 +1233,7 @@
     }
 
     body.theme-dark .metric,
+    body.theme-dark .work-nav,
     body.theme-dark .work-tabs,
     body.theme-dark .staff-panel,
     body.theme-dark .sender-panel,
@@ -1223,6 +1250,12 @@
     body.theme-dark .money-panel.required-missing,
     body.theme-dark .check-panel.required-missing {
       background: rgba(60, 40, 34, .96);
+    }
+
+    body.theme-dark .work-nav {
+      background:
+        linear-gradient(180deg, rgba(33, 30, 26, .98), rgba(33, 30, 26, .9));
+      box-shadow: none;
     }
 
     body.theme-dark .pill-field.required-missing input,
@@ -1554,7 +1587,7 @@
     }
   </style>
 </head>
-<body class="theme-dark">
+<body>
   <div class="phone" role="application" aria-label="Food truck shift notes">
     <div class="notch"></div>
     <div class="screen">
@@ -1586,20 +1619,22 @@
 
       <main>
         <section id="notesView" class="view">
-          <div class="work-tabs" id="workTabs" role="tablist" aria-label="Shift sections">
-            <button class="work-tab" id="workTabNotes" type="button" role="tab" data-work-section="notes" aria-controls="notesSection">Notes</button>
-            <button class="work-tab" id="workTabStaff" type="button" role="tab" data-work-section="staff" aria-controls="staffSection">Staff</button>
-            <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection">Closeout</button>
-          </div>
+          <div class="work-nav">
+            <div class="work-tabs" id="workTabs" role="tablist" aria-label="Shift sections">
+              <button class="work-tab" id="workTabNotes" type="button" role="tab" data-work-section="notes" aria-controls="notesSection">Notes</button>
+              <button class="work-tab" id="workTabStaff" type="button" role="tab" data-work-section="staff" aria-controls="staffSection">Staff</button>
+              <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection">Closeout</button>
+            </div>
 
-          <div class="section-indicator" id="sectionIndicator" aria-hidden="true">
-            <span class="section-dot" data-work-dot="notes"></span>
-            <span class="section-dot" data-work-dot="staff"></span>
-            <span class="section-dot" data-work-dot="closeout"></span>
-          </div>
+            <div class="section-indicator" id="sectionIndicator" aria-hidden="true">
+              <span class="section-dot" data-work-dot="notes"></span>
+              <span class="section-dot" data-work-dot="staff"></span>
+              <span class="section-dot" data-work-dot="closeout"></span>
+            </div>
 
-          <div class="metrics" aria-live="polite">
-            <div class="metric"><strong id="staffCount">0</strong><span>staff</span><strong id="noteCount">0</strong><span>notes</span></div>
+            <div class="metrics" aria-live="polite">
+              <div class="metric"><strong id="staffCount">0</strong><span>staff</span><strong id="noteCount">0</strong><span>notes</span></div>
+            </div>
           </div>
 
           <div class="work-sections" id="workSections">
@@ -1849,6 +1884,7 @@
 
     const storageKey = "truckNotes:v1";
     const installPromptSeenKey = "truckNotesInstallPromptSeen";
+    const lastSeenAppVersionKey = "truckNotesLastSeenAppVersion";
     const updateCheckIntervalMs = 30 * 60 * 1000;
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
     const testerDataVersion = "staff-pool-2026-06-16";
@@ -1868,7 +1904,8 @@
       tabsClosed: "",
       propaneFilled: "",
       gasFilled: "",
-      nightMode: true,
+      nightMode: false,
+      themePreferenceSet: false,
       recipients: DEFAULT_RECIPIENTS.map((recipient) => ({ ...recipient })),
       notes: []
     };
@@ -1881,6 +1918,9 @@
     let settingsPinEntry = "";
     let requiredHighlightActive = false;
     let workSwipeStart = null;
+    let settingsSwipeStart = null;
+    let settingsReturnView = "notes";
+    let settingsReturnSection = "notes";
 
     const refs = {
       statusTime: document.getElementById("statusTime"),
@@ -1958,6 +1998,8 @@
         const recipients = normalizeRecipients(parsed.recipients);
         const savedActiveSender = parsed.activeSender || parsed.activeStaff || parsed[legacyActiveStaffKey] || "";
         const activeCategory = categoryLabels.includes(parsed.activeCategory) ? parsed.activeCategory : defaultState.activeCategory;
+        const themePreferenceSet = parsed.themePreferenceSet === true;
+        const nightMode = themePreferenceSet ? Boolean(parsed.nightMode) : defaultState.nightMode;
         const savedNotes = parsed.notes.map((note) => ({ ...note, id: note.id || crypto.randomUUID() }));
         const hasSessionInProgress = savedNotes.length > 0
           || Boolean(parsed.netSales)
@@ -1972,6 +2014,8 @@
           testerDataVersion,
           shiftDate: hasSessionInProgress ? (parsed.shiftDate || defaultState.shiftDate) : defaultState.shiftDate,
           defaultStaff,
+          nightMode,
+          themePreferenceSet,
           shiftStaff: hasSessionInProgress ? shiftStaff : [],
           activeSender: recipients.some((recipient) => recipient.name === savedActiveSender) ? savedActiveSender : "",
           activeCategory,
@@ -2428,6 +2472,12 @@
       render();
     }
 
+    function returnFromSettings() {
+      currentView = settingsReturnView || "notes";
+      activeWorkSection = settingsReturnSection || "notes";
+      render();
+    }
+
     function checkSettingsPin() {
       settingsPinEntry = cleanSettingsPinInput(refs.settingsPinInput.value);
       renderSettingsPin();
@@ -2692,7 +2742,10 @@
         const response = await fetch(new URL("index.html", location.href), { cache: "no-store" });
         const html = await response.text();
         const latestVersion = html.match(/<meta\s+name=["']app-version["']\s+content=["']([^"']+)["']/i)?.[1];
-        if (latestVersion && latestVersion !== appVersion) location.reload();
+        if (latestVersion && latestVersion !== appVersion) {
+          localStorage.setItem(lastSeenAppVersionKey, appVersion);
+          location.reload();
+        }
       } catch {}
     }
 
@@ -2703,6 +2756,21 @@
       window.addEventListener("pageshow", checkWhenVisible);
       window.addEventListener("focus", checkForegroundAppVersion);
       document.addEventListener("visibilitychange", checkWhenVisible);
+    }
+
+    function resetViewAfterAppUpdate() {
+      if (!appVersion) return;
+      const lastSeenAppVersion = localStorage.getItem(lastSeenAppVersionKey);
+      localStorage.setItem(lastSeenAppVersionKey, appVersion);
+      if (!lastSeenAppVersion || lastSeenAppVersion === appVersion) return;
+      currentView = "notes";
+      activeWorkSection = "notes";
+      state.tabsClosed = "";
+      state.propaneFilled = "";
+      state.gasFilled = "";
+      refs.settingsLockDialog.classList.add("hidden");
+      refs.resetDialog.classList.add("hidden");
+      refs.installDialog.classList.add("hidden");
     }
 
     refs.workTabs.addEventListener("click", (event) => {
@@ -2778,6 +2846,34 @@
       workSwipeStart = null;
       refs.workSections.classList.remove("dragging");
       updateWorkTrackTransform();
+    }, { passive: true });
+
+    refs.settingsView.addEventListener("touchstart", (event) => {
+      if (event.target.closest("button, input, select, textarea, summary")) return;
+      const touch = event.touches[0];
+      settingsSwipeStart = {
+        x: touch.clientX,
+        y: touch.clientY,
+        startedAt: performance.now()
+      };
+    }, { passive: true });
+
+    refs.settingsView.addEventListener("touchend", (event) => {
+      if (!settingsSwipeStart || currentView !== "settings") return;
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - settingsSwipeStart.x;
+      const deltaY = touch.clientY - settingsSwipeStart.y;
+      const elapsedMs = performance.now() - settingsSwipeStart.startedAt;
+      settingsSwipeStart = null;
+
+      if (deltaX < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
+      const width = refs.settingsView.getBoundingClientRect().width || 1;
+      const velocity = Math.abs(deltaX) / Math.max(elapsedMs, 1);
+      if (Math.abs(deltaX) > width * .18 || velocity > .5) returnFromSettings();
+    }, { passive: true });
+
+    refs.settingsView.addEventListener("touchcancel", () => {
+      settingsSwipeStart = null;
     }, { passive: true });
 
     window.addEventListener("resize", () => {
@@ -2893,6 +2989,7 @@
 
     refs.nightModeToggle.addEventListener("click", () => {
       state.nightMode = !state.nightMode;
+      state.themePreferenceSet = true;
       render();
     });
 
@@ -2925,11 +3022,17 @@
     });
 
     refs.toggleViewButton.addEventListener("click", () => {
+      if (currentView === "settings") {
+        returnFromSettings();
+        return;
+      }
       currentView = currentView === "notes" ? "report" : "notes";
       render();
     });
 
     refs.settingsButton.addEventListener("click", () => {
+      settingsReturnView = currentView;
+      settingsReturnSection = activeWorkSection;
       openSettingsLock();
     });
 
@@ -2990,6 +3093,7 @@
 
     updateClock();
     setInterval(updateClock, 30000);
+    resetViewAfterAppUpdate();
     render();
 
     const isLocalPreview = location.hostname === "localhost" || location.hostname === "127.0.0.1";
