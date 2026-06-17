@@ -1796,7 +1796,7 @@
         <form class="pin-form" id="settingsPinForm" autocomplete="off">
           <div class="pin-entry">
             <label class="pin-label" for="settingsPinInput">
-              <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
+              <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
             </label>
             <button class="pin-visibility" id="settingsPinVisibilityButton" type="button" aria-label="Show passcode" aria-pressed="false">
               <svg class="pin-eye-show" viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2381,6 +2381,10 @@
       refs.settingsPinInput.value = settingsPinEntry;
     }
 
+    function cleanSettingsPinInput(value) {
+      return String(value || "").replace(/\D/g, "").slice(0, settingsPin.length);
+    }
+
     function setSettingsPinInvalid(isInvalid, shouldShake = false) {
       const pinEntry = refs.settingsPinInput.closest(".pin-entry");
       pinEntry.classList.toggle("invalid", isInvalid);
@@ -2425,7 +2429,7 @@
     }
 
     function checkSettingsPin() {
-      settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "");
+      settingsPinEntry = cleanSettingsPinInput(refs.settingsPinInput.value);
       renderSettingsPin();
       if (settingsPinEntry === settingsPin) {
         unlockSettings();
@@ -2935,7 +2939,7 @@
     });
 
     refs.settingsPinInput.addEventListener("input", () => {
-      settingsPinEntry = refs.settingsPinInput.value.replace(/\D/g, "");
+      settingsPinEntry = cleanSettingsPinInput(refs.settingsPinInput.value);
       renderSettingsPin();
       if (settingsPinEntry.length < settingsPin.length) setSettingsPinInvalid(false);
       if (settingsPinEntry.length >= settingsPin.length) checkSettingsPin();
