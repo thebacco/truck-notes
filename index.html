@@ -993,6 +993,12 @@
       gap: 6px;
     }
 
+    .settings-list.scroll-list {
+      max-height: 270px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
     .settings-list-header {
       display: flex;
       align-items: center;
@@ -1744,7 +1750,7 @@
                 <input id="settingsStaffNameInput" type="text" autocomplete="off" placeholder="Add pool staff">
                 <button class="small-button settings-action" type="submit">Add</button>
               </form>
-              <div class="settings-list" id="settingsStaffList"></div>
+              <div class="settings-list scroll-list" id="settingsStaffList"></div>
             </section>
 
             <section>
@@ -1761,7 +1767,7 @@
                 <button class="small-button settings-action" type="submit">Add recipient</button>
               </form>
               <div class="settings-list-header">Saved recipients</div>
-              <div class="settings-list" id="settingsRecipientList"></div>
+              <div class="settings-list scroll-list" id="settingsRecipientList"></div>
             </section>
           </div>
         </section>
