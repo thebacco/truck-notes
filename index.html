@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-16-closeout-update-reset">
+  <meta name="app-version" content="2026-06-17-closeout-reset-settings-swipe">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1179,6 +1179,15 @@
 
     .view {
       display: block;
+    }
+
+    #settingsView {
+      transition: transform .24s cubic-bezier(.22, .72, .2, 1);
+      will-change: transform;
+    }
+
+    #settingsView.dragging {
+      transition: none;
     }
 
     .hidden {
@@ -2475,7 +2484,15 @@
     function returnFromSettings() {
       currentView = settingsReturnView || "notes";
       activeWorkSection = settingsReturnSection || "notes";
+      refs.settingsView.classList.remove("dragging");
+      refs.settingsView.style.transform = "";
       render();
+    }
+
+    function updateSettingsSwipeTransform(dragOffset = 0) {
+      refs.settingsView.style.transform = dragOffset
+        ? `translateX(${dragOffset}px)`
+        : "";
     }
 
     function checkSettingsPin() {
@@ -2768,6 +2785,7 @@
       state.tabsClosed = "";
       state.propaneFilled = "";
       state.gasFilled = "";
+      if (!state.themePreferenceSet) state.nightMode = false;
       refs.settingsLockDialog.classList.add("hidden");
       refs.resetDialog.classList.add("hidden");
       refs.installDialog.classList.add("hidden");
@@ -2854,9 +2872,26 @@
       settingsSwipeStart = {
         x: touch.clientX,
         y: touch.clientY,
-        startedAt: performance.now()
+        startedAt: performance.now(),
+        dragging: false
       };
     }, { passive: true });
+
+    refs.settingsView.addEventListener("touchmove", (event) => {
+      if (!settingsSwipeStart || currentView !== "settings") return;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - settingsSwipeStart.x;
+      const deltaY = touch.clientY - settingsSwipeStart.y;
+
+      if (!settingsSwipeStart.dragging) {
+        if (Math.abs(deltaX) < 10 || Math.abs(deltaX) < Math.abs(deltaY) * 1.1) return;
+        settingsSwipeStart.dragging = true;
+        refs.settingsView.classList.add("dragging");
+      }
+
+      event.preventDefault();
+      updateSettingsSwipeTransform(deltaX > 0 ? deltaX : deltaX * .28);
+    }, { passive: false });
 
     refs.settingsView.addEventListener("touchend", (event) => {
       if (!settingsSwipeStart || currentView !== "settings") return;
@@ -2864,9 +2899,12 @@
       const deltaX = touch.clientX - settingsSwipeStart.x;
       const deltaY = touch.clientY - settingsSwipeStart.y;
       const elapsedMs = performance.now() - settingsSwipeStart.startedAt;
+      const wasDragging = settingsSwipeStart.dragging;
       settingsSwipeStart = null;
 
-      if (deltaX < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
+      refs.settingsView.classList.remove("dragging");
+      updateSettingsSwipeTransform();
+      if (!wasDragging || deltaX < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
       const width = refs.settingsView.getBoundingClientRect().width || 1;
       const velocity = Math.abs(deltaX) / Math.max(elapsedMs, 1);
       if (Math.abs(deltaX) > width * .18 || velocity > .5) returnFromSettings();
@@ -2874,6 +2912,8 @@
 
     refs.settingsView.addEventListener("touchcancel", () => {
       settingsSwipeStart = null;
+      refs.settingsView.classList.remove("dragging");
+      updateSettingsSwipeTransform();
     }, { passive: true });
 
     window.addEventListener("resize", () => {
