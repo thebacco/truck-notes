@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-17-closeout-reset-settings-swipe">
+  <meta name="app-version" content="2026-06-17-footer-mail-icon">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -402,7 +402,7 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 16px 16px 116px;
+      padding: 16px 16px 132px;
     }
 
     .work-nav {
@@ -554,6 +554,11 @@
       padding: 12px;
     }
 
+    .money-panel,
+    .check-panel {
+      scroll-margin-top: 132px;
+    }
+
     .sender-field {
       display: grid;
       gap: 8px;
@@ -573,11 +578,12 @@
     }
 
     .required-missing {
-      box-shadow: 0 0 0 2px rgba(177, 47, 36, .38);
+      box-shadow: inset 0 0 0 2px rgba(177, 47, 36, .38);
     }
 
     .money-panel.required-missing,
     .check-panel.required-missing {
+      border-color: rgba(177, 47, 36, .42);
       background: rgba(255, 248, 238, .98);
     }
 
@@ -585,6 +591,7 @@
     .decision-row.required-missing {
       border-color: rgba(177, 47, 36, .46);
       background: rgba(177, 47, 36, .055);
+      box-shadow: inset 0 0 0 1px rgba(177, 47, 36, .18);
     }
 
     .staff-transfer {
@@ -712,13 +719,15 @@
     }
 
     .decision-button[data-tabs-closed="yes"][aria-pressed="true"],
-    .decision-button[data-decision-value="yes"][aria-pressed="true"] {
+    .decision-button[data-decision-value="yes"][aria-pressed="true"],
+    .decision-button[data-modal-decision-value="yes"][aria-pressed="true"] {
       background: var(--yes);
       color: #fff;
     }
 
     .decision-button[data-tabs-closed="no"][aria-pressed="true"],
-    .decision-button[data-decision-value="no"][aria-pressed="true"] {
+    .decision-button[data-decision-value="no"][aria-pressed="true"],
+    .decision-button[data-modal-decision-value="no"][aria-pressed="true"] {
       background: var(--no);
       color: #fff;
     }
@@ -890,7 +899,27 @@
       text-transform: uppercase;
     }
 
+    .recipient-summary summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .recipient-summary summary::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform .16s ease;
+    }
+
+    .recipient-summary[open] summary::after {
+      transform: rotate(225deg) translateY(-1px);
+    }
+
     .recipient-summary-count {
+      margin-left: auto;
       color: var(--muted);
       font-family: var(--copy-font);
       font-size: 11px;
@@ -1082,16 +1111,20 @@
     }
 
     .settings-remove {
-      min-height: 30px;
-      padding: 0 9px;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      padding: 0;
       border: 0;
       border-radius: 8px;
       background: rgba(177, 47, 36, .1);
       color: var(--accent);
       cursor: pointer;
       font-family: var(--display-font);
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1;
     }
 
     .settings-form,
@@ -1163,17 +1196,15 @@
     .footer {
       position: absolute;
       right: 0;
-      bottom: 8px;
+      bottom: 0;
       left: 0;
       z-index: 4;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      padding: 13px 16px calc(16px + env(safe-area-inset-bottom));
+      padding: 13px 16px calc(24px + env(safe-area-inset-bottom));
       border-top: 1px solid rgba(222, 216, 204, .72);
-      background:
-        linear-gradient(180deg, rgba(255, 253, 248, .2), var(--panel) 24%),
-        var(--panel);
+      background: var(--panel);
       box-shadow: 0 -14px 24px rgba(22, 22, 22, .08);
     }
 
@@ -1335,9 +1366,7 @@
 
     body.theme-dark .footer {
       border-top-color: rgba(243, 238, 228, .12);
-      background:
-        linear-gradient(180deg, rgba(33, 30, 26, .2), var(--panel) 24%),
-        var(--panel);
+      background: var(--panel);
       box-shadow: 0 -14px 24px rgba(0, 0, 0, .3);
     }
 
@@ -1375,6 +1404,32 @@
       font-family: var(--display-font);
       font-weight: 700;
       text-transform: uppercase;
+    }
+
+    .closeout-modal-fields {
+      display: grid;
+      gap: 10px;
+    }
+
+    .closeout-modal-field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .closeout-modal-field input {
+      min-height: 44px;
+      border-radius: 8px;
+      background: var(--wash);
+      font-weight: 850;
+    }
+
+    .modal-decision-row {
+      display: grid;
+      gap: 7px;
+    }
+
+    .modal-decision-row .decision-buttons {
+      width: 100%;
     }
 
     .pin-form {
@@ -1751,7 +1806,7 @@
         <section id="reportView" class="view hidden">
           <div class="report-panel">
             <label>
-              <span class="field-label">Report preview</span>
+              <span class="field-label">Notes preview</span>
               <textarea class="preview" id="reportPreview" autocomplete="off" spellcheck="false"></textarea>
             </label>
             <div class="report-actions">
@@ -1765,7 +1820,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path>
                 </svg>
-                Email
+                Text Notes
               </button>
             </div>
             <details class="recipient-summary">
@@ -1818,7 +1873,7 @@
       </main>
 
       <div class="footer">
-        <button class="secondary gold-outline" id="toggleViewButton" type="button">Review Report</button>
+        <button class="secondary gold-outline" id="toggleViewButton" type="button">Review Notes</button>
         <button class="primary" id="sendButton" type="button">Publish</button>
       </div>
     </div>
@@ -1831,6 +1886,58 @@
           <button class="secondary" id="cancelResetButton" type="button">Cancel</button>
           <button class="danger" id="confirmResetButton" type="button">Start New Day</button>
         </div>
+      </div>
+    </div>
+
+    <div class="scrim hidden" id="staffRequiredDialog" role="dialog" aria-modal="true" aria-labelledby="staffRequiredTitle">
+      <div class="dialog">
+        <h2 id="staffRequiredTitle">Add staff before sending notes</h2>
+        <p>Add at least one staff member for this shift.</p>
+        <div class="dialog-actions">
+          <button class="secondary" id="cancelStaffRequiredButton" type="button">Cancel</button>
+          <button class="primary" id="goToStaffButton" type="button">Go to Staff</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="scrim hidden" id="closeoutRequiredDialog" role="dialog" aria-modal="true" aria-labelledby="closeoutRequiredTitle">
+      <div class="dialog">
+        <h2 id="closeoutRequiredTitle">Finish Closeout</h2>
+        <form class="closeout-modal-fields" id="closeoutRequiredForm" autocomplete="off">
+          <label class="closeout-modal-field" data-closeout-modal-field="netSales" for="modalNetSalesInput">
+            <span class="field-label">Net sales</span>
+            <input id="modalNetSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
+          </label>
+          <label class="closeout-modal-field" data-closeout-modal-field="changeBox" for="modalChangeBoxInput">
+            <span class="field-label">Change box</span>
+            <input id="modalChangeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
+          </label>
+          <div class="modal-decision-row" data-closeout-modal-field="tabsClosed">
+            <span class="field-label">All tabs closed?</span>
+            <div class="decision-buttons" role="group" aria-label="All tabs closed">
+              <button class="decision-button" type="button" data-modal-decision-field="tabsClosed" data-modal-decision-value="yes" aria-pressed="false">Yes</button>
+              <button class="decision-button" type="button" data-modal-decision-field="tabsClosed" data-modal-decision-value="no" aria-pressed="false">No</button>
+            </div>
+          </div>
+          <div class="modal-decision-row" data-closeout-modal-field="propaneFilled">
+            <span class="field-label">Propane filled?</span>
+            <div class="decision-buttons" role="group" aria-label="Propane filled">
+              <button class="decision-button" type="button" data-modal-decision-field="propaneFilled" data-modal-decision-value="yes" aria-pressed="false">Yes</button>
+              <button class="decision-button" type="button" data-modal-decision-field="propaneFilled" data-modal-decision-value="no" aria-pressed="false">No</button>
+            </div>
+          </div>
+          <div class="modal-decision-row" data-closeout-modal-field="gasFilled">
+            <span class="field-label">Gas filled?</span>
+            <div class="decision-buttons" role="group" aria-label="Gas filled">
+              <button class="decision-button" type="button" data-modal-decision-field="gasFilled" data-modal-decision-value="yes" aria-pressed="false">Yes</button>
+              <button class="decision-button" type="button" data-modal-decision-field="gasFilled" data-modal-decision-value="no" aria-pressed="false">No</button>
+            </div>
+          </div>
+          <div class="dialog-actions">
+            <button class="secondary" id="cancelCloseoutRequiredButton" type="button">Cancel</button>
+            <button class="primary" type="submit">Review Notes</button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -1926,6 +2033,8 @@
     let refreshingForUpdate = false;
     let settingsPinEntry = "";
     let requiredHighlightActive = false;
+    let closeoutModalFieldKeys = [];
+    let pendingCloseoutAction = "review";
     let workSwipeStart = null;
     let settingsSwipeStart = null;
     let settingsReturnView = "notes";
@@ -1956,6 +2065,7 @@
       noteCount: document.getElementById("noteCount"),
       staffCount: document.getElementById("staffCount"),
       appMain: document.querySelector("main"),
+      workNav: document.querySelector(".work-nav"),
       workTabs: document.getElementById("workTabs"),
       workSections: document.getElementById("workSections"),
       workTrack: document.getElementById("workTrack"),
@@ -1984,6 +2094,15 @@
       resetDialog: document.getElementById("resetDialog"),
       cancelResetButton: document.getElementById("cancelResetButton"),
       confirmResetButton: document.getElementById("confirmResetButton"),
+      staffRequiredDialog: document.getElementById("staffRequiredDialog"),
+      cancelStaffRequiredButton: document.getElementById("cancelStaffRequiredButton"),
+      goToStaffButton: document.getElementById("goToStaffButton"),
+      closeoutRequiredDialog: document.getElementById("closeoutRequiredDialog"),
+      closeoutRequiredForm: document.getElementById("closeoutRequiredForm"),
+      closeoutModalFields: Array.from(document.querySelectorAll("[data-closeout-modal-field]")),
+      modalNetSalesInput: document.getElementById("modalNetSalesInput"),
+      modalChangeBoxInput: document.getElementById("modalChangeBoxInput"),
+      cancelCloseoutRequiredButton: document.getElementById("cancelCloseoutRequiredButton"),
       settingsLockDialog: document.getElementById("settingsLockDialog"),
       settingsPinForm: document.getElementById("settingsPinForm"),
       settingsPinInput: document.getElementById("settingsPinInput"),
@@ -2374,6 +2493,22 @@
       updateRequiredHighlights();
     }
 
+    function renderCloseoutRequiredDialog() {
+      const visibleFields = new Set(closeoutModalFieldKeys);
+      refs.closeoutModalFields.forEach((field) => {
+        field.classList.toggle("hidden", !visibleFields.has(field.dataset.closeoutModalField));
+      });
+      if (document.activeElement !== refs.modalNetSalesInput) {
+        refs.modalNetSalesInput.value = state.netSales ? formatMoney(state.netSales) : "";
+      }
+      if (document.activeElement !== refs.modalChangeBoxInput) {
+        refs.modalChangeBoxInput.value = state.changeBox ? formatMoney(state.changeBox) : "";
+      }
+      refs.closeoutRequiredDialog.querySelectorAll("[data-modal-decision-field]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(state[button.dataset.modalDecisionField] === button.dataset.modalDecisionValue));
+      });
+    }
+
     function renderNotes() {
       refs.noteList.innerHTML = state.notes.length
         ? state.notes.map((note, index) => {
@@ -2408,14 +2543,14 @@
       refs.settingsStaffList.innerHTML = sortedDefaultStaff.map((name) => `
         <div class="settings-row">
           <span class="settings-staff-name">${escapeHtml(name)}</span>
-          <button class="settings-remove" type="button" data-settings-remove-staff="${escapeHtml(name)}">Remove</button>
+          <button class="settings-remove" type="button" data-settings-remove-staff="${escapeHtml(name)}" aria-label="Remove ${escapeHtml(name)}">&times;</button>
         </div>
       `).join("");
 
       refs.settingsRecipientList.innerHTML = state.recipients.map((recipient, index) => `
         <div class="settings-row">
           <span><strong>${escapeHtml(recipient.name)}</strong><small>${escapeHtml(recipient.email)}</small></span>
-          <button class="settings-remove" type="button" data-remove-recipient="${index}">Remove</button>
+          <button class="settings-remove" type="button" data-remove-recipient="${index}" aria-label="Remove ${escapeHtml(recipient.name)}">&times;</button>
         </div>
       `).join("");
     }
@@ -2513,8 +2648,10 @@
       refs.notesView.classList.toggle("hidden", showingReport || showingSettings);
       refs.reportView.classList.toggle("hidden", !showingReport);
       refs.settingsView.classList.toggle("hidden", !showingSettings);
-      refs.toggleViewButton.textContent = showingReport || showingSettings ? "Back to Notes" : "Review Report";
-      refs.sendButton.textContent = showingReport ? "Email Report" : "Publish";
+      refs.toggleViewButton.textContent = showingReport || showingSettings ? "Back to Notes" : "Review Notes";
+      refs.sendButton.innerHTML = showingReport
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path></svg><span>Email Notes</span>`
+        : "Publish";
       refs.sendButton.classList.toggle("hidden", showingSettings);
       refs.settingsButton.classList.toggle("hidden", showingSettings);
       refs.toggleViewButton.classList.toggle("wide-action", showingSettings);
@@ -2529,6 +2666,7 @@
       renderSender();
       renderStaff();
       renderCloseoutFields();
+      renderCloseoutRequiredDialog();
       renderCategories();
       renderMetrics();
       renderNotes();
@@ -2575,7 +2713,7 @@
       }
       if ("value" in input && input.tagName !== "SELECT") input.value = "";
       render();
-      if (input.tagName === "INPUT") input.focus();
+      if (input.tagName === "INPUT") input.blur();
     }
 
     function removeShiftStaff(name) {
@@ -2633,48 +2771,116 @@
       const text = refs.reportPreview.value || buildReport();
       try {
         await navigator.clipboard.writeText(text);
-        showToast("Report copied.");
+        showToast("Notes copied.");
       } catch {
         refs.reportPreview.focus();
         refs.reportPreview.select();
-        showToast("Report selected.");
+        showToast("Notes selected.");
       }
     }
 
-    function requireRequiredFields() {
-      const requiredFields = getRequiredFields();
-      const missingFields = requiredFields.filter((field) => !field.complete);
-      if (!missingFields.length) {
-        requiredHighlightActive = false;
-        updateRequiredHighlights();
-        return true;
-      }
+    function getMissingCloseoutFields() {
+      return getRequiredFields().filter((field) => !field.complete);
+    }
+
+    function closeStaffRequiredDialog() {
+      refs.staffRequiredDialog.classList.add("hidden");
+    }
+
+    function openStaffRequiredDialog() {
+      refs.staffRequiredDialog.classList.remove("hidden");
+    }
+
+    function goToStaffSection() {
+      closeStaffRequiredDialog();
       currentView = "notes";
-      activeWorkSection = "closeout";
-      requiredHighlightActive = true;
+      activeWorkSection = "staff";
+      blurFocusedField();
       render();
-      const missingSections = [...new Set(missingFields.map((field) => field.sectionElement))]
-        .sort((first, second) => first.getBoundingClientRect().top - second.getBoundingClientRect().top);
-      const targetSection = missingSections[0] || missingFields[0].sectionElement;
-      const targetField = missingFields.find((field) => field.sectionElement === targetSection) || missingFields[0];
-      targetSection.scrollIntoView({ behavior: "smooth", block: "center" });
-      if (targetField.focusElement && typeof targetField.focusElement.focus === "function") {
-        try {
-          targetField.focusElement.focus({ preventScroll: true });
-        } catch {
-          targetField.focusElement.focus();
-        }
-      }
-      showToast("Finish required fields.");
-      return false;
+      requestAnimationFrame(() => {
+        refs.appMain?.scrollTo({ top: 0, behavior: "smooth" });
+      });
     }
 
-    function emailReport() {
-      if (!requireRequiredFields()) return;
+    function openCloseoutRequiredDialog(action = "review") {
+      const missingFields = getMissingCloseoutFields();
+      if (!missingFields.length) return false;
+      pendingCloseoutAction = action;
+      closeoutModalFieldKeys = missingFields.map((field) => field.key);
+      requiredHighlightActive = true;
+      blurFocusedField();
+      renderCloseoutFields();
+      renderCloseoutRequiredDialog();
+      refs.closeoutRequiredDialog.classList.remove("hidden");
+      return true;
+    }
+
+    function closeCloseoutRequiredDialog() {
+      refs.closeoutRequiredDialog.classList.add("hidden");
+      closeoutModalFieldKeys = [];
+    }
+
+    function ensureNotesReady(action = "review") {
+      if (!state.shiftStaff.length) {
+        openStaffRequiredDialog();
+        showToast("Add staff before sending notes.");
+        return false;
+      }
+      if (openCloseoutRequiredDialog(action)) {
+        return false;
+      }
+      requiredHighlightActive = false;
+      updateRequiredHighlights();
+      return true;
+    }
+
+    function reviewNotes() {
+      currentView = "report";
+      render();
+    }
+
+    function publishNotes() {
+      if (!ensureNotesReady("review")) return;
+      reviewNotes();
+    }
+
+    function completeCloseoutRequiredDialog() {
+      commitMoneyInput(refs.modalNetSalesInput, "netSales");
+      commitMoneyInput(refs.modalChangeBoxInput, "changeBox");
+      const missingFields = getMissingCloseoutFields();
+      if (missingFields.length) {
+        closeoutModalFieldKeys = missingFields.map((field) => field.key);
+        renderCloseoutFields();
+        renderCloseoutRequiredDialog();
+        return false;
+      }
+      closeCloseoutRequiredDialog();
+      requiredHighlightActive = false;
+      currentView = "report";
+      render();
+      if (pendingCloseoutAction === "email") sendEmailNotes();
+      return true;
+    }
+
+    function sendEmailNotes() {
       const recipients = state.recipients.map((recipient) => recipient.email).join(",");
       const subject = `Truck Notes - ${formatDate(state.shiftDate)}`;
       const body = refs.reportPreview.value || buildReport();
       window.location.href = `mailto:${recipients}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    function emailNotes() {
+      if (!ensureNotesReady("email")) return;
+      sendEmailNotes();
+    }
+
+    function requireRequiredFields() {
+      if (ensureNotesReady("review")) return true;
+      return false;
+    }
+
+    function emailReport() {
+      emailNotes();
     }
 
     function resetShift() {
@@ -2690,8 +2896,22 @@
       currentView = "notes";
       activeWorkSection = "notes";
       refs.resetDialog.classList.add("hidden");
+      refs.staffRequiredDialog.classList.add("hidden");
+      refs.closeoutRequiredDialog.classList.add("hidden");
       render();
       showToast("New day started.");
+    }
+
+    function blurFocusedField() {
+      const activeElement = document.activeElement;
+      if (!activeElement || !["INPUT", "TEXTAREA", "SELECT"].includes(activeElement.tagName)) return;
+      activeElement.blur();
+    }
+
+    function blurFocusedFieldOnBackgroundTap(event) {
+      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+      if (target?.closest("a, button, input, label, select, summary, textarea")) return;
+      blurFocusedField();
     }
 
     function updateClock() {
@@ -2789,6 +3009,8 @@
       refs.settingsLockDialog.classList.add("hidden");
       refs.resetDialog.classList.add("hidden");
       refs.installDialog.classList.add("hidden");
+      refs.staffRequiredDialog.classList.add("hidden");
+      refs.closeoutRequiredDialog.classList.add("hidden");
     }
 
     refs.workTabs.addEventListener("click", (event) => {
@@ -2796,6 +3018,9 @@
       if (!button) return;
       setWorkSection(button.dataset.workSection);
     });
+
+    document.addEventListener("touchstart", blurFocusedFieldOnBackgroundTap, { passive: true });
+    document.addEventListener("mousedown", blurFocusedFieldOnBackgroundTap);
 
     refs.workTabs.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -2961,6 +3186,36 @@
       commitMoneyInput(refs.changeBoxInput, "changeBox");
     });
 
+    refs.modalNetSalesInput.addEventListener("input", () => {
+      state.netSales = parseMoneyInput(refs.modalNetSalesInput.value);
+      saveState();
+      renderCloseoutFields();
+      renderReport();
+    });
+
+    refs.modalNetSalesInput.addEventListener("focus", () => {
+      selectMoneyInput(refs.modalNetSalesInput);
+    });
+
+    refs.modalNetSalesInput.addEventListener("blur", () => {
+      commitMoneyInput(refs.modalNetSalesInput, "netSales");
+    });
+
+    refs.modalChangeBoxInput.addEventListener("input", () => {
+      state.changeBox = parseMoneyInput(refs.modalChangeBoxInput.value);
+      saveState();
+      renderCloseoutFields();
+      renderReport();
+    });
+
+    refs.modalChangeBoxInput.addEventListener("focus", () => {
+      selectMoneyInput(refs.modalChangeBoxInput);
+    });
+
+    refs.modalChangeBoxInput.addEventListener("blur", () => {
+      commitMoneyInput(refs.modalChangeBoxInput, "changeBox");
+    });
+
     refs.tabsClosedGroup.addEventListener("click", (event) => {
       const button = event.target.closest("[data-tabs-closed]");
       if (!button) return;
@@ -2986,6 +3241,34 @@
       saveState();
       renderCloseoutFields();
       renderReport();
+    });
+
+    refs.closeoutRequiredDialog.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-modal-decision-field]");
+      if (!button) return;
+      state[button.dataset.modalDecisionField] = button.dataset.modalDecisionValue;
+      saveState();
+      renderCloseoutFields();
+      renderCloseoutRequiredDialog();
+      renderReport();
+    });
+
+    refs.closeoutRequiredForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      completeCloseoutRequiredDialog();
+    });
+
+    refs.cancelCloseoutRequiredButton.addEventListener("click", closeCloseoutRequiredDialog);
+
+    refs.closeoutRequiredDialog.addEventListener("click", (event) => {
+      if (event.target === refs.closeoutRequiredDialog) closeCloseoutRequiredDialog();
+    });
+
+    refs.cancelStaffRequiredButton.addEventListener("click", closeStaffRequiredDialog);
+    refs.goToStaffButton.addEventListener("click", goToStaffSection);
+
+    refs.staffRequiredDialog.addEventListener("click", (event) => {
+      if (event.target === refs.staffRequiredDialog) closeStaffRequiredDialog();
     });
 
     refs.staffForm.addEventListener("submit", (event) => {
@@ -3066,7 +3349,11 @@
         returnFromSettings();
         return;
       }
-      currentView = currentView === "notes" ? "report" : "notes";
+      if (currentView === "notes") {
+        reviewNotes();
+        return;
+      }
+      currentView = "notes";
       render();
     });
 
@@ -3098,17 +3385,15 @@
     });
 
     refs.sendButton.addEventListener("click", () => {
-      if (!requireRequiredFields()) return;
       if (currentView !== "report") {
-        currentView = "report";
-        render();
+        publishNotes();
         return;
       }
-      emailReport();
+      emailNotes();
     });
 
     refs.copyReportButton.addEventListener("click", copyReport);
-    refs.emailReportButton.addEventListener("click", emailReport);
+    refs.emailReportButton.addEventListener("click", emailNotes);
     refs.resetButton.addEventListener("click", () => refs.resetDialog.classList.remove("hidden"));
     refs.cancelResetButton.addEventListener("click", () => refs.resetDialog.classList.add("hidden"));
     refs.confirmResetButton.addEventListener("click", resetShift);
