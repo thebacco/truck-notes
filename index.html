@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-17-softer-dark-menu">
+  <meta name="app-version" content="2026-06-17-persistent-header-menu">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -2215,7 +2215,6 @@
     let currentView = "notes";
     let activeWorkSection = "notes";
     let toastTimer = null;
-    let headerMenuCloseTimer = null;
     let refreshingForUpdate = false;
     let settingsPinEntry = "";
     let requiredHighlightActive = false;
@@ -2759,13 +2758,11 @@
     }
 
     function closeHeaderMenu() {
-      clearTimeout(headerMenuCloseTimer);
       refs.headerMenu.classList.add("hidden");
       refs.headerMenuButton.setAttribute("aria-expanded", "false");
     }
 
     function toggleHeaderMenu() {
-      clearTimeout(headerMenuCloseTimer);
       const isOpening = refs.headerMenu.classList.contains("hidden");
       refs.headerMenu.classList.toggle("hidden", !isOpening);
       refs.headerMenuButton.setAttribute("aria-expanded", String(isOpening));
@@ -3533,7 +3530,6 @@
       state.nightMode = !state.nightMode;
       state.themePreferenceSet = true;
       render();
-      headerMenuCloseTimer = setTimeout(closeHeaderMenu, 360);
     });
 
     refs.categorySegments.addEventListener("click", (event) => {
