@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-17-settings-entry-contrast">
+  <meta name="app-version" content="2026-06-17-staff-touch-targets">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -732,21 +732,44 @@
       gap: 5px;
       height: 190px;
       overflow-y: auto;
-      padding-right: 1px;
+      padding-right: 6px;
+      scrollbar-color: rgba(107, 103, 96, .34) transparent;
+      scrollbar-width: thin;
+    }
+
+    .staff-transfer-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .staff-transfer-list::-webkit-scrollbar-button {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+
+    .staff-transfer-list::-webkit-scrollbar-track {
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .staff-transfer-list::-webkit-scrollbar-thumb {
+      border: 0;
+      border-radius: 999px;
+      background: rgba(107, 103, 96, .34);
     }
 
     .staff-transfer-option {
-      min-height: 29px;
+      min-height: 38px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fffaf0;
       color: var(--ink-84);
       cursor: pointer;
       font-family: var(--copy-font);
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 650;
       text-align: left;
-      padding: 0 8px;
+      padding: 0 10px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
