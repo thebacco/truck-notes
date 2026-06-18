@@ -52,3 +52,10 @@ The fixed recipient list lives in `RECIPIENTS` inside `index.html`.
 - Use Univers for operational data, user-entered values, names, recipients, notes, and other content the app is carrying for the user.
 - If the text is part of the interface telling the user what to do, default to Centrifuge. If the text is data the user entered, selected, or needs to read back, default to Univers.
 
+### Menus
+
+- Use overflow menus for lower-frequency utility actions, not primary workflows.
+- Prefer a plain icon by default. Do not add a persistent circular/chip background unless the surrounding design already requires it.
+- When a menu is open, add a subtle active background to the trigger so the control visibly owns the popover.
+- Commands may close a menu after activation. Stateful controls, such as toggles, should leave the menu open so the user can see the completed state.
+
