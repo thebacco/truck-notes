@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-17-larger-settings-content">
+  <meta name="app-version" content="2026-06-17-settings-entry-contrast">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1214,12 +1214,18 @@
       align-items: center;
       gap: 8px;
       padding: 6px 8px 6px 10px;
+      border: 1px solid transparent;
       border-radius: 8px;
       background: var(--wash);
       color: var(--ink-84);
       font-family: var(--copy-font);
       font-size: 16px;
       font-weight: 700;
+    }
+
+    body:not(.theme-dark) .settings-row {
+      border-color: rgba(107, 103, 96, .16);
+      background: #f3eee4;
     }
 
     .settings-row span,
