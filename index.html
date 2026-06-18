@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-17-day-note-entry-border">
+  <meta name="app-version" content="2026-06-17-dark-passcode-cells">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -401,7 +401,7 @@
       top: 22px;
       right: 22px;
       z-index: 20;
-      width: 184px;
+      width: 204px;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -415,7 +415,7 @@
 
     .header-menu-row {
       width: 100%;
-      min-height: 42px;
+      min-height: 48px;
       border: 0;
       background: transparent;
       color: var(--ink-84);
@@ -423,10 +423,10 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 9px 12px;
+      padding: 11px 14px;
       cursor: pointer;
       font-family: var(--display-font);
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0;
       text-align: left;
@@ -1422,6 +1422,14 @@
       color: transparent;
       caret-color: transparent;
       box-shadow: none;
+    }
+
+    body.theme-dark .pin-cell {
+      border-color: rgba(199, 154, 88, .42);
+      background:
+        linear-gradient(180deg, rgba(49, 43, 35, .96), rgba(38, 34, 29, .96)),
+        rgba(199, 154, 88, .08);
+      color: var(--ink-93);
     }
 
     body.theme-dark select {
