@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-17-staff-touch-targets">
+  <meta name="app-version" content="2026-06-18-recipients-form-first">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -34,6 +34,8 @@
       --copy-font: "univers-next-pro-condensed", "univers-next-pro", sans-serif;
       --field-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --mono-font: "Courier New", Courier, monospace;
+      --scroll-list-height: 236px;
+      --scroll-mask-depth: 25px;
       font-family: var(--copy-font);
     }
 
@@ -727,49 +729,35 @@
     }
 
     .staff-transfer-list {
+      position: relative;
       display: grid;
       align-content: start;
-      gap: 5px;
-      height: 190px;
+      gap: 6px;
+      height: var(--scroll-list-height);
       overflow-y: auto;
-      padding-right: 6px;
-      scrollbar-color: rgba(107, 103, 96, .34) transparent;
-      scrollbar-width: thin;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, var(--scroll-mask-top, 1)) 0, #000 var(--scroll-mask-depth), #000 calc(100% - var(--scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-bottom, 1)) 100%);
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, var(--scroll-mask-top, 1)) 0, #000 var(--scroll-mask-depth), #000 calc(100% - var(--scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-bottom, 1)) 100%);
+      scrollbar-width: none;
     }
 
     .staff-transfer-list::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .staff-transfer-list::-webkit-scrollbar-button {
       width: 0;
       height: 0;
       display: none;
     }
 
-    .staff-transfer-list::-webkit-scrollbar-track {
-      border-radius: 999px;
-      background: transparent;
-    }
-
-    .staff-transfer-list::-webkit-scrollbar-thumb {
-      border: 0;
-      border-radius: 999px;
-      background: rgba(107, 103, 96, .34);
-    }
-
     .staff-transfer-option {
-      min-height: 38px;
+      min-height: 46px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fffaf0;
       color: var(--ink-84);
       cursor: pointer;
       font-family: var(--copy-font);
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 650;
       text-align: left;
-      padding: 0 10px;
+      padding: 0 12px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1186,28 +1174,17 @@
     }
 
     .settings-list.scroll-list {
-      max-height: 250px;
+      height: var(--scroll-list-height);
       overflow-y: auto;
-      padding-right: 4px;
-      scrollbar-color: rgba(199, 154, 88, .72) rgba(107, 103, 96, .16);
-      scrollbar-gutter: stable;
-      scrollbar-width: thin;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, var(--scroll-mask-top, 1)) 0, #000 var(--scroll-mask-depth), #000 calc(100% - var(--scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-bottom, 1)) 100%);
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, var(--scroll-mask-top, 1)) 0, #000 var(--scroll-mask-depth), #000 calc(100% - var(--scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-bottom, 1)) 100%);
+      scrollbar-width: none;
     }
 
     .settings-list.scroll-list::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .settings-list.scroll-list::-webkit-scrollbar-track {
-      border-radius: 999px;
-      background: rgba(107, 103, 96, .16);
-    }
-
-    .settings-list.scroll-list::-webkit-scrollbar-thumb {
-      border: 2px solid transparent;
-      border-radius: 999px;
-      background: rgba(199, 154, 88, .72);
-      background-clip: content-box;
+      width: 0;
+      height: 0;
+      display: none;
     }
 
     .settings-list-header {
@@ -2102,8 +2079,6 @@
 
             <section class="compact-title-gap">
               <p class="section-title">Recipients</p>
-              <div class="settings-list-header">Saved recipients</div>
-              <div class="settings-list scroll-list" id="settingsRecipientList"></div>
               <form class="recipient-settings-form" id="settingsRecipientForm" autocomplete="off">
                 <label for="settingsRecipientNameInput">
                   <span class="field-label">Name</span>
@@ -2115,6 +2090,8 @@
                 </label>
                 <button class="small-button settings-action" type="submit">Add recipient</button>
               </form>
+              <div class="settings-list-header">Saved recipients</div>
+              <div class="settings-list scroll-list" id="settingsRecipientList"></div>
             </section>
           </div>
         </section>
@@ -2919,6 +2896,21 @@
       refs.shiftControls.classList.toggle("hidden", showingSettings);
     }
 
+    function updateScrollCue(list) {
+      const maxScroll = list.scrollHeight - list.clientHeight;
+      if (maxScroll <= 1) {
+        list.style.setProperty("--scroll-mask-top", "1");
+        list.style.setProperty("--scroll-mask-bottom", "1");
+        return;
+      }
+      list.style.setProperty("--scroll-mask-top", list.scrollTop > 1 ? "0" : "1");
+      list.style.setProperty("--scroll-mask-bottom", list.scrollTop < maxScroll - 1 ? "0" : "1");
+    }
+
+    function updateScrollCues() {
+      document.querySelectorAll(".staff-transfer-list, .settings-list.scroll-list").forEach(updateScrollCue);
+    }
+
     function render() {
       state.defaultStaff = normalizeNameList(state.defaultStaff);
       state.shiftStaff = normalizeNameList(state.shiftStaff);
@@ -2940,6 +2932,7 @@
       renderReport();
       renderView();
       saveState();
+      requestAnimationFrame(updateScrollCues);
     }
 
     function showToast(message, duration = 3100) {
@@ -3408,7 +3401,13 @@
     window.addEventListener("resize", () => {
       updateWorkTrackTransform();
       updateWorkSectionHeight();
+      updateScrollCues();
     });
+
+    document.addEventListener("scroll", (event) => {
+      const list = event.target.closest?.(".staff-transfer-list, .settings-list.scroll-list");
+      if (list) updateScrollCue(list);
+    }, true);
 
     refs.shiftDate.addEventListener("change", () => {
       state.shiftDate = refs.shiftDate.value || defaultState.shiftDate;
@@ -3636,7 +3635,7 @@
       closeHeaderMenu();
       settingsReturnView = currentView;
       settingsReturnSection = activeWorkSection;
-      openSettingsLock();
+      unlockSettings();
     });
 
     refs.settingsPinForm.addEventListener("submit", (event) => {

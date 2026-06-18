@@ -59,3 +59,11 @@ The fixed recipient list lives in `RECIPIENTS` inside `index.html`.
 - When a menu is open, add a subtle active background to the trigger so the control visibly owns the popover.
 - Commands may close a menu after activation. Stateful controls, such as toggles, should leave the menu open so the user can see the completed state.
 
+### Scroll Lists
+
+- Prefer hidden native scrollbars on compact mobile list fields.
+- Use mask/fade zones instead of painted shadows, so the list items themselves fade while preserving their rounded shape.
+- Size scroll fields to reveal a partial final item in the starting position when more content exists.
+- Default scroll fields so the partial final item exposes enough centered label text for about 60% of that text to stay readable while the rest enters the fade zone. This makes the continuation cue obvious without adding desktop-style scrollbar hardware.
+- Keep the shared implementation values in CSS variables (`--scroll-list-height` and `--scroll-mask-depth`) so the behavior stays consistent across list fields.
+
