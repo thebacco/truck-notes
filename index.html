@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-17-footer-mail-icon">
+  <meta name="app-version" content="2026-06-17-softer-dark-menu">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -207,7 +207,7 @@
     }
 
     header {
-      padding: 18px 20px 14px;
+      padding: 18px 20px 11px;
       border-bottom: 1px solid rgba(222, 216, 204, .72);
     }
 
@@ -255,7 +255,7 @@
     }
 
     .shift-row {
-      margin-top: 14px;
+      margin-top: 11px;
     }
 
     .date-field {
@@ -375,6 +375,109 @@
       color: var(--ink-84);
     }
 
+    .header-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      position: relative;
+    }
+
+    .header-menu {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      z-index: 20;
+      width: 184px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fffdf8;
+      box-shadow: 0 12px 28px rgba(32, 28, 22, .16);
+    }
+
+    .header-menu.hidden {
+      display: none;
+    }
+
+    .header-menu-row {
+      width: 100%;
+      min-height: 42px;
+      border: 0;
+      background: transparent;
+      color: var(--ink-84);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-family: var(--display-font);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-align: left;
+    }
+
+    .header-menu-row + .header-menu-row {
+      border-top: 1px solid rgba(222, 216, 204, .72);
+    }
+
+    .menu-toggle {
+      width: 36px;
+      height: 20px;
+      position: relative;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: rgba(107, 103, 96, .22);
+    }
+
+    .menu-toggle::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #fffdf8;
+      box-shadow: 0 1px 2px rgba(32, 28, 22, .18);
+      transition: transform .18s ease;
+    }
+
+    .header-menu-row[aria-pressed="true"] .menu-toggle {
+      background: var(--gold);
+    }
+
+    .header-menu-row[aria-pressed="true"] .menu-toggle::after {
+      transform: translateX(16px);
+    }
+
+    body.theme-dark .header-menu {
+      border-color: rgba(199, 154, 88, .42);
+      background: #2a261f;
+      box-shadow:
+        inset 0 0 0 1px rgba(243, 238, 228, .05),
+        0 14px 32px rgba(0, 0, 0, .34);
+    }
+
+    body.theme-dark .header-menu-row {
+      color: var(--ink-93);
+    }
+
+    body.theme-dark .header-menu-row + .header-menu-row {
+      border-top-color: rgba(243, 238, 228, .12);
+    }
+
+    body.theme-dark .menu-toggle {
+      background: rgba(243, 238, 228, .18);
+    }
+
+    body.theme-dark .menu-toggle::after {
+      background: #2a261f;
+      box-shadow: 0 0 0 1px rgba(243, 238, 228, .18);
+    }
+
     .icon-button svg,
     .small-button svg,
     .primary svg,
@@ -402,18 +505,17 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 16px 16px 132px;
+      padding: 6px 16px 132px;
     }
 
     .work-nav {
       position: sticky;
       top: 0;
-      z-index: 3;
-      margin: -2px 0 8px;
-      padding-bottom: 8px;
-      background:
-        linear-gradient(180deg, rgba(255, 253, 248, .98), rgba(255, 253, 248, .92));
-      backdrop-filter: blur(12px);
+      z-index: 6;
+      margin: -6px -16px 9px;
+      padding: 6px 16px 7px;
+      background: #fffdf8;
+      box-shadow: 0 1px 0 rgba(222, 216, 204, .72);
     }
 
     .work-tabs {
@@ -522,11 +624,11 @@
     }
 
     .section {
-      margin-top: 16px;
+      margin-top: 15px;
     }
 
     .section-title {
-      margin: 0 0 10px;
+      margin: 0 0 9px;
       color: var(--ink-84);
       font-family: var(--display-font);
       font-size: 12px;
@@ -543,7 +645,7 @@
     .report-panel {
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: rgba(255, 250, 240, .9);
+      background: rgba(255, 250, 240, .93);
       box-shadow: 0 10px 28px rgba(22, 22, 22, .06);
     }
 
@@ -561,11 +663,11 @@
 
     .sender-field {
       display: grid;
-      gap: 8px;
+      gap: 7px;
     }
 
     .sender-panel {
-      margin-bottom: 12px;
+      margin-bottom: 11px;
     }
 
     .sender-title {
@@ -597,14 +699,14 @@
     .staff-transfer {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+      gap: 7px;
       align-items: stretch;
     }
 
     .staff-transfer-column {
       min-width: 0;
       display: grid;
-      gap: 6px;
+      gap: 5px;
       padding: 8px;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -653,12 +755,12 @@
     .money-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+      gap: 7px;
     }
 
     .pill-field {
       display: grid;
-      gap: 6px;
+      gap: 5px;
       min-width: 0;
     }
 
@@ -671,7 +773,7 @@
 
     .check-list {
       display: grid;
-      gap: 8px;
+      gap: 7px;
     }
 
     .check-row,
@@ -754,8 +856,8 @@
     .segments {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 7px;
-      margin-bottom: 10px;
+      gap: 6px;
+      margin-bottom: 9px;
     }
 
     .segment {
@@ -773,13 +875,13 @@
     .composer-actions {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 8px;
-      margin-top: 10px;
+      gap: 7px;
+      margin-top: 9px;
     }
 
     .note-list {
       display: grid;
-      gap: 10px;
+      gap: 9px;
     }
 
     .note-card {
@@ -827,21 +929,23 @@
       align-items: center;
       padding: 0 9px;
       border-radius: 999px;
-      background: rgba(78, 82, 88, .1);
+      background: rgba(78, 82, 88, .061);
       color: var(--muted);
       font-size: 11px;
-      font-weight: 900;
+      font-weight: 400;
       text-transform: uppercase;
     }
 
     .tag.general {
-      background: rgba(199, 154, 88, .24);
-      color: #77511f;
+      background: rgba(199, 154, 88, .13);
+      color: #85612d;
+      box-shadow: inset 0 0 0 1px rgba(199, 154, 88, .10);
     }
 
     .tag.inventory {
-      background: rgba(78, 82, 88, .1);
-      color: var(--ink-84);
+      background: rgba(78, 82, 88, .061);
+      color: var(--muted);
+      box-shadow: inset 0 0 0 1px rgba(78, 82, 88, .10);
     }
 
     .delete-note {
@@ -867,7 +971,7 @@
 
     .report-panel {
       display: grid;
-      gap: 12px;
+      gap: 11px;
       padding: 12px;
     }
 
@@ -969,13 +1073,29 @@
       padding: 10px;
       border: 1px solid rgba(222, 216, 204, .84);
       border-radius: 8px;
-      background: rgba(243, 239, 230, .46);
+      background: rgba(243, 239, 230, .49);
     }
 
     .settings-panel .section-title {
       color: var(--ink-84);
       font-size: 13px;
       font-weight: 700;
+    }
+
+    .settings-panel .compact-title-gap .section-title {
+      margin-bottom: 5px;
+    }
+
+    .settings-panel .compact-title-gap {
+      gap: 7px;
+    }
+
+    .settings-panel .compact-title-gap .settings-list-header {
+      margin-top: 0;
+    }
+
+    .settings-panel .recipient-settings-form {
+      margin-top: 6px;
     }
 
     .settings-toggle-row {
@@ -1030,7 +1150,7 @@
     }
 
     .settings-list.scroll-list {
-      max-height: 270px;
+      max-height: 250px;
       overflow-y: auto;
       padding-right: 4px;
       scrollbar-color: rgba(199, 154, 88, .72) rgba(107, 103, 96, .16);
@@ -1098,8 +1218,8 @@
     }
 
     .settings-staff-name {
-      font-family: var(--display-font);
-      font-weight: 800;
+      font-family: var(--copy-font);
+      font-weight: 750;
     }
 
     .settings-row small {
@@ -1111,6 +1231,7 @@
     }
 
     .settings-remove {
+      position: relative;
       width: 30px;
       height: 30px;
       display: grid;
@@ -1118,13 +1239,30 @@
       padding: 0;
       border: 0;
       border-radius: 8px;
-      background: rgba(177, 47, 36, .1);
-      color: var(--accent);
+      background: transparent;
+      color: var(--ink-93);
       cursor: pointer;
-      font-family: var(--display-font);
-      font-size: 18px;
-      font-weight: 800;
-      line-height: 1;
+      font-size: 0;
+      line-height: 0;
+    }
+
+    .settings-remove::before,
+    .settings-remove::after {
+      content: "";
+      position: absolute;
+      width: 13px;
+      height: 1px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: .72;
+    }
+
+    .settings-remove::before {
+      transform: rotate(45deg);
+    }
+
+    .settings-remove::after {
+      transform: rotate(-45deg);
     }
 
     .settings-form,
@@ -1265,6 +1403,14 @@
       color: rgba(243, 238, 228, .38);
     }
 
+    body.theme-dark .pin-input {
+      border: 0;
+      background: transparent;
+      color: transparent;
+      caret-color: transparent;
+      box-shadow: none;
+    }
+
     body.theme-dark select {
       background:
         linear-gradient(45deg, transparent 50%, var(--ink-84) 50%) calc(100% - 18px) 18px / 6px 6px no-repeat,
@@ -1293,9 +1439,8 @@
     }
 
     body.theme-dark .work-nav {
-      background:
-        linear-gradient(180deg, rgba(33, 30, 26, .98), rgba(33, 30, 26, .9));
-      box-shadow: none;
+      background: #211e1a;
+      box-shadow: 0 1px 0 rgba(243, 238, 228, .12);
     }
 
     body.theme-dark .pill-field.required-missing input,
@@ -1440,7 +1585,11 @@
 
     .pin-entry {
       position: relative;
-      width: 152px;
+      width: 228px;
+      display: grid;
+      grid-template-columns: 1fr 34px;
+      align-items: center;
+      gap: 8px;
     }
 
     .pin-entry.shake {
@@ -1463,53 +1612,89 @@
     }
 
     .pin-input {
-      width: 100%;
-      height: 48px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fffdf8;
-      color: var(--ink-93);
-      font-family: var(--display-font);
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      padding: 0 43px 0 12px;
-      text-align: center;
-    }
-
-    .pin-entry.invalid .pin-input {
-      border-color: var(--accent);
-      outline: 2px solid rgba(177, 47, 36, .3);
-      outline-offset: 2px;
-    }
-
-    .pin-input:focus {
-      border-color: var(--accent);
-      outline: 2px solid rgba(177, 47, 36, .18);
-      outline-offset: 2px;
-    }
-
-    .pin-visibility {
       position: absolute;
       top: 50%;
-      right: 4px;
-      width: 38px;
-      height: 38px;
-      transform: translateY(-50%);
+      left: 50%;
+      z-index: 1;
+      width: 1px;
+      height: 1px;
+      border: 0;
+      background: transparent;
+      color: transparent;
+      caret-color: transparent;
+      opacity: 0;
+      padding: 0;
+    }
+
+    .pin-label {
+      position: relative;
+      display: block;
+      min-width: 0;
+    }
+
+    .pin-boxes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .pin-cell {
+      width: 100%;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(184, 132, 63, .42);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, .94), rgba(255, 250, 240, .86)),
+        rgba(184, 132, 63, .16);
+      color: var(--ink-93);
+      font-family: var(--display-font);
+      font-size: 23px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .pin-cell.active {
+      border-color: rgba(184, 132, 63, .9);
+      box-shadow: 0 0 0 3px rgba(184, 132, 63, .13);
+    }
+
+    .pin-entry.invalid .pin-cell {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(177, 47, 36, .22);
+    }
+
+    .pin-clear {
+      position: relative;
+      width: 30px;
+      height: 42px;
       display: grid;
       place-items: center;
       border: 0;
-      border-radius: 0;
       background: transparent;
-      color: var(--ink-84);
+      color: var(--ink-93);
       cursor: pointer;
       padding: 0;
     }
 
-    .pin-visibility svg {
-      width: 20px;
-      height: 20px;
-      stroke: currentColor;
+    .pin-clear::before,
+    .pin-clear::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: .72;
+    }
+
+    .pin-clear::before {
+      transform: rotate(45deg);
+    }
+
+    .pin-clear::after {
+      transform: rotate(-45deg);
     }
 
     .install-steps {
@@ -1646,7 +1831,7 @@
       }
 
       body.force-phone-frame header {
-        padding: 18px 20px 14px;
+        padding: 18px 20px 11px;
       }
     }
   </style>
@@ -1666,11 +1851,23 @@
               <h1>Truck Notes</h1>
             </div>
           </div>
-          <button class="icon-button settings-button" id="settingsButton" type="button" aria-label="Settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 1 1 4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7A2 2 0 1 1 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 1 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.6 1Z"></path>
-            </svg>
-          </button>
+          <div class="header-actions">
+            <button class="icon-button settings-button" id="headerMenuButton" type="button" aria-label="Menu" aria-expanded="false" aria-controls="headerMenu">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path>
+              </svg>
+            </button>
+            <div class="header-menu hidden" id="headerMenu">
+              <button class="header-menu-row" id="menuNightModeButton" type="button" aria-pressed="false">
+                <span>Night mode</span>
+                <span class="menu-toggle" aria-hidden="true"></span>
+              </button>
+              <button class="header-menu-row" id="settingsButton" type="button">
+                <span>Settings</span>
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+          </div>
         </div>
         <div class="shift-row" id="shiftControls">
           <label class="date-field" for="shiftDate">
@@ -1835,15 +2032,7 @@
 
         <section id="settingsView" class="view hidden">
           <div class="report-panel settings-panel">
-            <section>
-              <p class="section-title">Appearance</p>
-              <div class="settings-toggle-row">
-                <span>Night mode</span>
-                <button class="toggle-button" id="nightModeToggle" type="button" aria-label="Night mode" aria-pressed="true"></button>
-              </div>
-            </section>
-
-            <section>
+            <section class="compact-title-gap">
               <p class="section-title">Staff pool</p>
               <form class="settings-form" id="settingsStaffForm" autocomplete="off">
                 <input id="settingsStaffNameInput" type="text" autocomplete="off" placeholder="Add pool staff">
@@ -1852,8 +2041,10 @@
               <div class="settings-list scroll-list" id="settingsStaffList"></div>
             </section>
 
-            <section>
+            <section class="compact-title-gap">
               <p class="section-title">Recipients</p>
+              <div class="settings-list-header">Saved recipients</div>
+              <div class="settings-list scroll-list" id="settingsRecipientList"></div>
               <form class="recipient-settings-form" id="settingsRecipientForm" autocomplete="off">
                 <label for="settingsRecipientNameInput">
                   <span class="field-label">Name</span>
@@ -1865,8 +2056,6 @@
                 </label>
                 <button class="small-button settings-action" type="submit">Add recipient</button>
               </form>
-              <div class="settings-list-header">Saved recipients</div>
-              <div class="settings-list scroll-list" id="settingsRecipientList"></div>
             </section>
           </div>
         </section>
@@ -1947,19 +2136,15 @@
         <form class="pin-form" id="settingsPinForm" autocomplete="off">
           <div class="pin-entry">
             <label class="pin-label" for="settingsPinInput">
-              <input class="pin-input" id="settingsPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" aria-label="Settings PIN">
+              <input class="pin-input" id="settingsPinInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" enterkeyhint="done" aria-label="Settings passcode">
+              <span class="pin-boxes" id="settingsPinBoxes" aria-hidden="true">
+                <span class="pin-cell" data-pin-cell></span>
+                <span class="pin-cell" data-pin-cell></span>
+                <span class="pin-cell" data-pin-cell></span>
+                <span class="pin-cell" data-pin-cell></span>
+              </span>
             </label>
-            <button class="pin-visibility" id="settingsPinVisibilityButton" type="button" aria-label="Show passcode" aria-pressed="false">
-              <svg class="pin-eye-show" viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <svg class="pin-eye-hide hidden" viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M2 12s3.5-6 10-6c2.1 0 3.9.62 5.35 1.47"></path>
-                <path d="M22 12s-3.5 6-10 6c-2.1 0-3.9-.62-5.35-1.47"></path>
-                <path d="M4 4l16 16"></path>
-              </svg>
-            </button>
+            <button class="pin-clear" id="settingsPinClearButton" type="button" aria-label="Clear passcode"></button>
           </div>
         </form>
       </div>
@@ -2030,6 +2215,7 @@
     let currentView = "notes";
     let activeWorkSection = "notes";
     let toastTimer = null;
+    let headerMenuCloseTimer = null;
     let refreshingForUpdate = false;
     let settingsPinEntry = "";
     let requiredHighlightActive = false;
@@ -2075,6 +2261,9 @@
       notesView: document.getElementById("notesView"),
       reportView: document.getElementById("reportView"),
       settingsView: document.getElementById("settingsView"),
+      headerMenuButton: document.getElementById("headerMenuButton"),
+      headerMenu: document.getElementById("headerMenu"),
+      menuNightModeButton: document.getElementById("menuNightModeButton"),
       settingsButton: document.getElementById("settingsButton"),
       settingsStaffList: document.getElementById("settingsStaffList"),
       settingsStaffForm: document.getElementById("settingsStaffForm"),
@@ -2083,7 +2272,6 @@
       settingsRecipientForm: document.getElementById("settingsRecipientForm"),
       settingsRecipientNameInput: document.getElementById("settingsRecipientNameInput"),
       settingsRecipientEmailInput: document.getElementById("settingsRecipientEmailInput"),
-      nightModeToggle: document.getElementById("nightModeToggle"),
       recipientCount: document.getElementById("recipientCount"),
       recipientList: document.getElementById("recipientList"),
       reportPreview: document.getElementById("reportPreview"),
@@ -2106,7 +2294,8 @@
       settingsLockDialog: document.getElementById("settingsLockDialog"),
       settingsPinForm: document.getElementById("settingsPinForm"),
       settingsPinInput: document.getElementById("settingsPinInput"),
-      settingsPinVisibilityButton: document.getElementById("settingsPinVisibilityButton"),
+      settingsPinCells: Array.from(document.querySelectorAll("[data-pin-cell]")),
+      settingsPinClearButton: document.getElementById("settingsPinClearButton"),
       installDialog: document.getElementById("installDialog"),
       installLaterButton: document.getElementById("installLaterButton"),
       toast: document.getElementById("toast")
@@ -2175,7 +2364,8 @@
             }))
             .filter((recipient) => recipient.name && recipient.email.includes("@"))
         : [];
-      return cleanRecipients.length ? cleanRecipients : DEFAULT_RECIPIENTS.map((recipient) => ({ ...recipient }));
+      return (cleanRecipients.length ? cleanRecipients : DEFAULT_RECIPIENTS.map((recipient) => ({ ...recipient })))
+        .sort((first, second) => first.name.localeCompare(second.name, undefined, { sensitivity: "base" }));
     }
 
     function normalizeNameList(names = []) {
@@ -2528,7 +2718,8 @@
 
     function renderRecipients() {
       refs.recipientCount.textContent = `${state.recipients.length} saved`;
-      refs.recipientList.innerHTML = state.recipients.map((recipient) => `
+      const sortedRecipients = normalizeRecipients(state.recipients);
+      refs.recipientList.innerHTML = sortedRecipients.map((recipient) => `
         <div class="recipient-row">
           <strong>${escapeHtml(recipient.name)}</strong>
           <span>${escapeHtml(recipient.email)}</span>
@@ -2537,20 +2728,18 @@
     }
 
     function renderSettings() {
-      refs.nightModeToggle.setAttribute("aria-pressed", String(Boolean(state.nightMode)));
-
       const sortedDefaultStaff = normalizeNameList(state.defaultStaff);
       refs.settingsStaffList.innerHTML = sortedDefaultStaff.map((name) => `
         <div class="settings-row">
           <span class="settings-staff-name">${escapeHtml(name)}</span>
-          <button class="settings-remove" type="button" data-settings-remove-staff="${escapeHtml(name)}" aria-label="Remove ${escapeHtml(name)}">&times;</button>
+          <button class="settings-remove" type="button" data-settings-remove-staff="${escapeHtml(name)}" aria-label="Remove ${escapeHtml(name)}"></button>
         </div>
       `).join("");
 
       refs.settingsRecipientList.innerHTML = state.recipients.map((recipient, index) => `
         <div class="settings-row">
           <span><strong>${escapeHtml(recipient.name)}</strong><small>${escapeHtml(recipient.email)}</small></span>
-          <button class="settings-remove" type="button" data-remove-recipient="${index}" aria-label="Remove ${escapeHtml(recipient.name)}">&times;</button>
+          <button class="settings-remove" type="button" data-remove-recipient="${index}" aria-label="Remove ${escapeHtml(recipient.name)}"></button>
         </div>
       `).join("");
     }
@@ -2565,8 +2754,31 @@
       document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isNightMode ? "#191613" : "#fffdf8");
     }
 
+    function renderThemeToggle() {
+      refs.menuNightModeButton.setAttribute("aria-pressed", String(Boolean(state.nightMode)));
+    }
+
+    function closeHeaderMenu() {
+      clearTimeout(headerMenuCloseTimer);
+      refs.headerMenu.classList.add("hidden");
+      refs.headerMenuButton.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleHeaderMenu() {
+      clearTimeout(headerMenuCloseTimer);
+      const isOpening = refs.headerMenu.classList.contains("hidden");
+      refs.headerMenu.classList.toggle("hidden", !isOpening);
+      refs.headerMenuButton.setAttribute("aria-expanded", String(isOpening));
+    }
+
     function renderSettingsPin() {
       refs.settingsPinInput.value = settingsPinEntry;
+      const activeIndex = Math.min(settingsPinEntry.length, settingsPin.length - 1);
+      const dialogOpen = !refs.settingsLockDialog.classList.contains("hidden");
+      refs.settingsPinCells.forEach((cell, index) => {
+        cell.textContent = settingsPinEntry[index] || "";
+        cell.classList.toggle("active", dialogOpen && index === activeIndex);
+      });
     }
 
     function cleanSettingsPinInput(value) {
@@ -2582,20 +2794,12 @@
       pinEntry.classList.add("shake");
     }
 
-    function setSettingsPinVisible(isVisible) {
-      refs.settingsPinInput.type = isVisible ? "text" : "password";
-      refs.settingsPinVisibilityButton.setAttribute("aria-pressed", String(isVisible));
-      refs.settingsPinVisibilityButton.setAttribute("aria-label", isVisible ? "Hide passcode" : "Show passcode");
-      refs.settingsPinVisibilityButton.querySelector(".pin-eye-show").classList.toggle("hidden", isVisible);
-      refs.settingsPinVisibilityButton.querySelector(".pin-eye-hide").classList.toggle("hidden", !isVisible);
-    }
-
     function openSettingsLock() {
       settingsPinEntry = "";
       renderSettingsPin();
       setSettingsPinInvalid(false);
-      setSettingsPinVisible(false);
       refs.settingsLockDialog.classList.remove("hidden");
+      renderSettingsPin();
       try {
         refs.settingsPinInput.focus({ preventScroll: true });
       } catch {
@@ -2653,14 +2857,18 @@
         ? `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path></svg><span>Email Notes</span>`
         : "Publish";
       refs.sendButton.classList.toggle("hidden", showingSettings);
-      refs.settingsButton.classList.toggle("hidden", showingSettings);
+      refs.headerMenuButton.classList.toggle("hidden", showingSettings);
+      if (showingSettings) closeHeaderMenu();
       refs.toggleViewButton.classList.toggle("wide-action", showingSettings);
       refs.shiftControls.classList.toggle("hidden", showingSettings);
     }
 
     function render() {
       state.defaultStaff = normalizeNameList(state.defaultStaff);
+      state.shiftStaff = normalizeNameList(state.shiftStaff);
+      state.recipients = normalizeRecipients(state.recipients);
       applyTheme();
+      renderThemeToggle();
       refs.shiftDate.value = state.shiftDate;
       renderSettingsPin();
       renderSender();
@@ -3310,10 +3518,22 @@
       removeRecipient(Number(removeButton.dataset.removeRecipient));
     });
 
-    refs.nightModeToggle.addEventListener("click", () => {
+    refs.headerMenuButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleHeaderMenu();
+    });
+
+    refs.headerMenu.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
+    document.addEventListener("click", closeHeaderMenu);
+
+    refs.menuNightModeButton.addEventListener("click", () => {
       state.nightMode = !state.nightMode;
       state.themePreferenceSet = true;
       render();
+      headerMenuCloseTimer = setTimeout(closeHeaderMenu, 360);
     });
 
     refs.categorySegments.addEventListener("click", (event) => {
@@ -3358,6 +3578,7 @@
     });
 
     refs.settingsButton.addEventListener("click", () => {
+      closeHeaderMenu();
       settingsReturnView = currentView;
       settingsReturnSection = activeWorkSection;
       openSettingsLock();
@@ -3375,8 +3596,11 @@
       if (settingsPinEntry.length >= settingsPin.length) checkSettingsPin();
     });
 
-    refs.settingsPinVisibilityButton.addEventListener("click", () => {
-      setSettingsPinVisible(refs.settingsPinInput.type === "password");
+    refs.settingsPinClearButton.addEventListener("click", () => {
+      settingsPinEntry = "";
+      refs.settingsPinInput.value = "";
+      setSettingsPinInvalid(false);
+      renderSettingsPin();
       refs.settingsPinInput.focus();
     });
 

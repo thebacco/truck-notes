@@ -44,3 +44,11 @@ $env:PORT=8020; npm run dev
 
 The fixed recipient list lives in `RECIPIENTS` inside `index.html`.
 
+## Design standards
+
+### Type
+
+- Use Centrifuge for headings, section labels, navigation, and action labels.
+- Use Univers for operational data, user-entered values, names, recipients, notes, and other content the app is carrying for the user.
+- If the text is part of the interface telling the user what to do, default to Centrifuge. If the text is data the user entered, selected, or needs to read back, default to Univers.
+
