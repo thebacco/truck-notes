@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-18-recipients-form-first">
+  <meta name="app-version" content="2026-06-18-ios-swipe-physics">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -573,7 +573,7 @@
     .work-track {
       display: flex;
       align-items: flex-start;
-      transition: transform .24s cubic-bezier(.22, .72, .2, 1);
+      transition: transform var(--work-swipe-duration, .28s) cubic-bezier(.2, .82, .18, 1);
       will-change: transform;
     }
 
@@ -1379,7 +1379,7 @@
     }
 
     #settingsView {
-      transition: transform .24s cubic-bezier(.22, .72, .2, 1);
+      transition: transform var(--settings-swipe-duration, .28s) cubic-bezier(.2, .82, .18, 1);
       will-change: transform;
     }
 
@@ -2258,6 +2258,7 @@
     let pendingCloseoutAction = "review";
     let workSwipeStart = null;
     let settingsSwipeStart = null;
+    let settingsDismissTimer = null;
     let settingsReturnView = "notes";
     let settingsReturnSection = "notes";
 
@@ -2608,6 +2609,21 @@
       setWorkSection(workSectionOrder[nextIndex]);
     }
 
+    function rubberBandOffset(delta, dimension) {
+      const sign = Math.sign(delta);
+      const distance = Math.abs(delta);
+      const constant = .55;
+      return sign * ((distance * dimension * constant) / (dimension + constant * distance));
+    }
+
+    function setWorkSwipeDuration(ms) {
+      refs.workTrack.style.setProperty("--work-swipe-duration", `${ms}ms`);
+    }
+
+    function setSettingsSwipeDuration(ms) {
+      refs.settingsView.style.setProperty("--settings-swipe-duration", `${ms}ms`);
+    }
+
     function updateWorkTrackTransform(dragOffset = 0) {
       const index = getWorkSectionIndex();
       refs.workTrack.style.transform = dragOffset
@@ -2854,11 +2870,22 @@
     }
 
     function returnFromSettings() {
+      clearTimeout(settingsDismissTimer);
       currentView = settingsReturnView || "notes";
       activeWorkSection = settingsReturnSection || "notes";
       refs.settingsView.classList.remove("dragging");
       refs.settingsView.style.transform = "";
       render();
+    }
+
+    function dismissSettingsWithSwipe(deltaX) {
+      const width = refs.settingsView.getBoundingClientRect().width || 1;
+      const remainingRatio = Math.max(0, Math.min(1, 1 - (Math.abs(deltaX) / width)));
+      const duration = Math.round(170 + remainingRatio * 110);
+      setSettingsSwipeDuration(duration);
+      updateSettingsSwipeTransform(width);
+      clearTimeout(settingsDismissTimer);
+      settingsDismissTimer = setTimeout(returnFromSettings, duration);
     }
 
     function updateSettingsSwipeTransform(dragOffset = 0) {
@@ -3288,46 +3315,65 @@
 
     refs.workSections.addEventListener("touchstart", (event) => {
       const touch = event.touches[0];
+      const now = performance.now();
       workSwipeStart = {
         x: touch.clientX,
         y: touch.clientY,
-        startedAt: performance.now(),
-        dragging: false
+        startedAt: now,
+        lastX: touch.clientX,
+        lastAt: now,
+        velocityX: 0,
+        dragging: false,
+        dragOffset: 0
       };
     }, { passive: true });
 
     refs.workSections.addEventListener("touchmove", (event) => {
       if (!workSwipeStart) return;
       const touch = event.touches[0];
+      const now = performance.now();
       const deltaX = touch.clientX - workSwipeStart.x;
       const deltaY = touch.clientY - workSwipeStart.y;
+      const frameMs = Math.max(now - workSwipeStart.lastAt, 1);
+      workSwipeStart.velocityX = (touch.clientX - workSwipeStart.lastX) / frameMs;
+      workSwipeStart.lastX = touch.clientX;
+      workSwipeStart.lastAt = now;
 
       if (!workSwipeStart.dragging) {
         if (Math.abs(deltaX) < 10 || Math.abs(deltaX) < Math.abs(deltaY) * 1.1) return;
         workSwipeStart.dragging = true;
+        setWorkSwipeDuration(280);
         refs.workSections.classList.add("dragging");
       }
 
       event.preventDefault();
       const currentIndex = getWorkSectionIndex();
+      const width = refs.workSections.getBoundingClientRect().width || 1;
       const atStart = currentIndex === 0 && deltaX > 0;
       const atEnd = currentIndex === workSectionOrder.length - 1 && deltaX < 0;
-      const resistedDelta = atStart || atEnd ? deltaX * .28 : deltaX;
+      const resistedDelta = atStart || atEnd ? rubberBandOffset(deltaX, width) : deltaX;
+      workSwipeStart.dragOffset = resistedDelta;
       updateWorkTrackTransform(resistedDelta);
     }, { passive: false });
 
-    function finishWorkSwipe(deltaX, deltaY, elapsedMs) {
-      refs.workSections.classList.remove("dragging");
-      updateWorkTrackTransform();
-
+    function finishWorkSwipe(deltaX, deltaY, velocityX) {
       if (Math.abs(deltaX) < 42 || Math.abs(deltaX) < Math.abs(deltaY) * 1.15) return;
 
       const width = refs.workSections.getBoundingClientRect().width || 1;
-      const velocity = Math.abs(deltaX) / Math.max(elapsedMs, 1);
-      const shouldAdvance = Math.abs(deltaX) > width * .22 || velocity > .55;
+      const velocity = Math.abs(velocityX);
+      const shouldAdvance = Math.abs(deltaX) > width * .24 || (velocity > .45 && Math.abs(deltaX) > 24);
       if (!shouldAdvance) return;
 
-      moveWorkSection(deltaX < 0 ? 1 : -1);
+      const direction = Math.abs(velocityX) > .45
+        ? (velocityX < 0 ? 1 : -1)
+        : (deltaX < 0 ? 1 : -1);
+      const currentIndex = getWorkSectionIndex();
+      const nextIndex = currentIndex + direction;
+      if (nextIndex < 0 || nextIndex >= workSectionOrder.length) return;
+      const remainingRatio = Math.max(0, Math.min(1, 1 - (Math.abs(deltaX) / width)));
+      setWorkSwipeDuration(Math.round(180 + remainingRatio * 120));
+      setWorkSection(workSectionOrder[nextIndex], false);
+      return true;
     }
 
     refs.workSections.addEventListener("touchend", (event) => {
@@ -3335,11 +3381,16 @@
       const touch = event.changedTouches[0];
       const deltaX = touch.clientX - workSwipeStart.x;
       const deltaY = touch.clientY - workSwipeStart.y;
-      const elapsedMs = performance.now() - workSwipeStart.startedAt;
+      const velocityX = workSwipeStart.velocityX;
       const wasDragging = workSwipeStart.dragging;
       workSwipeStart = null;
       if (!wasDragging) return;
-      finishWorkSwipe(deltaX, deltaY, elapsedMs);
+      refs.workSections.classList.remove("dragging");
+      const didAdvance = finishWorkSwipe(deltaX, deltaY, velocityX);
+      if (!didAdvance) {
+        setWorkSwipeDuration(240);
+        updateWorkTrackTransform();
+      }
     }, { passive: true });
 
     refs.workSections.addEventListener("touchcancel", () => {
@@ -3351,10 +3402,14 @@
     refs.settingsView.addEventListener("touchstart", (event) => {
       if (event.target.closest("button, input, select, textarea, summary")) return;
       const touch = event.touches[0];
+      const now = performance.now();
       settingsSwipeStart = {
         x: touch.clientX,
         y: touch.clientY,
-        startedAt: performance.now(),
+        startedAt: now,
+        lastX: touch.clientX,
+        lastAt: now,
+        velocityX: 0,
         dragging: false
       };
     }, { passive: true });
@@ -3362,17 +3417,24 @@
     refs.settingsView.addEventListener("touchmove", (event) => {
       if (!settingsSwipeStart || currentView !== "settings") return;
       const touch = event.touches[0];
+      const now = performance.now();
       const deltaX = touch.clientX - settingsSwipeStart.x;
       const deltaY = touch.clientY - settingsSwipeStart.y;
+      const frameMs = Math.max(now - settingsSwipeStart.lastAt, 1);
+      settingsSwipeStart.velocityX = (touch.clientX - settingsSwipeStart.lastX) / frameMs;
+      settingsSwipeStart.lastX = touch.clientX;
+      settingsSwipeStart.lastAt = now;
 
       if (!settingsSwipeStart.dragging) {
         if (Math.abs(deltaX) < 10 || Math.abs(deltaX) < Math.abs(deltaY) * 1.1) return;
         settingsSwipeStart.dragging = true;
+        setSettingsSwipeDuration(280);
         refs.settingsView.classList.add("dragging");
       }
 
       event.preventDefault();
-      updateSettingsSwipeTransform(deltaX > 0 ? deltaX : deltaX * .28);
+      const width = refs.settingsView.getBoundingClientRect().width || 1;
+      updateSettingsSwipeTransform(deltaX > 0 ? deltaX : rubberBandOffset(deltaX, width));
     }, { passive: false });
 
     refs.settingsView.addEventListener("touchend", (event) => {
@@ -3380,16 +3442,24 @@
       const touch = event.changedTouches[0];
       const deltaX = touch.clientX - settingsSwipeStart.x;
       const deltaY = touch.clientY - settingsSwipeStart.y;
-      const elapsedMs = performance.now() - settingsSwipeStart.startedAt;
+      const velocityX = settingsSwipeStart.velocityX;
       const wasDragging = settingsSwipeStart.dragging;
       settingsSwipeStart = null;
 
       refs.settingsView.classList.remove("dragging");
-      updateSettingsSwipeTransform();
-      if (!wasDragging || deltaX < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
+      if (!wasDragging || deltaX < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+        setSettingsSwipeDuration(240);
+        updateSettingsSwipeTransform();
+        return;
+      }
       const width = refs.settingsView.getBoundingClientRect().width || 1;
-      const velocity = Math.abs(deltaX) / Math.max(elapsedMs, 1);
-      if (Math.abs(deltaX) > width * .18 || velocity > .5) returnFromSettings();
+      const velocity = Math.abs(velocityX);
+      if (Math.abs(deltaX) > width * .18 || (velocity > .45 && deltaX > 24)) {
+        dismissSettingsWithSwipe(deltaX);
+        return;
+      }
+      setSettingsSwipeDuration(240);
+      updateSettingsSwipeTransform();
     }, { passive: true });
 
     refs.settingsView.addEventListener("touchcancel", () => {
