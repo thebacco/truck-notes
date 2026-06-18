@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-17-dark-passcode-cells">
+  <meta name="app-version" content="2026-06-17-larger-settings-content">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1091,7 +1091,7 @@
 
     .settings-panel .section-title {
       color: var(--ink-84);
-      font-size: 13px;
+      font-size: 16px;
       font-weight: 700;
     }
 
@@ -1194,7 +1194,7 @@
       margin-top: 4px;
       color: var(--muted);
       font-family: var(--display-font);
-      font-size: 11px;
+      font-size: 14px;
       font-weight: 700;
       text-transform: uppercase;
     }
@@ -1208,7 +1208,7 @@
     }
 
     .settings-row {
-      min-height: 40px;
+      min-height: 46px;
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
@@ -1218,7 +1218,7 @@
       background: var(--wash);
       color: var(--ink-84);
       font-family: var(--copy-font);
-      font-size: 13px;
+      font-size: 16px;
       font-weight: 700;
     }
 
@@ -1239,8 +1239,9 @@
       display: block;
       color: var(--muted);
       font-family: var(--mono-font);
-      font-size: 11px;
+      font-size: 14px;
       font-weight: 700;
+      line-height: 1.15;
     }
 
     .settings-remove {
@@ -1286,6 +1287,14 @@
 
     .settings-form {
       grid-template-columns: 1fr auto;
+    }
+
+    .settings-panel input {
+      font-size: 15px;
+    }
+
+    .settings-panel .field-label {
+      font-size: 14px;
     }
 
     .recipient-settings-form label {
