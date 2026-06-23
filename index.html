@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-22-restore-main-scroll">
+  <meta name="app-version" content="2026-06-22-full-section-swipe-zone">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -2494,6 +2494,7 @@
       workTabButtons: Array.from(document.querySelectorAll("[data-work-section]")),
       workPanels: Array.from(document.querySelectorAll("[data-work-panel]")),
       workDots: Array.from(document.querySelectorAll("[data-work-dot]")),
+      footer: document.querySelector(".footer"),
       notesView: document.getElementById("notesView"),
       reportView: document.getElementById("reportView"),
       settingsView: document.getElementById("settingsView"),
@@ -2831,10 +2832,18 @@
         : `translateX(${-index * 100}%)`;
     }
 
+    function getMinimumWorkSectionHeight() {
+      const mainHeight = refs.appMain?.clientHeight || 0;
+      const subnavHeight = refs.workNav?.offsetHeight || 0;
+      const footerHeight = refs.footer?.offsetHeight || 0;
+      return Math.max(240, mainHeight - subnavHeight - footerHeight - 8);
+    }
+
     function updateWorkSectionHeight() {
       const activePanel = refs.workPanels.find((panel) => panel.dataset.workPanel === activeWorkSection);
       if (!activePanel) return;
-      refs.workSections.style.height = `${activePanel.offsetHeight}px`;
+      const sectionHeight = Math.max(activePanel.offsetHeight, getMinimumWorkSectionHeight());
+      refs.workSections.style.height = `${sectionHeight}px`;
     }
 
     function renderWorkSections() {
