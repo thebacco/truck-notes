@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-18-ios-swipe-physics">
+  <meta name="app-version" content="2026-06-22-main-scroll-fades">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -36,6 +36,7 @@
       --mono-font: "Courier New", Courier, monospace;
       --scroll-list-height: 236px;
       --scroll-mask-depth: 25px;
+      --horizontal-scroll-mask-depth: 24px;
       font-family: var(--copy-font);
     }
 
@@ -90,6 +91,15 @@
       background:
         linear-gradient(180deg, rgba(33, 30, 26, .98), rgba(33, 30, 26, .92)),
         linear-gradient(160deg, rgba(199, 154, 88, .12), transparent 50%);
+    }
+    body.theme-dark .splash-screen {
+      background:
+        radial-gradient(circle at 50% 35%, rgba(199, 154, 88, .18), transparent 34%),
+        linear-gradient(180deg, rgba(33, 30, 26, .98), rgba(33, 30, 26, .98));
+    }
+
+    body.theme-dark .splash-icon-step img {
+      box-shadow: 0 14px 30px rgba(0, 0, 0, .36);
     }
 
     body.theme-dark header {
@@ -155,6 +165,7 @@
     }
 
     .screen {
+      position: relative;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -171,6 +182,97 @@
       padding: 0 24px 6px;
       font-size: 14px;
       font-weight: 700;
+    }
+    .splash-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 90;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(184, 132, 63, .14), transparent 34%),
+        linear-gradient(180deg, rgba(255, 253, 248, .98), rgba(243, 239, 230, .98));
+      opacity: 1;
+      visibility: visible;
+      transition: opacity .24s ease, visibility 0s linear .24s;
+    }
+
+    .splash-screen.dismissed {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .splash-mark {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      transform: translateY(-8px);
+    }
+
+    .splash-icon-step {
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transform: translateY(-104px);
+      animation: splashLineDrop .48s cubic-bezier(.2, .96, .34, 1) .56s both;
+    }
+
+    .splash-icon-step img {
+      width: 66px;
+      height: 66px;
+      border-radius: 13px;
+      box-shadow: 0 14px 28px rgba(22, 22, 22, .18);
+      transform-origin: 50% 88%;
+    }
+
+    .splash-brand {
+      display: grid;
+      justify-items: center;
+      gap: 1px;
+      text-align: center;
+    }
+
+    .splash-brand strong,
+    .splash-brand span {
+      opacity: 0;
+      transform: translateY(-96px);
+      transform-origin: 50% 100%;
+    }
+
+    .splash-brand strong {
+      color: var(--green);
+      font-family: var(--brand-font);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      animation: splashLineDrop .48s cubic-bezier(.2, .96, .34, 1) .32s both;
+    }
+
+    .splash-brand span {
+      color: var(--ink-93);
+      font-family: var(--display-font);
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1;
+      text-transform: uppercase;
+      animation: splashLineDrop .48s cubic-bezier(.2, .96, .34, 1) .08s both;
+    }
+    @keyframes splashLineDrop {
+      0% { opacity: 0; transform: translateY(-104px) scaleY(1); }
+      74% { opacity: 1; transform: translateY(3px) scaleY(.97); }
+      100% { opacity: 1; transform: translateY(0) scaleY(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .splash-icon-step,
+      .splash-brand strong,
+      .splash-brand span {
+        animation: none;
+      }
     }
 
     body.force-phone-frame {
@@ -209,7 +311,7 @@
     }
 
     header {
-      padding: 18px 20px 11px;
+      padding: 13px 20px 8px;
       border-bottom: 1px solid rgba(222, 216, 204, .72);
     }
 
@@ -225,22 +327,22 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
     }
 
     .brand img {
-      width: 44px;
-      height: 44px;
+      width: 39px;
+      height: 39px;
       border-radius: 8px;
       box-shadow: 0 0 0 1px rgba(22, 22, 22, .08);
     }
 
     .eyebrow {
-      margin: 0 0 1px;
+      margin: 0;
       color: var(--green);
       font-family: "voltage", sans-serif;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       letter-spacing: 0;
       text-transform: uppercase;
@@ -250,19 +352,19 @@
       margin: 0;
       color: var(--ink-93);
       font-family: var(--display-font);
-      font-size: 37px;
+      font-size: 29px;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0;
     }
 
     .shift-row {
-      margin-top: 11px;
+      margin-top: 7px;
     }
 
     .date-field {
       display: grid;
-      gap: 4px;
+      gap: 3px;
       min-width: 0;
     }
 
@@ -302,8 +404,8 @@
     input[type="email"],
     input[type="number"],
     select {
-      min-height: 40px;
-      padding: 8px 10px;
+      min-height: 38px;
+      padding: 7px 10px;
       font-weight: 750;
     }
 
@@ -512,52 +614,112 @@
 
     .day-button {
       align-self: end;
-      min-height: 55px;
-      padding-inline: 14px;
+      min-height: 48px;
+      padding-inline: 13px;
     }
 
     main {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 6px 16px 132px;
+      padding: 0 16px 132px;
+      scrollbar-width: none;
+    }
+
+    main::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
     }
 
     .work-nav {
       position: sticky;
       top: 0;
       z-index: 6;
-      margin: -6px -16px 9px;
-      padding: 6px 16px 7px;
-      background: #fffdf8;
-      box-shadow: 0 1px 0 rgba(222, 216, 204, .72);
+      margin: 0 -16px 13px;
+      padding: 6px 16px 2px;
+      background: rgba(255, 253, 248, .945);
+      box-shadow:
+        0 -1px 0 rgba(222, 216, 204, .62),
+        0 1px 0 rgba(222, 216, 204, .58);
+    }
+
+    .work-nav::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -18px;
+      height: 18px;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255, 253, 248, .94), rgba(255, 253, 248, 0));
     }
 
     .work-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin: 0 0 8px;
-      padding: 4px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255, 250, 240, .86);
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 5px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 0 3px;
+      padding: 3px 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, var(--scroll-mask-left, 1)) 0, #000 var(--horizontal-scroll-mask-depth), #000 calc(100% - var(--horizontal-scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-right, 1)) 100%);
+      mask-image: linear-gradient(to right, rgba(0, 0, 0, var(--scroll-mask-left, 1)) 0, #000 var(--horizontal-scroll-mask-depth), #000 calc(100% - var(--horizontal-scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-right, 1)) 100%);
+      scrollbar-width: none;
+      touch-action: pan-x;
+    }
+
+    .work-tabs::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
     }
 
     .work-tab {
-      min-height: 38px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      flex: 0 0 calc((100% - 15px) / 3.5);
+      min-width: 0;
+      min-height: 32px;
       border: 1px solid transparent;
       border-radius: 6px;
       background: transparent;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 10.5px;
+      line-height: 1;
+      padding: 0 8px;
+      scroll-snap-align: start;
       text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .work-tab[aria-selected="true"] {
-      border-color: rgba(199, 154, 88, .88);
-      background: rgba(199, 154, 88, .14);
+      border-color: rgba(199, 154, 88, .36);
+      background: rgba(199, 154, 88, .075);
       color: var(--ink-93);
+    }
+
+    .tab-badge {
+      min-width: 17px;
+      height: 17px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: rgba(184, 132, 63, .88);
+      color: var(--panel);
+      font-family: var(--copy-font);
+      font-size: 10.5px;
+      font-weight: 800;
+      line-height: 1;
     }
 
     .work-sections {
@@ -591,8 +753,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      margin: 0 0 13px;
+      gap: 5px;
+      margin: 0 0 6px;
     }
 
     .section-dot {
@@ -604,8 +766,26 @@
     }
 
     .section-dot.active {
-      width: 22px;
-      background: var(--gold);
+      width: 16px;
+      background: rgba(184, 132, 63, .86);
+    }
+
+    .empty-panel {
+      display: grid;
+      gap: 10px;
+      padding: 16px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--muted);
+      font-family: var(--copy-font);
+      font-size: 17px;
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .empty-panel p {
+      margin: 0;
     }
 
     .metrics {
@@ -1374,6 +1554,17 @@
       box-shadow: 0 -14px 24px rgba(22, 22, 22, .08);
     }
 
+    .footer::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -22px;
+      height: 22px;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255, 253, 248, 0), rgba(255, 253, 248, .94));
+    }
+
     .view {
       display: block;
     }
@@ -1475,8 +1666,14 @@
     }
 
     body.theme-dark .work-nav {
-      background: #211e1a;
-      box-shadow: 0 1px 0 rgba(243, 238, 228, .12);
+      background: rgba(33, 30, 26, .945);
+      box-shadow:
+        0 -1px 0 rgba(243, 238, 228, .10),
+        0 1px 0 rgba(243, 238, 228, .10);
+    }
+
+    body.theme-dark .work-nav::after {
+      background: linear-gradient(180deg, rgba(33, 30, 26, .94), rgba(33, 30, 26, 0));
     }
 
     body.theme-dark .pill-field.required-missing input,
@@ -1549,6 +1746,10 @@
       border-top-color: rgba(243, 238, 228, .12);
       background: var(--panel);
       box-shadow: 0 -14px 24px rgba(0, 0, 0, .3);
+    }
+
+    body.theme-dark .footer::before {
+      background: linear-gradient(180deg, rgba(33, 30, 26, 0), rgba(33, 30, 26, .94));
     }
 
     body.theme-dark .scrim {
@@ -1818,7 +2019,7 @@
       }
 
       header {
-        padding-top: calc(16px + env(safe-area-inset-top));
+        padding-top: calc(13px + env(safe-area-inset-top));
       }
     }
 
@@ -1867,7 +2068,7 @@
       }
 
       body.force-phone-frame header {
-        padding: 18px 20px 11px;
+        padding: 13px 20px 8px;
       }
     }
   </style>
@@ -1876,6 +2077,12 @@
   <div class="phone" role="application" aria-label="Food truck shift notes">
     <div class="notch"></div>
     <div class="screen">
+      <div class="splash-screen" id="splashScreen" aria-label="Miss Tasty Truck Notes loading">
+        <div class="splash-mark" aria-hidden="true">
+          <div class="splash-icon-step"><img src="icon.png" alt=""></div>
+          <div class="splash-brand"><strong>Miss Tasty!</strong><span>Truck Notes!</span></div>
+        </div>
+      </div>
       <div class="status"><span id="statusTime">9:41</span><span>5G 100%</span></div>
 
       <header>
@@ -1918,19 +2125,19 @@
         <section id="notesView" class="view">
           <div class="work-nav">
             <div class="work-tabs" id="workTabs" role="tablist" aria-label="Shift sections">
-              <button class="work-tab" id="workTabNotes" type="button" role="tab" data-work-section="notes" aria-controls="notesSection">Notes</button>
-              <button class="work-tab" id="workTabStaff" type="button" role="tab" data-work-section="staff" aria-controls="staffSection">Staff</button>
-              <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection">Closeout</button>
+              <button class="work-tab" id="workTabNotes" type="button" role="tab" data-work-section="notes" aria-controls="notesSection"><span>Notes</span><span class="tab-badge" id="noteCount">0</span></button>
+              <button class="work-tab" id="workTabStaff" type="button" role="tab" data-work-section="staff" aria-controls="staffSection"><span>Staff</span><span class="tab-badge" id="staffCount">0</span></button>
+              <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection"><span>Closeout</span></button>
+              <button class="work-tab" id="workTabInventory" type="button" role="tab" data-work-section="inventory" aria-controls="inventorySection"><span>Inventory</span></button>
+              <button class="work-tab" id="workTabSupplies" type="button" role="tab" data-work-section="supplies" aria-controls="suppliesSection"><span>Supplies</span></button>
             </div>
 
             <div class="section-indicator" id="sectionIndicator" aria-hidden="true">
               <span class="section-dot" data-work-dot="notes"></span>
               <span class="section-dot" data-work-dot="staff"></span>
               <span class="section-dot" data-work-dot="closeout"></span>
-            </div>
-
-            <div class="metrics" aria-live="polite">
-              <div class="metric"><strong id="staffCount">0</strong><span>staff</span><strong id="noteCount">0</strong><span>notes</span></div>
+              <span class="section-dot" data-work-dot="inventory"></span>
+              <span class="section-dot" data-work-dot="supplies"></span>
             </div>
           </div>
 
@@ -2030,6 +2237,20 @@
                     </div>
                   </div>
                 </div>
+              </section>
+            </section>
+
+            <section class="work-section hidden" id="inventorySection" data-work-panel="inventory" role="tabpanel" aria-labelledby="workTabInventory">
+              <section class="section empty-panel" aria-labelledby="inventoryTitle">
+                <p class="section-title" id="inventoryTitle">Inventory</p>
+                <p>Inventory fields go here.</p>
+              </section>
+            </section>
+
+            <section class="work-section hidden" id="suppliesSection" data-work-panel="supplies" role="tabpanel" aria-labelledby="workTabSupplies">
+              <section class="section empty-panel" aria-labelledby="suppliesTitle">
+                <p class="section-title" id="suppliesTitle">Supplies</p>
+                <p>Supplies fields go here.</p>
               </section>
             </section>
             </div>
@@ -2222,12 +2443,13 @@
     const storageKey = "truckNotes:v1";
     const installPromptSeenKey = "truckNotesInstallPromptSeen";
     const lastSeenAppVersionKey = "truckNotesLastSeenAppVersion";
+    const splashSeenVersionKey = "truckNotesSplashSeenVersion";
     const updateCheckIntervalMs = 30 * 60 * 1000;
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
     const testerDataVersion = "staff-pool-2026-06-16";
     const DEFAULT_STAFF_POOL = ["Annie", "Casey", "Danny", "Mandy", "Jen", "Nicole", "Jamie", "Matt"];
     const categoryLabels = ["General", "Inventory"];
-    const workSectionOrder = ["notes", "staff", "closeout"];
+    const workSectionOrder = ["notes", "staff", "closeout", "inventory", "supplies"];
     const settingsPin = "1521";
     const defaultState = {
       testerDataVersion,
@@ -2923,7 +3145,7 @@
       refs.shiftControls.classList.toggle("hidden", showingSettings);
     }
 
-    function updateScrollCue(list) {
+    function updateVerticalScrollCue(list) {
       const maxScroll = list.scrollHeight - list.clientHeight;
       if (maxScroll <= 1) {
         list.style.setProperty("--scroll-mask-top", "1");
@@ -2934,8 +3156,28 @@
       list.style.setProperty("--scroll-mask-bottom", list.scrollTop < maxScroll - 1 ? "0" : "1");
     }
 
+    function updateHorizontalScrollCue(list) {
+      const maxScroll = list.scrollWidth - list.clientWidth;
+      if (maxScroll <= 1) {
+        list.style.setProperty("--scroll-mask-left", "1");
+        list.style.setProperty("--scroll-mask-right", "1");
+        return;
+      }
+      list.style.setProperty("--scroll-mask-left", list.scrollLeft > 1 ? "0" : "1");
+      list.style.setProperty("--scroll-mask-right", list.scrollLeft < maxScroll - 1 ? "0" : "1");
+    }
+
+    function updateScrollCue(list) {
+      if (list === refs.workTabs) {
+        updateHorizontalScrollCue(list);
+        return;
+      }
+      updateVerticalScrollCue(list);
+    }
+
     function updateScrollCues() {
-      document.querySelectorAll(".staff-transfer-list, .settings-list.scroll-list").forEach(updateScrollCue);
+      document.querySelectorAll(".staff-transfer-list, .settings-list.scroll-list").forEach(updateVerticalScrollCue);
+      updateHorizontalScrollCue(refs.workTabs);
     }
 
     function render() {
@@ -3198,6 +3440,18 @@
       blurFocusedField();
     }
 
+    function runLaunchSplash() {
+      const splashScreen = document.getElementById("splashScreen");
+      if (!splashScreen) return;
+      const forceSplash = new URLSearchParams(window.location.search).get("splash") === "1";
+      const shouldShowSplash = forceSplash || (appVersion && localStorage.getItem(splashSeenVersionKey) !== appVersion);
+      if (!shouldShowSplash) {
+        splashScreen.classList.add("dismissed");
+        return;
+      }
+      if (!forceSplash) localStorage.setItem(splashSeenVersionKey, appVersion);
+      window.setTimeout(() => splashScreen.classList.add("dismissed"), 1800);
+    }
     function updateClock() {
       refs.statusTime.textContent = new Intl.DateTimeFormat([], { hour: "numeric", minute: "2-digit" }).format(new Date());
     }
@@ -3475,7 +3729,7 @@
     });
 
     document.addEventListener("scroll", (event) => {
-      const list = event.target.closest?.(".staff-transfer-list, .settings-list.scroll-list");
+      const list = event.target.closest?.(".staff-transfer-list, .settings-list.scroll-list, #workTabs");
       if (list) updateScrollCue(list);
     }, true);
 
@@ -3766,6 +4020,9 @@
 
     updateClock();
     setInterval(updateClock, 30000);
+
+    runLaunchSplash();
+
     resetViewAfterAppUpdate();
     render();
 
