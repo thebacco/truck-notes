@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-23-money-field-red-fill">
+  <meta name="app-version" content="2026-06-24-note-field-taller">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -461,7 +461,6 @@
     .secondary,
     .danger,
     .chip,
-    .segment,
     .work-tab {
       border: 0;
       cursor: pointer;
@@ -1107,24 +1106,10 @@
       padding: 12px;
     }
 
-    .segments {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-      margin-bottom: 9px;
+    #noteInput {
+      min-height: 168px;
     }
 
-    .segment {
-      min-height: 40px;
-      border-radius: 8px;
-      background: var(--wash);
-      color: var(--ink-84);
-    }
-
-    .segment[aria-pressed="true"] {
-      background: var(--gold);
-      color: var(--ink-93);
-    }
 
     .composer-actions {
       display: grid;
@@ -1172,35 +1157,11 @@
     .note-footer {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 8px;
       margin-top: 10px;
     }
 
-    .tag {
-      min-height: 28px;
-      display: inline-flex;
-      align-items: center;
-      padding: 0 9px;
-      border-radius: 999px;
-      background: rgba(78, 82, 88, .061);
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 400;
-      text-transform: uppercase;
-    }
-
-    .tag.general {
-      background: rgba(199, 154, 88, .13);
-      color: #85612d;
-      box-shadow: inset 0 0 0 1px rgba(199, 154, 88, .10);
-    }
-
-    .tag.inventory {
-      background: rgba(78, 82, 88, .061);
-      color: var(--muted);
-      box-shadow: inset 0 0 0 1px rgba(78, 82, 88, .10);
-    }
 
     .delete-note {
       border: 0;
@@ -1750,7 +1711,6 @@
     body.theme-dark .pill-field input,
     body.theme-dark .check-row,
     body.theme-dark .decision-row,
-    body.theme-dark .segment,
     body.theme-dark .recipient-row,
     body.theme-dark .settings-row,
     body.theme-dark .settings-toggle-row {
@@ -1759,7 +1719,6 @@
     }
 
     body.theme-dark .staff-transfer-option.active,
-    body.theme-dark .segment[aria-pressed="true"],
     body.theme-dark .primary,
     body.theme-dark .settings-action {
       background: var(--gold);
@@ -1782,20 +1741,6 @@
       color: var(--accent);
     }
 
-    body.theme-dark .tag {
-      background: rgba(243, 238, 228, .12);
-      color: #c7c0b5;
-    }
-
-    body.theme-dark .tag.general {
-      background: rgba(199, 154, 88, .22);
-      color: #f0c579;
-    }
-
-    body.theme-dark .tag.inventory {
-      background: rgba(243, 238, 228, .12);
-      color: #d2cabd;
-    }
 
     body.theme-dark .settings-panel section {
       border-color: var(--line);
@@ -2198,10 +2143,6 @@
             <section class="work-section" id="notesSection" data-work-panel="notes" role="tabpanel" aria-labelledby="workTabNotes">
               <section class="composer" aria-labelledby="noteTitle">
                 <p class="section-title" id="noteTitle">New note</p>
-                <div class="segments" id="categorySegments" role="group" aria-label="Note category">
-                  <button class="segment" type="button" data-category="General">General</button>
-                  <button class="segment" type="button" data-category="Inventory">Inventory</button>
-                </div>
                 <textarea id="noteInput" autocomplete="off" spellcheck="true" placeholder="Write a shift note"></textarea>
                 <div class="composer-actions">
                   <button class="primary" id="quickNoteButton" type="button">
@@ -2506,7 +2447,6 @@
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
     const testerDataVersion = "staff-pool-2026-06-16";
     const DEFAULT_STAFF_POOL = ["Annie", "Casey", "Danny", "Mandy", "Jen", "Nicole", "Jamie", "Matt"];
-    const categoryLabels = ["General", "Inventory"];
     const workSectionOrder = ["notes", "staff", "closeout", "inventory", "supplies"];
     const settingsPin = "1521";
     const defaultState = {
@@ -2515,7 +2455,6 @@
       shiftStaff: [],
       activeSender: "",
       activeOperator: "",
-      activeCategory: "General",
       shiftDate: new Date().toISOString().slice(0, 10),
       netSales: "",
       changeBox: "",
@@ -2561,7 +2500,6 @@
       tabsClosedGroup: document.getElementById("tabsClosedGroup"),
       propaneFilledGroup: document.getElementById("propaneFilledGroup"),
       gasFilledGroup: document.getElementById("gasFilledGroup"),
-      categorySegments: document.getElementById("categorySegments"),
       noteInput: document.getElementById("noteInput"),
       quickNoteButton: document.getElementById("quickNoteButton"),
       clearNoteButton: document.getElementById("clearNoteButton"),
@@ -2636,7 +2574,6 @@
         const recipients = normalizeRecipients(parsed.recipients);
         const savedActiveSender = parsed.activeSender || parsed.activeStaff || parsed[legacyActiveStaffKey] || "";
         const savedActiveOperator = parsed.activeOperator || "";
-        const activeCategory = categoryLabels.includes(parsed.activeCategory) ? parsed.activeCategory : defaultState.activeCategory;
         const themePreferenceSet = parsed.themePreferenceSet === true;
         const nightMode = themePreferenceSet ? Boolean(parsed.nightMode) : defaultState.nightMode;
         const savedNotes = parsed.notes.map((note) => ({ ...note, id: note.id || crypto.randomUUID() }));
@@ -2658,7 +2595,6 @@
           shiftStaff: hasSessionInProgress ? shiftStaff : [],
           activeSender: recipients.some((recipient) => recipient.name === savedActiveSender) ? savedActiveSender : "",
           activeOperator: recipients.some((recipient) => recipient.name === savedActiveOperator) ? savedActiveOperator : "",
-          activeCategory,
           tabsClosed: normalizeTabsClosed(parsed.tabsClosed),
           propaneFilled: normalizeDecision(parsed.propaneFilled),
           gasFilled: normalizeDecision(parsed.gasFilled),
@@ -2809,24 +2745,8 @@
         return lines;
       }
 
-      for (const category of categoryLabels) {
-        const categoryNotes = state.notes.filter((note) => note.category === category);
-        if (!categoryNotes.length) continue;
-        lines.push(`${category}:`);
-        for (const note of categoryNotes) {
-          const noteNumber = state.notes.indexOf(note) + 1;
-          lines.push(`${noteNumber}. ${note.text}`);
-        }
-        lines.push("");
-      }
-
-      const otherNotes = state.notes.filter((note) => !categoryLabels.includes(note.category));
-      if (otherNotes.length) {
-        lines.push("Other:");
-        for (const note of otherNotes) {
-          const noteNumber = state.notes.indexOf(note) + 1;
-          lines.push(`${noteNumber}. ${note.text}`);
-        }
+      for (const [index, note] of state.notes.entries()) {
+        lines.push(`${index + 1}. ${note.text}`);
       }
 
       return lines;
@@ -2875,11 +2795,6 @@
       `).join("");
     }
 
-    function renderCategories() {
-      refs.categorySegments.querySelectorAll(".segment").forEach((button) => {
-        button.setAttribute("aria-pressed", String(button.dataset.category === state.activeCategory));
-      });
-    }
 
     function renderMetrics() {
       refs.noteCount.textContent = state.notes.length;
@@ -3067,18 +2982,14 @@
 
     function renderNotes() {
       refs.noteList.innerHTML = state.notes.length
-        ? state.notes.map((note, index) => {
-          const categoryClass = note.category === "Inventory" ? "inventory" : "general";
-          return `
+        ? state.notes.map((note, index) => `
           <article class="note-card">
             <p class="note-text"><span class="note-index">${index + 1}.</span> ${escapeHtml(note.text)}</p>
             <div class="note-footer">
-              <span class="tag ${categoryClass}">${escapeHtml(note.category)}</span>
               <button class="delete-note" type="button" data-delete-note="${note.id}">Delete</button>
             </div>
           </article>
-        `;
-        }).join("")
+        `).join("")
         : `<div class="empty">No shift notes yet.</div>`;
     }
 
@@ -3295,7 +3206,6 @@
       renderStaff();
       renderCloseoutFields();
       renderCloseoutRequiredDialog();
-      renderCategories();
       renderMetrics();
       renderNotes();
       renderWorkSections();
@@ -3324,7 +3234,6 @@
 
       state.notes.unshift({
         id: crypto.randomUUID(),
-        category: state.activeCategory,
         text,
         createdAt: new Date().toISOString()
       });
@@ -4040,12 +3949,6 @@
       render();
     });
 
-    refs.categorySegments.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-category]");
-      if (!button) return;
-      state.activeCategory = button.dataset.category;
-      render();
-    });
 
     refs.quickNoteButton.addEventListener("click", addNote);
     refs.clearNoteButton.addEventListener("click", () => {
