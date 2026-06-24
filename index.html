@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-23-carousel-shadow-gutter">
+  <meta name="app-version" content="2026-06-23-money-field-red-fill">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -625,6 +625,8 @@
     main {
       flex: 1;
       min-height: 0;
+      display: flex;
+      flex-direction: column;
       overflow-y: auto;
       padding: 0 16px 132px;
       scrollbar-width: none;
@@ -910,13 +912,21 @@
       box-shadow: inset 0 0 0 2px rgba(177, 47, 36, .38);
     }
 
+    .pill-field.required-missing {
+      box-shadow: none;
+    }
+
+    .pill-field.required-missing input {
+      border-color: rgba(177, 47, 36, .46);
+      background: rgba(177, 47, 36, .055);
+    }
+
     .money-panel.required-missing,
     .check-panel.required-missing {
       border-color: rgba(177, 47, 36, .42);
       background: rgba(255, 248, 238, .98);
     }
 
-    .pill-field.required-missing input,
     .decision-row.required-missing {
       border-color: rgba(177, 47, 36, .46);
       background: rgba(177, 47, 36, .055);
@@ -1293,8 +1303,26 @@
       font-weight: 700;
     }
 
+    #reportView {
+      min-height: calc(100% - 132px);
+    }
+
+    #reportView .report-panel {
+      min-height: 100%;
+      grid-template-rows: minmax(0, 1fr) auto auto;
+    }
+
+    .preview-field {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 5px;
+    }
+
     .preview {
       min-height: 248px;
+      height: 100%;
+      resize: none;
       font-family: var(--mono-font);
       font-size: 13px;
     }
@@ -1826,25 +1854,16 @@
       gap: 10px;
     }
 
-    .closeout-modal-field {
-      display: grid;
-      gap: 6px;
+    .closeout-modal-money-grid {
+      margin: 0;
     }
 
-    .closeout-modal-field input {
-      min-height: 44px;
-      border-radius: 8px;
-      background: var(--wash);
-      font-weight: 850;
+    .closeout-modal-field {
+      min-width: 0;
     }
 
     .modal-decision-row {
-      display: grid;
-      gap: 7px;
-    }
-
-    .modal-decision-row .decision-buttons {
-      width: 100%;
+      min-height: 42px;
     }
 
     .pin-form {
@@ -2204,11 +2223,11 @@
             <section class="work-section hidden" id="staffSection" data-work-panel="staff" role="tabpanel" aria-labelledby="workTabStaff">
               <section class="sender-panel" aria-label="Sender and operator">
                 <label class="sender-field" for="senderSelect">
-                  <span class="sender-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path></svg>Sender:</span>
+                  <span class="sender-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path></svg>Sender</span>
                   <select id="senderSelect"></select>
                 </label>
                 <label class="sender-field" for="operatorSelect">
-                  <span class="sender-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10v8H3z"></path><path d="M13 11h4l3 3v2h-7z"></path><circle cx="7" cy="18" r="2"></circle><circle cx="17" cy="18" r="2"></circle></svg>Operator:</span>
+                  <span class="sender-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10v8H3z"></path><path d="M13 11h4l3 3v2h-7z"></path><circle cx="7" cy="18" r="2"></circle><circle cx="17" cy="18" r="2"></circle></svg>Operator</span>
                   <select id="operatorSelect"></select>
                 </label>
               </section>
@@ -2296,7 +2315,7 @@
 
         <section id="reportView" class="view hidden">
           <div class="report-panel">
-            <label>
+            <label class="preview-field">
               <span class="field-label">Notes preview</span>
               <textarea class="preview" id="reportPreview" autocomplete="off" spellcheck="false"></textarea>
             </label>
@@ -2375,7 +2394,7 @@
     <div class="scrim hidden" id="staffRequiredDialog" role="dialog" aria-modal="true" aria-labelledby="staffRequiredTitle">
       <div class="dialog">
         <h2 id="staffRequiredTitle">Add staff before sending notes</h2>
-        <p>Add at least one staff member for this shift.</p>
+        <p id="staffRequiredMessage">Add at least one staff member for this shift.</p>
         <div class="dialog-actions">
           <button class="secondary" id="cancelStaffRequiredButton" type="button">Cancel</button>
           <button class="primary" id="goToStaffButton" type="button">Go to Staff</button>
@@ -2387,31 +2406,33 @@
       <div class="dialog">
         <h2 id="closeoutRequiredTitle">Finish Closeout</h2>
         <form class="closeout-modal-fields" id="closeoutRequiredForm" autocomplete="off">
-          <label class="closeout-modal-field" data-closeout-modal-field="netSales" for="modalNetSalesInput">
-            <span class="field-label">Net sales</span>
-            <input id="modalNetSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
-          </label>
-          <label class="closeout-modal-field" data-closeout-modal-field="changeBox" for="modalChangeBoxInput">
-            <span class="field-label">Change box</span>
-            <input id="modalChangeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
-          </label>
-          <div class="modal-decision-row" data-closeout-modal-field="tabsClosed">
-            <span class="field-label">All tabs closed?</span>
-            <div class="decision-buttons" role="group" aria-label="All tabs closed">
+          <div class="money-grid closeout-modal-money-grid">
+            <label class="pill-field closeout-modal-field" data-closeout-modal-field="netSales" for="modalNetSalesInput">
+              <span class="field-label">Net sales</span>
+              <input id="modalNetSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
+            </label>
+            <label class="pill-field closeout-modal-field" data-closeout-modal-field="changeBox" for="modalChangeBoxInput">
+              <span class="field-label">Change box</span>
+              <input id="modalChangeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
+            </label>
+          </div>
+          <div class="decision-row modal-decision-row" data-closeout-modal-field="tabsClosed" role="group" aria-label="All tabs closed">
+            <span><u>All</u> tabs closed?</span>
+            <div class="decision-buttons">
               <button class="decision-button" type="button" data-modal-decision-field="tabsClosed" data-modal-decision-value="yes" aria-pressed="false">Yes</button>
               <button class="decision-button" type="button" data-modal-decision-field="tabsClosed" data-modal-decision-value="no" aria-pressed="false">No</button>
             </div>
           </div>
-          <div class="modal-decision-row" data-closeout-modal-field="propaneFilled">
-            <span class="field-label">Propane filled?</span>
-            <div class="decision-buttons" role="group" aria-label="Propane filled">
+          <div class="decision-row modal-decision-row" data-closeout-modal-field="propaneFilled" role="group" aria-label="Propane filled">
+            <span>Propane filled?</span>
+            <div class="decision-buttons">
               <button class="decision-button" type="button" data-modal-decision-field="propaneFilled" data-modal-decision-value="yes" aria-pressed="false">Yes</button>
               <button class="decision-button" type="button" data-modal-decision-field="propaneFilled" data-modal-decision-value="no" aria-pressed="false">No</button>
             </div>
           </div>
-          <div class="modal-decision-row" data-closeout-modal-field="gasFilled">
-            <span class="field-label">Gas filled?</span>
-            <div class="decision-buttons" role="group" aria-label="Gas filled">
+          <div class="decision-row modal-decision-row" data-closeout-modal-field="gasFilled" role="group" aria-label="Gas filled">
+            <span>Gas filled?</span>
+            <div class="decision-buttons">
               <button class="decision-button" type="button" data-modal-decision-field="gasFilled" data-modal-decision-value="yes" aria-pressed="false">Yes</button>
               <button class="decision-button" type="button" data-modal-decision-field="gasFilled" data-modal-decision-value="no" aria-pressed="false">No</button>
             </div>
@@ -2581,6 +2602,8 @@
       cancelResetButton: document.getElementById("cancelResetButton"),
       confirmResetButton: document.getElementById("confirmResetButton"),
       staffRequiredDialog: document.getElementById("staffRequiredDialog"),
+      staffRequiredTitle: document.getElementById("staffRequiredTitle"),
+      staffRequiredMessage: document.getElementById("staffRequiredMessage"),
       cancelStaffRequiredButton: document.getElementById("cancelStaffRequiredButton"),
       goToStaffButton: document.getElementById("goToStaffButton"),
       closeoutRequiredDialog: document.getElementById("closeoutRequiredDialog"),
@@ -3393,10 +3416,18 @@
       refs.staffRequiredDialog.classList.add("hidden");
     }
 
-    function openStaffRequiredDialog() {
+    function openStaffRequiredDialog(title = "Add staff before sending notes", message = "Add at least one staff member for this shift.") {
+      refs.staffRequiredTitle.textContent = title;
+      refs.staffRequiredMessage.textContent = message;
       refs.staffRequiredDialog.classList.remove("hidden");
     }
 
+    function getMissingSenderOperatorFields() {
+      return [
+        !state.activeSender ? "sender" : "",
+        !state.activeOperator ? "operator" : ""
+      ].filter(Boolean);
+    }
     function goToStaffSection() {
       closeStaffRequiredDialog();
       currentView = "notes";
@@ -3432,6 +3463,15 @@
         showToast("Add staff before sending notes.");
         return false;
       }
+      if (action === "email") {
+        const missingSenderOperator = getMissingSenderOperatorFields();
+        if (missingSenderOperator.length) {
+          const label = missingSenderOperator.join(" and ");
+          openStaffRequiredDialog("Choose sender and operator", `Choose ${label} before sending notes.`);
+          showToast(`Choose ${label} before sending notes.`);
+          return false;
+        }
+      }
       if (openCloseoutRequiredDialog(action)) {
         return false;
       }
@@ -3439,7 +3479,6 @@
       updateRequiredHighlights();
       return true;
     }
-
     function reviewNotes() {
       currentView = "report";
       render();
