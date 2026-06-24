@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-24-shift-notes-indent">
+  <meta name="app-version" content="2026-06-24-staff-add-field-larger-2">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1020,11 +1020,17 @@
     }
 
     .add-staff input {
-      font-size: 18px;
+      min-height: 46px;
+      font-size: 20px;
     }
 
     .add-staff input::placeholder {
-      font-size: 14px;
+      font-size: 16px;
+    }
+
+    .add-staff .small-button {
+      min-height: 46px;
+      font-size: 16px;
     }
 
     .money-grid {
@@ -1135,13 +1141,11 @@
 
     #staffSection .sender-title,
     #staffSection .sender-row select,
-    #staffSection .staff-transfer-option,
-    #staffSection .add-staff input {
+    #staffSection .staff-transfer-option {
       font-size: 18px;
     }
 
-    #staffSection .settings-list-header,
-    #staffSection .add-staff input::placeholder {
+    #staffSection .settings-list-header {
       font-size: 13px;
     }
     #closeoutSection .section-title.with-icon {
@@ -2249,7 +2253,7 @@
             <div class="work-track" id="workTrack">
             <section class="work-section" id="notesSection" data-work-panel="notes" role="tabpanel" aria-labelledby="workTabNotes">
               <section class="composer" aria-labelledby="noteTitle">
-                <p class="section-title" id="noteTitle">New note</p>
+                <p class="section-title with-icon" id="noteTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19h14"></path><path d="M7 17l1-4 8-8 3 3-8 8-4 1z"></path></svg>New note</p>
                 <textarea id="noteInput" autocomplete="off" spellcheck="true" placeholder="Write a shift note"></textarea>
                 <div class="composer-actions">
                   <button class="primary" id="quickNoteButton" type="button">
@@ -2263,7 +2267,7 @@
               </section>
 
               <section class="section" aria-labelledby="feedTitle">
-                <p class="section-title" id="feedTitle">Shift notes</p>
+                <p class="section-title with-icon" id="feedTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5h12"></path><path d="M6 12h12"></path><path d="M6 19h8"></path><path d="M4 5h.01"></path><path d="M4 12h.01"></path><path d="M4 19h.01"></path></svg>Shift notes</p>
                 <div class="note-list" id="noteList"></div>
               </section>
             </section>
