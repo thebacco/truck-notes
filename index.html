@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-24-note-input-single-line">
+  <meta name="app-version" content="2026-06-24-staff-footer-clearance">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -627,7 +627,7 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      padding: 0 16px 132px;
+      padding: 0 16px calc(176px + env(safe-area-inset-bottom));
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -1107,16 +1107,48 @@
       padding: 0 12px;
     }
 
-    #noteInput {
-      font-size: 17px;
-      line-height: 1.38;
+    .notes-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 0 9px;
     }
 
-    #notesSection .composer-actions .primary,
-    #notesSection .composer-actions .small-button {
-      min-height: 46px;
-      font-size: 14px;
+    .notes-list-header .section-title {
+      margin-bottom: 0;
     }
+
+    .note-sort-button {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-radius: 999px;
+      background: var(--wash);
+      color: var(--ink-84);
+      cursor: pointer;
+    }
+
+    .note-sort-button svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      transition: transform .16s ease;
+    }
+
+    .note-sort-button[data-sort="oldest"] svg {
+      transform: rotate(180deg);
+    }
+
+    #noteInput {
+      font-family: var(--copy-font);
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.36;
+    }
+
 
     #notesSection .note-text {
       font-size: 18px;
@@ -1212,13 +1244,6 @@
 
     #noteInput {
       min-height: 46px;
-    }
-
-    .composer-actions {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 7px;
-      margin-top: 9px;
     }
 
     .note-list {
@@ -2254,19 +2279,15 @@
               <section class="composer" aria-labelledby="noteTitle">
                 <p class="section-title with-icon" id="noteTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19h14"></path><path d="M7 17l1-4 8-8 3 3-8 8-4 1z"></path></svg>New note</p>
                 <input id="noteInput" type="text" autocomplete="off" spellcheck="true" enterkeyhint="done" placeholder="Write a shift note">
-                <div class="composer-actions">
-                  <button class="primary" id="quickNoteButton" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M12 5v14"></path><path d="M5 12h14"></path>
-                    </svg>
-                    Add Note
-                  </button>
-                  <button class="small-button" id="clearNoteButton" type="button">Clear</button>
-                </div>
               </section>
 
               <section class="section" aria-labelledby="feedTitle">
-                <p class="section-title with-icon" id="feedTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5h12"></path><path d="M6 12h12"></path><path d="M6 19h8"></path><path d="M4 5h.01"></path><path d="M4 12h.01"></path><path d="M4 19h.01"></path></svg>Shift notes</p>
+                <div class="notes-list-header">
+                  <p class="section-title with-icon" id="feedTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5h12"></path><path d="M6 12h12"></path><path d="M6 19h8"></path><path d="M4 5h.01"></path><path d="M4 12h.01"></path><path d="M4 19h.01"></path></svg>Shift notes</p>
+                  <button class="note-sort-button" id="noteSortButton" type="button" aria-label="Show oldest notes first" title="Newest first" data-sort="newest">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="m7 14 5 5 5-5"></path></svg>
+                  </button>
+                </div>
                 <div class="note-list" id="noteList"></div>
               </section>
             </section>
@@ -2574,6 +2595,7 @@
       nightMode: false,
       themePreferenceSet: false,
       recipients: DEFAULT_RECIPIENTS.map((recipient) => ({ ...recipient })),
+      noteSort: "newest",
       notes: []
     };
 
@@ -2611,9 +2633,8 @@
       propaneFilledGroup: document.getElementById("propaneFilledGroup"),
       gasFilledGroup: document.getElementById("gasFilledGroup"),
       noteInput: document.getElementById("noteInput"),
-      quickNoteButton: document.getElementById("quickNoteButton"),
-      clearNoteButton: document.getElementById("clearNoteButton"),
       noteList: document.getElementById("noteList"),
+      noteSortButton: document.getElementById("noteSortButton"),
       noteCount: document.getElementById("noteCount"),
       staffCount: document.getElementById("staffCount"),
       appMain: document.querySelector("main"),
@@ -2709,6 +2730,7 @@
           propaneFilled: normalizeDecision(parsed.propaneFilled),
           gasFilled: normalizeDecision(parsed.gasFilled),
           recipients,
+          noteSort: parsed.noteSort === "oldest" ? "oldest" : "newest",
           notes: savedNotes
         };
       } catch {
@@ -3091,10 +3113,16 @@
     }
 
     function renderNotes() {
+      const chronologicalNotes = [...state.notes].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      const noteOrder = new Map(chronologicalNotes.map((note, index) => [note.id, index + 1]));
+      const displayNotes = state.noteSort === "oldest" ? chronologicalNotes : [...chronologicalNotes].reverse();
+      refs.noteSortButton.dataset.sort = state.noteSort;
+      refs.noteSortButton.title = state.noteSort === "oldest" ? "Oldest first" : "Newest first";
+      refs.noteSortButton.setAttribute("aria-label", state.noteSort === "oldest" ? "Show newest notes first" : "Show oldest notes first");
       refs.noteList.innerHTML = state.notes.length
-        ? state.notes.map((note, index) => `
+        ? displayNotes.map((note) => `
           <article class="note-card">
-            <p class="note-text"><span class="note-index">${index + 1}.</span> ${escapeHtml(note.text)}</p>
+            <p class="note-text"><span class="note-index">${noteOrder.get(note.id)}.</span> ${escapeHtml(note.text)}</p>
             <div class="note-footer">
               <button class="delete-note" type="button" data-delete-note="${note.id}">Delete</button>
             </div>
@@ -3352,6 +3380,7 @@
       render();
       showToast("Note added.");
     }
+
 
     function addShiftStaff(name, input = refs.staffNameInput) {
       const clean = name.trim().replace(/\s+/g, " ");
@@ -4058,19 +4087,16 @@
       state.themePreferenceSet = true;
       render();
     });
-
-
-    refs.quickNoteButton.addEventListener("click", addNote);
-    refs.clearNoteButton.addEventListener("click", () => {
-      refs.noteInput.value = "";
-      refs.noteInput.focus();
-    });
-
     refs.noteInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
         addNote();
       }
+    });
+
+    refs.noteSortButton.addEventListener("click", () => {
+      state.noteSort = state.noteSort === "oldest" ? "newest" : "oldest";
+      render();
     });
 
     refs.noteList.addEventListener("click", (event) => {
