@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-24-closeout-text-plus-2">
+  <meta name="app-version" content="2026-06-24-shift-notes-indent">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -843,7 +843,7 @@
       align-items: center;
       gap: 5px;
       font-size: 14px;
-      transform: translateX(-4px);
+      transform: translateX(-5px);
     }
 
     .section-title.with-icon svg {
@@ -1092,6 +1092,58 @@
     }
 
 
+
+
+    #notesSection .section-title {
+      font-size: 16px;
+    }
+    #notesSection > .section[aria-labelledby="feedTitle"] {
+      padding: 0 12px;
+    }
+
+    #noteInput {
+      font-size: 17px;
+      line-height: 1.38;
+    }
+
+    #notesSection .composer-actions .primary,
+    #notesSection .composer-actions .small-button {
+      min-height: 46px;
+      font-size: 14px;
+    }
+
+    #notesSection .note-text {
+      font-size: 18px;
+      line-height: 1.36;
+    }
+
+    #notesSection .note-index {
+      font-weight: 850;
+    }
+
+    #notesSection .delete-note {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    #notesSection .empty {
+      font-size: 15px;
+    }
+    #staffSection .section-title.with-icon {
+      font-size: 16px;
+    }
+
+    #staffSection .sender-title,
+    #staffSection .sender-row select,
+    #staffSection .staff-transfer-option,
+    #staffSection .add-staff input {
+      font-size: 18px;
+    }
+
+    #staffSection .settings-list-header,
+    #staffSection .add-staff input::placeholder {
+      font-size: 13px;
+    }
     #closeoutSection .section-title.with-icon {
       font-size: 16px;
     }
@@ -1099,6 +1151,7 @@
     #closeoutSection .field-label,
     #closeoutRequiredDialog .field-label {
       font-size: 13px;
+      transform: translateX(2px);
     }
 
     #closeoutSection .pill-field input,
