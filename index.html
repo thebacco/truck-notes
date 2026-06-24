@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-24-measured-staff-scroll">
+  <meta name="app-version" content="2026-06-24-staff-lists-six-half-clean">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -878,14 +878,6 @@
       padding: 12px;
     }
 
-    #staffSection .staff-panel {
-      max-height: var(--staff-panel-max-height, 420px);
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch;
-      touch-action: pan-y;
-    }
-
     .money-panel,
     .check-panel {
       scroll-margin-top: 132px;
@@ -985,7 +977,7 @@
       display: grid;
       align-content: start;
       gap: 6px;
-      height: var(--scroll-list-height);
+      height: 335px;
       overflow-y: auto;
       -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, var(--scroll-mask-top, 1)) 0, #000 var(--scroll-mask-depth), #000 calc(100% - var(--scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-bottom, 1)) 100%);
       mask-image: linear-gradient(to bottom, rgba(0, 0, 0, var(--scroll-mask-top, 1)) 0, #000 var(--scroll-mask-depth), #000 calc(100% - var(--scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-bottom, 1)) 100%);
@@ -2631,7 +2623,6 @@
       senderSelect: document.getElementById("senderSelect"),
       operatorSelect: document.getElementById("operatorSelect"),
       staffList: document.getElementById("staffList"),
-      staffPanel: document.querySelector("#staffSection .staff-panel"),
       defaultStaffDayList: document.getElementById("defaultStaffDayList"),
       staffForm: document.getElementById("staffForm"),
       staffNameInput: document.getElementById("staffNameInput"),
@@ -3002,19 +2993,9 @@
       return Math.max(240, mainHeight - subnavHeight - footerHeight - 8);
     }
 
-    function updateStaffPanelScrollLimit() {
-      if (!refs.staffPanel || !refs.footer) return;
-      refs.staffPanel.style.removeProperty("--staff-panel-max-height");
-      const panelTop = refs.staffPanel.getBoundingClientRect().top;
-      const footerTop = refs.footer.getBoundingClientRect().top;
-      const availableHeight = Math.max(240, Math.floor(footerTop - panelTop - 14));
-      refs.staffPanel.style.setProperty("--staff-panel-max-height", `${availableHeight}px`);
-    }
-
     function updateWorkSectionHeight() {
       const activePanel = refs.workPanels.find((panel) => panel.dataset.workPanel === activeWorkSection);
       if (!activePanel) return;
-      updateStaffPanelScrollLimit();
       const sectionHeight = Math.max(activePanel.offsetHeight, getMinimumWorkSectionHeight());
       refs.workSections.style.height = `${sectionHeight}px`;
     }
@@ -3910,7 +3891,6 @@
 
     window.addEventListener("resize", () => {
       updateWorkTrackTransform();
-      updateStaffPanelScrollLimit();
       updateWorkSectionHeight();
       updateScrollCues();
     });
