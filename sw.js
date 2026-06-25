@@ -1,4 +1,4 @@
-const CACHE_NAME = "truck-notes-v188";
+const CACHE_NAME = " param($m) 'truck-notes-v' + ([int]$m.Groups[1].Value + 1) ";
 const APP_SHELL = [
   "./",
   "./index.html",

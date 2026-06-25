@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-25-inventory-supplies-inputs">
+  <meta name="app-version" content="2026-06-25-supplies-need-red">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1165,8 +1165,8 @@
     }
 
     .supply-needed[aria-pressed="true"] {
-      border-color: transparent;
-      background: var(--gold);
+      border-color: rgba(184, 72, 62, .22);
+      background: rgba(208, 103, 92, .18);
       color: var(--ink-93);
     }
 
@@ -2203,9 +2203,9 @@
     }
 
     body.theme-dark .supply-needed[aria-pressed="true"] {
-      background: var(--gold);
+      background: rgba(208, 103, 92, .18);
       color: var(--ink-93);
-      border-color: transparent;
+      border-color: rgba(208, 103, 92, .24);
     }
 
     body.theme-dark .staff-transfer-option.active,
@@ -3600,7 +3600,7 @@
           return `
             <div class="${config.rowClass}">
               <span class="${config.nameClass}">${item.favorite ? '<span class="item-inline-star">&#9733;</span>' : ""}${escapeHtml(item.name)}</span>
-              <button class="supply-needed" type="button" data-supplies-needed="${escapeHtml(item.id)}" aria-pressed="${needed ? "true" : "false"}">${needed ? "Needed" : "Need"}</button>
+              <button class="supply-needed" type="button" data-supplies-needed="${escapeHtml(item.id)}" aria-pressed="${needed ? "true" : "false"}">Need</button>
             </div>
           `;
         }).join("");
