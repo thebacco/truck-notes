@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-24-staff-lists-six-half-clean">
+  <meta name="app-version" content="2026-06-25-ranked-search-framework">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1034,6 +1034,199 @@
       font-size: 16px;
     }
 
+    .inventory-panel {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 250, 240, .93);
+      box-shadow: 0 10px 28px rgba(22, 22, 22, .06);
+    }
+
+    .item-panel {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 250, 240, .93);
+      box-shadow: 0 10px 28px rgba(22, 22, 22, .06);
+    }
+
+    .inventory-mode {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .inventory-mode button {
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+      cursor: pointer;
+      font-family: var(--copy-font);
+      font-size: 16px;
+      font-weight: 650;
+      text-transform: uppercase;
+    }
+
+    .inventory-mode button[aria-pressed="true"] {
+      border-color: transparent;
+      background: var(--gold);
+      color: var(--ink-93);
+    }
+
+    .inventory-list-head,
+    .inventory-row,
+    .supply-list-head,
+    .supply-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 48px 98px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .inventory-list-head,
+    .supply-list-head {
+      padding: 0 8px;
+      color: var(--ink-muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .inventory-list,
+    .supply-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .inventory-row,
+    .supply-row {
+      min-height: 52px;
+      padding: 7px 8px;
+      border-radius: 8px;
+      background: var(--wash);
+    }
+
+    .inventory-name,
+    .supply-name {
+      min-width: 0;
+      color: var(--ink-84);
+      font-size: 18px;
+      font-weight: 650;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .inventory-unit,
+    .supply-unit {
+      color: var(--ink-muted);
+      font-size: 16px;
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .inventory-row input,
+    .supply-row input {
+      min-height: 40px;
+      padding: 7px 8px;
+      text-align: center;
+      font-family: var(--copy-font);
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .item-search {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .item-search input {
+      min-height: 46px;
+      font-size: 18px;
+    }
+
+    .item-search .small-button {
+      min-height: 46px;
+      font-size: 16px;
+    }
+
+    .item-search-results {
+      display: grid;
+      gap: 6px;
+      max-height: 177px;
+      overflow-y: auto;
+      -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 42px), rgba(0, 0, 0, .4) 100%);
+      mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 42px), rgba(0, 0, 0, .4) 100%);
+      scrollbar-width: none;
+    }
+
+    .item-search-results::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+
+    .item-result {
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr) 38px;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border: 1px solid rgba(107, 103, 96, .14);
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+      font-family: var(--copy-font);
+      font-size: 16px;
+      font-weight: 650;
+      text-align: left;
+    }
+
+    .item-result-star {
+      color: var(--gold);
+      font-size: 17px;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .item-result-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .item-result-unit {
+      color: var(--ink-muted);
+      text-align: center;
+    }
+
+    .item-inline-star {
+      margin-right: 5px;
+      color: var(--gold);
+      font-size: .82em;
+      line-height: 1;
+    }
+
+    .item-no-match {
+      min-height: 38px;
+      display: grid;
+      align-items: center;
+      padding: 6px 9px;
+      border-radius: 8px;
+      color: var(--ink-muted);
+      font-size: 14px;
+      font-weight: 650;
+      background: rgba(243, 239, 230, .55);
+    }
     .money-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1429,6 +1622,39 @@
       padding: 12px;
     }
 
+    .settings-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      padding: 4px;
+      border: 1px solid rgba(222, 216, 204, .84);
+      border-radius: 8px;
+      background: rgba(243, 239, 230, .49);
+    }
+
+    .settings-tab {
+      min-height: 38px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--ink-muted);
+      cursor: pointer;
+      font-family: var(--display-font);
+      font-size: 13px;
+      font-weight: 750;
+      text-transform: uppercase;
+    }
+
+    .settings-tab[aria-selected="true"] {
+      background: var(--wash);
+      color: var(--ink-84);
+      box-shadow: 0 2px 8px rgba(22, 22, 22, .08);
+    }
+
+    .settings-section.hidden {
+      display: none;
+    }
+
     .settings-panel section {
       display: grid;
       gap: 8px;
@@ -1565,6 +1791,10 @@
       font-weight: 700;
     }
 
+    .settings-row.item-default-row {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+
     body:not(.theme-dark) .settings-row {
       border-color: rgba(107, 103, 96, .16);
       background: #f3eee4;
@@ -1625,6 +1855,30 @@
 
     .settings-remove::after {
       transform: rotate(-45deg);
+    }
+
+    .settings-star {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(107, 103, 96, .42);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .settings-star[aria-pressed="true"] {
+      color: var(--gold);
+    }
+
+    .settings-star::before {
+      content: "\2605";
+      transform: translateY(-1px);
     }
 
     .settings-form,
@@ -2370,16 +2624,39 @@
             </section>
 
             <section class="work-section hidden" id="inventorySection" data-work-panel="inventory" role="tabpanel" aria-labelledby="workTabInventory">
-              <section class="section empty-panel" aria-labelledby="inventoryTitle">
-                <p class="section-title" id="inventoryTitle">Inventory</p>
-                <p>Inventory fields go here.</p>
+              <section class="inventory-panel item-panel section" aria-labelledby="inventoryTitle">
+                <p class="section-title with-icon" id="inventoryTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M6 7v12h12V7"></path><path d="M9 11h6"></path><path d="M9 15h6"></path><path d="M8 4h8l1 3H7z"></path></svg>Inventory</p>
+                <div class="inventory-mode" id="inventoryModeGroup" role="group" aria-label="Inventory type">
+                  <button type="button" data-inventory-mode="public">Public vending</button>
+                  <button type="button" data-inventory-mode="private">Private party</button>
+                </div>
+                <form class="item-search" id="inventoryForm" autocomplete="off">
+                  <input id="inventoryItemInput" type="text" autocomplete="off" placeholder="Search or add item">
+                  <button class="small-button" type="submit">Add</button>
+                </form>
+                <div class="item-search-results hidden" id="inventorySearchResults"></div>
+                <div class="inventory-list-head" aria-hidden="true">
+                  <span>Item</span>
+                  <span>Unit</span>
+                  <span id="inventoryQtyLabel">Qty used</span>
+                </div>
+                <div class="inventory-list" id="inventoryList"></div>
               </section>
             </section>
-
             <section class="work-section hidden" id="suppliesSection" data-work-panel="supplies" role="tabpanel" aria-labelledby="workTabSupplies">
-              <section class="section empty-panel" aria-labelledby="suppliesTitle">
-                <p class="section-title" id="suppliesTitle">Supplies</p>
-                <p>Supplies fields go here.</p>
+              <section class="item-panel section" aria-labelledby="suppliesTitle">
+                <p class="section-title with-icon" id="suppliesTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14"></path><path d="M7 7l1 12h8l1-12"></path><path d="M9 4h6l1 3H8z"></path><path d="M10 11h4"></path><path d="M10 15h4"></path></svg>Supplies</p>
+                <form class="item-search" id="suppliesForm" autocomplete="off">
+                  <input id="suppliesItemInput" type="text" autocomplete="off" placeholder="Search or add supply">
+                  <button class="small-button" type="submit">Add</button>
+                </form>
+                <div class="item-search-results hidden" id="suppliesSearchResults"></div>
+                <div class="supply-list-head" aria-hidden="true">
+                  <span>Item</span>
+                  <span>Unit</span>
+                  <span>Qty</span>
+                </div>
+                <div class="supply-list" id="suppliesList"></div>
               </section>
             </section>
             </div>
@@ -2418,7 +2695,13 @@
 
         <section id="settingsView" class="view hidden">
           <div class="report-panel settings-panel">
-            <section class="compact-title-gap">
+            <div class="settings-tabs" id="settingsTabs" role="tablist" aria-label="Settings sections">
+              <button class="settings-tab" type="button" role="tab" data-settings-section="staff" aria-controls="settingsStaffSection">Staff</button>
+              <button class="settings-tab" type="button" role="tab" data-settings-section="inventory" aria-controls="settingsInventorySection">Inventory</button>
+              <button class="settings-tab" type="button" role="tab" data-settings-section="supplies" aria-controls="settingsSuppliesSection">Supplies</button>
+            </div>
+
+            <section class="settings-section compact-title-gap" id="settingsStaffSection" data-settings-panel="staff" role="tabpanel">
               <p class="section-title">Staff pool</p>
               <form class="settings-form" id="settingsStaffForm" autocomplete="off">
                 <input id="settingsStaffNameInput" type="text" autocomplete="off" placeholder="Add pool staff">
@@ -2427,7 +2710,25 @@
               <div class="settings-list scroll-list" id="settingsStaffList"></div>
             </section>
 
-            <section class="compact-title-gap">
+            <section class="settings-section compact-title-gap hidden" id="settingsInventorySection" data-settings-panel="inventory" role="tabpanel">
+              <p class="section-title">Inventory defaults</p>
+              <form class="settings-form" id="settingsInventoryForm" autocomplete="off">
+                <input id="settingsInventoryNameInput" type="text" autocomplete="off" placeholder="Add inventory item">
+                <button class="small-button settings-action" type="submit">Add</button>
+              </form>
+              <div class="settings-list scroll-list" id="settingsInventoryList"></div>
+            </section>
+
+            <section class="settings-section compact-title-gap hidden" id="settingsSuppliesSection" data-settings-panel="supplies" role="tabpanel">
+              <p class="section-title">Supplies defaults</p>
+              <form class="settings-form" id="settingsSuppliesForm" autocomplete="off">
+                <input id="settingsSuppliesNameInput" type="text" autocomplete="off" placeholder="Add supply item">
+                <button class="small-button settings-action" type="submit">Add</button>
+              </form>
+              <div class="settings-list scroll-list" id="settingsSuppliesList"></div>
+            </section>
+
+            <section class="settings-section compact-title-gap" id="settingsRecipientsSection" data-settings-panel="staff" role="tabpanel">
               <p class="section-title">Recipients</p>
               <form class="recipient-settings-form" id="settingsRecipientForm" autocomplete="off">
                 <label for="settingsRecipientNameInput">
@@ -2579,6 +2880,22 @@
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
     const testerDataVersion = "staff-pool-2026-06-16";
     const DEFAULT_STAFF_POOL = ["Annie", "Casey", "Danny", "Mandy", "Jen", "Nicole", "Jamie", "Matt"];
+    const DEFAULT_INVENTORY_ITEMS = [
+      { id: "inventory-buns", name: "Buns", unit: "#", favorite: true, standard: true },
+      { id: "inventory-burgers", name: "Burgers", unit: "#", favorite: true, standard: true },
+      { id: "inventory-hot-dogs", name: "Hot dogs", unit: "#", favorite: true, standard: true },
+      { id: "inventory-chicken-tenders", name: "Chicken tenders", unit: "#", favorite: true, standard: true },
+      { id: "inventory-fries", name: "Fries", unit: "#", favorite: true, standard: true },
+      { id: "inventory-soda", name: "Soda", unit: "#", favorite: true, standard: true },
+      { id: "inventory-water", name: "Water", unit: "#", favorite: true, standard: true }
+    ];
+    const DEFAULT_SUPPLY_ITEMS = [
+      { id: "supply-napkins", name: "Napkins", unit: "#", favorite: true, standard: true },
+      { id: "supply-cups", name: "Cups", unit: "#", favorite: true, standard: true },
+      { id: "supply-straws", name: "Straws", unit: "#", favorite: true, standard: true },
+      { id: "supply-paper-boats", name: "Paper boats", unit: "#", favorite: true, standard: true },
+      { id: "supply-gloves", name: "Gloves", unit: "#", favorite: true, standard: true }
+    ];
     const workSectionOrder = ["notes", "staff", "closeout", "inventory", "supplies"];
     const settingsPin = "1521";
     const defaultState = {
@@ -2593,6 +2910,13 @@
       tabsClosed: "",
       propaneFilled: "",
       gasFilled: "",
+      inventoryMode: "public",
+      inventoryDefaults: DEFAULT_INVENTORY_ITEMS.map((item) => ({ ...item })),
+      inventoryItems: DEFAULT_INVENTORY_ITEMS.map((item) => ({ ...item })),
+      inventoryQuantities: {},
+      supplyDefaults: DEFAULT_SUPPLY_ITEMS.map((item) => ({ ...item })),
+      supplyItems: DEFAULT_SUPPLY_ITEMS.map((item) => ({ ...item })),
+      supplyQuantities: {},
       nightMode: false,
       themePreferenceSet: false,
       recipients: DEFAULT_RECIPIENTS.map((recipient) => ({ ...recipient })),
@@ -2614,6 +2938,9 @@
     let settingsDismissTimer = null;
     let settingsReturnView = "notes";
     let settingsReturnSection = "notes";
+    let activeSettingsSection = "staff";
+    let inventorySearchTerm = "";
+    let suppliesSearchTerm = "";
 
     const refs = {
       statusTime: document.getElementById("statusTime"),
@@ -2633,6 +2960,16 @@
       tabsClosedGroup: document.getElementById("tabsClosedGroup"),
       propaneFilledGroup: document.getElementById("propaneFilledGroup"),
       gasFilledGroup: document.getElementById("gasFilledGroup"),
+      inventoryModeGroup: document.getElementById("inventoryModeGroup"),
+      inventoryQtyLabel: document.getElementById("inventoryQtyLabel"),
+      inventoryList: document.getElementById("inventoryList"),
+      inventoryForm: document.getElementById("inventoryForm"),
+      inventoryItemInput: document.getElementById("inventoryItemInput"),
+      inventorySearchResults: document.getElementById("inventorySearchResults"),
+      suppliesList: document.getElementById("suppliesList"),
+      suppliesForm: document.getElementById("suppliesForm"),
+      suppliesItemInput: document.getElementById("suppliesItemInput"),
+      suppliesSearchResults: document.getElementById("suppliesSearchResults"),
       noteInput: document.getElementById("noteInput"),
       noteList: document.getElementById("noteList"),
       noteSortButton: document.getElementById("noteSortButton"),
@@ -2654,9 +2991,18 @@
       headerMenu: document.getElementById("headerMenu"),
       menuNightModeButton: document.getElementById("menuNightModeButton"),
       settingsButton: document.getElementById("settingsButton"),
+      settingsTabs: document.getElementById("settingsTabs"),
+      settingsTabButtons: Array.from(document.querySelectorAll("[data-settings-section]")),
+      settingsPanels: Array.from(document.querySelectorAll("[data-settings-panel]")),
       settingsStaffList: document.getElementById("settingsStaffList"),
       settingsStaffForm: document.getElementById("settingsStaffForm"),
       settingsStaffNameInput: document.getElementById("settingsStaffNameInput"),
+      settingsInventoryList: document.getElementById("settingsInventoryList"),
+      settingsInventoryForm: document.getElementById("settingsInventoryForm"),
+      settingsInventoryNameInput: document.getElementById("settingsInventoryNameInput"),
+      settingsSuppliesList: document.getElementById("settingsSuppliesList"),
+      settingsSuppliesForm: document.getElementById("settingsSuppliesForm"),
+      settingsSuppliesNameInput: document.getElementById("settingsSuppliesNameInput"),
       settingsRecipientList: document.getElementById("settingsRecipientList"),
       settingsRecipientForm: document.getElementById("settingsRecipientForm"),
       settingsRecipientNameInput: document.getElementById("settingsRecipientNameInput"),
@@ -2714,8 +3060,16 @@
           || Boolean(parsed.changeBox)
           || Boolean(normalizeTabsClosed(parsed.tabsClosed))
           || Boolean(normalizeDecision(parsed.propaneFilled))
-          || Boolean(normalizeDecision(parsed.gasFilled));
+          || Boolean(normalizeDecision(parsed.gasFilled))
+          || Object.values(parsed.inventoryQuantities || {}).some(Boolean)
+          || Object.values(parsed.supplyQuantities || {}).some(Boolean);
         const shiftStaff = normalizeNameList(parsed.shiftStaff || (hasSessionInProgress ? savedStaff : []));
+        const inventoryDefaults = normalizeLibraryItems(parsed.inventoryDefaults || parsed.defaultInventoryItems || parsed.inventoryItems, DEFAULT_INVENTORY_ITEMS, "inventory");
+        const inventoryItems = normalizeActiveItems(parsed.inventoryItems?.length ? parsed.inventoryItems : favoriteItems(inventoryDefaults), inventoryDefaults);
+        const inventoryQuantities = normalizeInventoryQuantities(parsed.inventoryQuantities, inventoryItems);
+        const supplyDefaults = normalizeLibraryItems(parsed.supplyDefaults || parsed.defaultSupplyItems || parsed.supplyItems, DEFAULT_SUPPLY_ITEMS, "supply");
+        const supplyItems = normalizeActiveItems(parsed.supplyItems?.length ? parsed.supplyItems : favoriteItems(supplyDefaults), supplyDefaults);
+        const supplyQuantities = normalizeInventoryQuantities(parsed.supplyQuantities, supplyItems);
         return {
           ...defaultState,
           ...parsed,
@@ -2730,6 +3084,13 @@
           tabsClosed: normalizeTabsClosed(parsed.tabsClosed),
           propaneFilled: normalizeDecision(parsed.propaneFilled),
           gasFilled: normalizeDecision(parsed.gasFilled),
+          inventoryMode: parsed.inventoryMode === "private" ? "private" : "public",
+          inventoryDefaults,
+          inventoryItems,
+          inventoryQuantities,
+          supplyDefaults,
+          supplyItems,
+          supplyQuantities,
           recipients,
           noteSort: parsed.noteSort === "oldest" ? "oldest" : "newest",
           notes: savedNotes
@@ -2777,6 +3138,359 @@
       return first.localeCompare(second, undefined, { sensitivity: "base" });
     }
 
+    function createItemId(type, name) {
+      const slug = String(name || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      return `${type}-${slug || crypto.randomUUID()}`;
+    }
+
+    function createInventoryId(name) {
+      return createItemId("inventory", name);
+    }
+
+    function createDefaultItem(type, name) {
+      return { id: createItemId(type, name), name, unit: "#", favorite: true, standard: true };
+    }
+
+    function cleanItemName(name) {
+      return String(name || "").trim().replace(/\s+/g, " ");
+    }
+
+    function normalizeLibraryItems(items = [], fallbackItems = [], type = "item") {
+      const byName = new Map();
+      fallbackItems.forEach((item) => {
+        byName.set(item.name.toLowerCase(), { ...item, id: item.id || createItemId(type, item.name), unit: item.unit || "#", favorite: item.favorite !== false, standard: true });
+      });
+      const libraryItems = Array.isArray(items) ? items : [];
+      libraryItems.forEach((item) => {
+        const name = cleanItemName(item?.name);
+        if (!name) return;
+        const key = name.toLowerCase();
+        const existing = byName.get(key);
+        byName.set(key, {
+          ...(existing || {}),
+          id: String(item?.id || existing?.id || createItemId(type, name)),
+          name,
+          unit: String(item?.unit || existing?.unit || "#"),
+          favorite: item?.favorite === undefined ? Boolean(existing?.favorite) : Boolean(item.favorite),
+          standard: item?.standard === undefined ? Boolean(existing?.standard) : Boolean(item.standard)
+        });
+      });
+      return sortItemLibrary(Array.from(byName.values()));
+    }
+
+    function normalizeActiveItems(items = [], libraryItems = []) {
+      const libraryByName = new Map(libraryItems.map((item) => [item.name.toLowerCase(), item]));
+      const seen = new Set();
+      return (Array.isArray(items) ? items : [])
+        .map((item) => {
+          const name = cleanItemName(item?.name);
+          if (!name) return null;
+          const libraryItem = libraryByName.get(name.toLowerCase());
+          return {
+            ...(libraryItem || {}),
+            id: String(item?.id || libraryItem?.id || `item-custom-${crypto.randomUUID()}`),
+            name,
+            unit: String(item?.unit || libraryItem?.unit || "#"),
+            favorite: Boolean(libraryItem?.favorite || item?.favorite),
+            standard: Boolean(libraryItem?.standard || item?.standard)
+          };
+        })
+        .filter((item) => {
+          if (!item) return false;
+          const key = item.name.toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+    }
+
+    function favoriteItems(items = []) {
+      return sortItemLibrary(items).filter((item) => item.favorite).map((item) => ({ ...item }));
+    }
+
+    function sortItemLibrary(items = []) {
+      return [...items].sort((first, second) => {
+        if (Boolean(first.favorite) !== Boolean(second.favorite)) return first.favorite ? -1 : 1;
+        return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
+      });
+    }
+
+    function normalizeInventoryItems(items = []) {
+      return normalizeLibraryItems(items, DEFAULT_INVENTORY_ITEMS, "inventory");
+    }
+
+    function normalizeInventoryQuantities(quantities = {}, items = DEFAULT_INVENTORY_ITEMS) {
+      const allowedIds = new Set(items.map((item) => item.id));
+      return Object.fromEntries(Object.entries(quantities || {})
+        .map(([id, value]) => [id, String(value || "").replace(/[^0-9.]/g, "")])
+        .filter(([id, value]) => allowedIds.has(id) && value));
+    }
+
+    function getItemConfig(type) {
+      if (type === "supplies") {
+        return {
+          type,
+          singular: "supply",
+          defaultsKey: "supplyDefaults",
+          activeKey: "supplyItems",
+          quantitiesKey: "supplyQuantities",
+          input: refs.suppliesItemInput,
+          results: refs.suppliesSearchResults,
+          list: refs.suppliesList,
+          rowClass: "supply-row",
+          nameClass: "supply-name",
+          unitClass: "supply-unit"
+        };
+      }
+      return {
+        type: "inventory",
+        singular: "inventory",
+        defaultsKey: "inventoryDefaults",
+        activeKey: "inventoryItems",
+        quantitiesKey: "inventoryQuantities",
+        input: refs.inventoryItemInput,
+        results: refs.inventorySearchResults,
+        list: refs.inventoryList,
+        rowClass: "inventory-row",
+        nameClass: "inventory-name",
+        unitClass: "inventory-unit"
+      };
+    }
+
+    function getItemSearchTerm(type) {
+      return type === "supplies" ? suppliesSearchTerm : inventorySearchTerm;
+    }
+
+    function setItemSearchTerm(type, value) {
+      if (type === "supplies") suppliesSearchTerm = value;
+      else inventorySearchTerm = value;
+    }
+
+    function normalizeSearchText(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    function searchTokens(value) {
+      return normalizeSearchText(value).split(/\s+/).filter(Boolean);
+    }
+
+    function isSubsequence(needle, haystack) {
+      if (!needle) return true;
+      let cursor = 0;
+      for (const char of haystack) {
+        if (char === needle[cursor]) cursor += 1;
+        if (cursor === needle.length) return true;
+      }
+      return false;
+    }
+
+    function editDistanceWithin(first, second, limit) {
+      if (Math.abs(first.length - second.length) > limit) return false;
+      let previous = Array.from({ length: second.length + 1 }, (_, index) => index);
+      for (let row = 1; row <= first.length; row += 1) {
+        const current = [row];
+        let rowBest = current[0];
+        for (let column = 1; column <= second.length; column += 1) {
+          const cost = first[row - 1] === second[column - 1] ? 0 : 1;
+          const value = Math.min(
+            previous[column] + 1,
+            current[column - 1] + 1,
+            previous[column - 1] + cost
+          );
+          current[column] = value;
+          rowBest = Math.min(rowBest, value);
+        }
+        if (rowBest > limit) return false;
+        previous = current;
+      }
+      return previous[second.length] <= limit;
+    }
+
+    function tokenMatchScore(queryToken, nameTokens) {
+      if (!queryToken) return 0;
+      if (nameTokens.some((token) => token === queryToken)) return 0;
+      if (nameTokens.some((token) => token.startsWith(queryToken))) return 1;
+      if (nameTokens.some((token) => token.includes(queryToken))) return 2;
+      if (queryToken.length >= 3 && nameTokens.some((token) => isSubsequence(queryToken, token))) return 3;
+      const maxDistance = queryToken.length >= 6 ? 2 : 1;
+      if (queryToken.length >= 3 && nameTokens.some((token) => editDistanceWithin(queryToken, token, maxDistance))) return 4;
+      return Infinity;
+    }
+
+    function itemSearchScore(item, term) {
+      const normalizedTerm = normalizeSearchText(term);
+      if (!normalizedTerm) return 0;
+      const normalizedName = normalizeSearchText(item.name);
+      const queryTokens = searchTokens(term);
+      const nameTokens = searchTokens(item.name);
+      if (normalizedName === normalizedTerm) return 0;
+      if (normalizedName.startsWith(normalizedTerm)) return 1;
+      if (normalizedName.includes(normalizedTerm)) return 2;
+      let tokenScore = 0;
+      for (const queryToken of queryTokens) {
+        const score = tokenMatchScore(queryToken, nameTokens);
+        if (!Number.isFinite(score)) return Infinity;
+        tokenScore += score;
+      }
+      return 3 + tokenScore;
+    }
+
+    function rankedItemMatches(items, term) {
+      return items
+        .map((item) => ({ item, score: itemSearchScore(item, term) }))
+        .filter((match) => Number.isFinite(match.score))
+        .sort((first, second) => {
+          if (Boolean(first.item.favorite) !== Boolean(second.item.favorite)) return first.item.favorite ? -1 : 1;
+          if (first.score !== second.score) return first.score - second.score;
+          return first.item.name.localeCompare(second.item.name, undefined, { sensitivity: "base" });
+        })
+        .map((match) => match.item);
+    }
+
+    function getItemSearchMatches(type) {
+      const config = getItemConfig(type);
+      const term = getItemSearchTerm(type).trim();
+      if (!term) return [];
+      return rankedItemMatches(state[config.defaultsKey], term);
+    }
+
+    function getVisibleActiveItems(type) {
+      const config = getItemConfig(type);
+      const term = getItemSearchTerm(type).trim();
+      if (!term) return state[config.activeKey];
+      const activeNames = new Set(state[config.activeKey].map((item) => item.name.toLowerCase()));
+      const inactiveDefaults = state[config.defaultsKey].filter((item) => !activeNames.has(item.name.toLowerCase()));
+      return rankedItemMatches([...state[config.activeKey], ...inactiveDefaults], term);
+    }
+
+    function renderItemSearchResults(type) {
+      const config = getItemConfig(type);
+      if (!config.results) return;
+      config.results.classList.add("hidden");
+      config.results.innerHTML = "";
+    }
+
+    function addActiveItem(type, item) {
+      const config = getItemConfig(type);
+      const existingIndex = state[config.activeKey].findIndex((existing) => existing.name.toLowerCase() === item.name.toLowerCase());
+      const activeItem = { ...item };
+      if (existingIndex >= 0) state[config.activeKey].splice(existingIndex, 1);
+      state[config.activeKey].unshift(activeItem);
+      state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
+      setItemSearchTerm(type, "");
+      config.input.value = "";
+      render();
+      config.input.blur();
+      showToast(`${type === "supplies" ? "Supply" : "Inventory item"} added.`);
+    }
+
+    function ensureActiveItemForQuantity(type, id) {
+      const config = getItemConfig(type);
+      if (state[config.activeKey].some((item) => item.id === id)) return;
+      const defaultItem = state[config.defaultsKey].find((item) => item.id === id);
+      if (!defaultItem) return;
+      state[config.activeKey].unshift({ ...defaultItem });
+    }
+
+    function addItemFromSearch(type, name) {
+      const config = getItemConfig(type);
+      const clean = cleanItemName(name);
+      if (!clean) return;
+      const existingActive = state[config.activeKey].find((item) => item.name.toLowerCase() === clean.toLowerCase());
+      if (existingActive) {
+        addActiveItem(type, existingActive);
+        return;
+      }
+      const libraryItem = state[config.defaultsKey].find((item) => item.name.toLowerCase() === clean.toLowerCase());
+      addActiveItem(type, libraryItem || { id: `${config.singular}-custom-${crypto.randomUUID()}`, name: clean, unit: "#", favorite: false, standard: false });
+    }
+
+    function addDefaultItem(type, name, input) {
+      const config = getItemConfig(type);
+      const clean = cleanItemName(name);
+      if (!clean) return;
+      const exists = state[config.defaultsKey].some((item) => item.name.toLowerCase() === clean.toLowerCase());
+      if (!exists) {
+        state[config.defaultsKey].push({ id: createItemId(config.singular, clean), name: clean, unit: "#", favorite: true, standard: true });
+      }
+      state[config.defaultsKey] = sortItemLibrary(state[config.defaultsKey]);
+      input.value = "";
+      render();
+      input.focus();
+    }
+
+    function toggleDefaultItemFavorite(type, id) {
+      const config = getItemConfig(type);
+      const item = state[config.defaultsKey].find((candidate) => candidate.id === id);
+      if (!item) return;
+      item.favorite = !item.favorite;
+      state[config.defaultsKey] = sortItemLibrary(state[config.defaultsKey]);
+      render();
+    }
+
+    function removeDefaultItem(type, id) {
+      const config = getItemConfig(type);
+      state[config.defaultsKey] = state[config.defaultsKey].filter((item) => item.id !== id);
+      state[config.activeKey] = state[config.activeKey].filter((item) => item.id !== id);
+      state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
+      render();
+      showToast(`${type === "supplies" ? "Supply" : "Inventory"} default removed.`);
+    }
+
+    function renderItemList(type) {
+      const config = getItemConfig(type);
+      state[config.defaultsKey] = normalizeLibraryItems(state[config.defaultsKey], type === "supplies" ? DEFAULT_SUPPLY_ITEMS : DEFAULT_INVENTORY_ITEMS, config.singular);
+      state[config.activeKey] = normalizeActiveItems(state[config.activeKey], state[config.defaultsKey]);
+      state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
+      renderItemSearchResults(type);
+      config.list.innerHTML = getVisibleActiveItems(type).map((item) => `
+        <label class="${config.rowClass}" for="${config.type}-${escapeHtml(item.id)}">
+          <span class="${config.nameClass}">${item.favorite ? '<span class="item-inline-star">&#9733;</span>' : ""}${escapeHtml(item.name)}</span>
+          <span class="${config.unitClass}">${escapeHtml(item.unit)}</span>
+          <input id="${config.type}-${escapeHtml(item.id)}" type="text" inputmode="decimal" autocomplete="off" data-${config.type}-qty="${escapeHtml(item.id)}" value="${escapeHtml(state[config.quantitiesKey][item.id] || "")}" placeholder="0">
+        </label>
+      `).join("");
+    }
+
+    function renderSettingsItemList(type) {
+      const config = getItemConfig(type);
+      const list = type === "supplies" ? refs.settingsSuppliesList : refs.settingsInventoryList;
+      list.innerHTML = sortItemLibrary(state[config.defaultsKey]).map((item) => `
+        <div class="settings-row item-default-row">
+          <span class="settings-staff-name">${escapeHtml(item.name)}</span>
+          <button class="settings-star" type="button" data-settings-star-${config.type}="${escapeHtml(item.id)}" aria-pressed="${item.favorite ? "true" : "false"}" aria-label="${item.favorite ? "Unstar" : "Star"} ${escapeHtml(item.name)}"></button>
+          <button class="settings-remove" type="button" data-settings-remove-${config.type}="${escapeHtml(item.id)}" aria-label="Remove ${escapeHtml(item.name)}"></button>
+        </div>
+      `).join("");
+    }
+
+    function normalizeLegacyInventoryItems(items = []) {
+      const byId = new Map(DEFAULT_INVENTORY_ITEMS.map((item) => [item.id, { ...item }]));
+      const customItems = Array.isArray(items) ? items : [];
+      customItems.forEach((item) => {
+        const name = String(item?.name || "").trim().replace(/\s+/g, " ");
+        if (!name) return;
+        const id = String(item?.id || createInventoryId(name));
+        if (byId.has(id)) return;
+        byId.set(id, { id, name, unit: String(item?.unit || "#"), standard: Boolean(item?.standard) });
+      });
+      return Array.from(byId.values());
+    }
+
+    function inventoryModeLabel(mode = state.inventoryMode) {
+      return mode === "private" ? "Private party" : "Public vending";
+    }
+
+    function inventoryQtyLabel() {
+      return state.inventoryMode === "private" ? "Qty returned" : "Qty used";
+    }
     function escapeHtml(value) {
       return String(value)
         .replaceAll("&", "&amp;")
@@ -2851,6 +3565,21 @@
       return Number.isFinite(Number(value));
     }
 
+    function inventoryReportLines() {
+      return itemReportLines(state.inventoryItems, state.inventoryQuantities);
+    }
+
+    function supplyReportLines() {
+      return itemReportLines(state.supplyItems, state.supplyQuantities);
+    }
+
+    function itemReportLines(items, quantities) {
+      const rows = items
+        .map((item) => ({ item, quantity: quantities[item.id] || "" }))
+        .filter((row) => row.quantity);
+      if (!rows.length) return ["- None logged"];
+      return rows.map(({ item, quantity }) => `- ${item.name}: ${quantity} ${item.unit}`);
+    }
     function reportLines() {
       const staff = state.shiftStaff.join(", ");
       const lines = [
@@ -2868,6 +3597,12 @@
         "Truck check:",
         `- Propane filled: ${formatTabsClosed(state.propaneFilled)}`,
         `- Gas filled: ${formatTabsClosed(state.gasFilled)}`,
+        "",
+        `Inventory (${inventoryModeLabel()} - ${inventoryQtyLabel()}):`,
+        ...inventoryReportLines(),
+        "",
+        "Supplies:",
+        ...supplyReportLines(),
         "",
         `Notes: ${state.notes.length}`,
         ""
@@ -2911,6 +3646,17 @@
       `).join("");
     }
 
+    function renderInventory() {
+      refs.inventoryQtyLabel.textContent = inventoryQtyLabel();
+      refs.inventoryModeGroup.querySelectorAll("[data-inventory-mode]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.inventoryMode === state.inventoryMode));
+      });
+      renderItemList("inventory");
+    }
+
+    function renderSupplies() {
+      renderItemList("supplies");
+    }
     function renderStaff() {
       const availableDefaultStaff = normalizeNameList(state.defaultStaff).filter((name) => (
         !state.shiftStaff.some((shiftName) => shiftName.toLowerCase() === name.toLowerCase())
@@ -3143,6 +3889,15 @@
     }
 
     function renderSettings() {
+      refs.settingsTabButtons.forEach((button) => {
+        const isActive = button.dataset.settingsSection === activeSettingsSection;
+        button.setAttribute("aria-selected", String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
+      });
+      refs.settingsPanels.forEach((panel) => {
+        panel.classList.toggle("hidden", panel.dataset.settingsPanel !== activeSettingsSection);
+      });
+
       const sortedDefaultStaff = normalizeNameList(state.defaultStaff);
       refs.settingsStaffList.innerHTML = sortedDefaultStaff.map((name) => `
         <div class="settings-row">
@@ -3157,6 +3912,9 @@
           <button class="settings-remove" type="button" data-remove-recipient="${index}" aria-label="Remove ${escapeHtml(recipient.name)}"></button>
         </div>
       `).join("");
+
+      renderSettingsItemList("inventory");
+      renderSettingsItemList("supplies");
     }
 
     function renderReport() {
@@ -3328,7 +4086,7 @@
     }
 
     function updateScrollCues() {
-      document.querySelectorAll(".staff-transfer-list, .settings-list.scroll-list").forEach(updateVerticalScrollCue);
+      document.querySelectorAll(".staff-transfer-list, .settings-list.scroll-list, .item-search-results").forEach(updateVerticalScrollCue);
       updateHorizontalScrollCue(refs.workTabs);
     }
 
@@ -3342,6 +4100,8 @@
       renderSettingsPin();
       renderSender();
       renderStaff();
+      renderInventory();
+      renderSupplies();
       renderCloseoutFields();
       renderCloseoutRequiredDialog();
       renderMetrics();
@@ -3382,6 +4142,9 @@
     }
 
 
+    function addInventoryItem(name) {
+      addItemFromSearch("inventory", name);
+    }
     function addShiftStaff(name, input = refs.staffNameInput) {
       const clean = name.trim().replace(/\s+/g, " ");
       if (!clean) return;
@@ -3585,6 +4348,13 @@
       state.tabsClosed = "";
       state.propaneFilled = "";
       state.gasFilled = "";
+      state.inventoryMode = defaultState.inventoryMode;
+      state.inventoryItems = favoriteItems(state.inventoryDefaults);
+      state.inventoryQuantities = {};
+      state.supplyItems = favoriteItems(state.supplyDefaults);
+      state.supplyQuantities = {};
+      inventorySearchTerm = "";
+      suppliesSearchTerm = "";
       requiredHighlightActive = false;
       currentView = "notes";
       activeWorkSection = "notes";
@@ -4041,9 +4811,81 @@
       addShiftStaff(button.dataset.defaultStaffDay, button);
     });
 
+
+    refs.inventoryModeGroup.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-inventory-mode]");
+      if (!button) return;
+      state.inventoryMode = button.dataset.inventoryMode === "private" ? "private" : "public";
+      render();
+    });
+
+    refs.inventoryList.addEventListener("input", (event) => {
+      const input = event.target.closest("[data-inventory-qty]");
+      if (!input) return;
+      const clean = input.value.replace(/[^0-9.]/g, "");
+      if (input.value !== clean) input.value = clean;
+      ensureActiveItemForQuantity("inventory", input.dataset.inventoryQty);
+      state.inventoryQuantities[input.dataset.inventoryQty] = clean;
+      saveState();
+      renderReport();
+    });
+
+    refs.suppliesList.addEventListener("input", (event) => {
+      const input = event.target.closest("[data-supplies-qty]");
+      if (!input) return;
+      const clean = input.value.replace(/[^0-9.]/g, "");
+      if (input.value !== clean) input.value = clean;
+      ensureActiveItemForQuantity("supplies", input.dataset.suppliesQty);
+      state.supplyQuantities[input.dataset.suppliesQty] = clean;
+      saveState();
+      renderReport();
+    });
+
+    refs.inventoryItemInput.addEventListener("input", () => {
+      inventorySearchTerm = refs.inventoryItemInput.value;
+      renderInventory();
+      requestAnimationFrame(updateScrollCues);
+    });
+
+    refs.suppliesItemInput.addEventListener("input", () => {
+      suppliesSearchTerm = refs.suppliesItemInput.value;
+      renderSupplies();
+      requestAnimationFrame(updateScrollCues);
+    });
+
+    refs.inventorySearchResults.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-add-inventory-item]");
+      if (!button) return;
+      const item = state.inventoryDefaults.find((candidate) => candidate.id === button.dataset.addInventoryItem);
+      if (item) addActiveItem("inventory", item);
+    });
+
+    refs.suppliesSearchResults.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-add-supplies-item]");
+      if (!button) return;
+      const item = state.supplyDefaults.find((candidate) => candidate.id === button.dataset.addSuppliesItem);
+      if (item) addActiveItem("supplies", item);
+    });
+
+    refs.inventoryForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      addItemFromSearch("inventory", refs.inventoryItemInput.value);
+    });
+
+    refs.suppliesForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      addItemFromSearch("supplies", refs.suppliesItemInput.value);
+    });
     refs.settingsStaffForm.addEventListener("submit", (event) => {
       event.preventDefault();
       addDefaultStaff(refs.settingsStaffNameInput.value, refs.settingsStaffNameInput);
+    });
+
+    refs.settingsTabs.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-settings-section]");
+      if (!button) return;
+      activeSettingsSection = button.dataset.settingsSection;
+      render();
     });
 
     refs.staffList.addEventListener("click", (event) => {
@@ -4056,6 +4898,36 @@
       const removeButton = event.target.closest("[data-settings-remove-staff]");
       if (!removeButton) return;
       removeDefaultStaff(removeButton.dataset.settingsRemoveStaff);
+    });
+
+    refs.settingsInventoryForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      addDefaultItem("inventory", refs.settingsInventoryNameInput.value, refs.settingsInventoryNameInput);
+    });
+
+    refs.settingsSuppliesForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      addDefaultItem("supplies", refs.settingsSuppliesNameInput.value, refs.settingsSuppliesNameInput);
+    });
+
+    refs.settingsInventoryList.addEventListener("click", (event) => {
+      const starButton = event.target.closest("[data-settings-star-inventory]");
+      if (starButton) {
+        toggleDefaultItemFavorite("inventory", starButton.dataset.settingsStarInventory);
+        return;
+      }
+      const removeButton = event.target.closest("[data-settings-remove-inventory]");
+      if (removeButton) removeDefaultItem("inventory", removeButton.dataset.settingsRemoveInventory);
+    });
+
+    refs.settingsSuppliesList.addEventListener("click", (event) => {
+      const starButton = event.target.closest("[data-settings-star-supplies]");
+      if (starButton) {
+        toggleDefaultItemFavorite("supplies", starButton.dataset.settingsStarSupplies);
+        return;
+      }
+      const removeButton = event.target.closest("[data-settings-remove-supplies]");
+      if (removeButton) removeDefaultItem("supplies", removeButton.dataset.settingsRemoveSupplies);
     });
 
     refs.settingsRecipientForm.addEventListener("submit", (event) => {
