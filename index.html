@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-25-settings-list-expanded">
+  <meta name="app-version" content="2026-06-25-inventory-supplies-inputs">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1081,11 +1081,17 @@
     }
 
     .inventory-list-head,
-    .inventory-row,
+    .inventory-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 147px;
+      gap: 8px;
+      align-items: center;
+    }
+
     .supply-list-head,
     .supply-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 48px 98px;
+      grid-template-columns: minmax(0, 1fr) 96px;
       gap: 8px;
       align-items: center;
     }
@@ -1126,20 +1132,42 @@
 
     .inventory-unit,
     .supply-unit {
+      display: none;
+    }
+
+    .supply-needed-label {
       color: var(--ink-muted);
       font-size: 16px;
       font-weight: 650;
       text-align: center;
     }
 
-    .inventory-row input,
-    .supply-row input {
+    .inventory-row input {
       min-height: 40px;
       padding: 7px 8px;
-      text-align: center;
+      text-align: left;
       font-family: var(--copy-font);
       font-size: 18px;
       font-weight: 500;
+    }
+
+    .supply-needed {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, .7);
+      color: var(--ink-muted);
+      cursor: pointer;
+      font-family: var(--copy-font);
+      font-size: 14px;
+      font-weight: 750;
+      text-transform: uppercase;
+    }
+
+    .supply-needed[aria-pressed="true"] {
+      border-color: transparent;
+      background: var(--gold);
+      color: var(--ink-93);
     }
 
     .item-search {
@@ -2168,6 +2196,18 @@
       color: var(--ink-84);
     }
 
+    body.theme-dark .supply-needed {
+      background: rgba(243, 238, 228, .07);
+      color: var(--ink-84);
+      border-color: rgba(243, 238, 228, .10);
+    }
+
+    body.theme-dark .supply-needed[aria-pressed="true"] {
+      background: var(--gold);
+      color: var(--ink-93);
+      border-color: transparent;
+    }
+
     body.theme-dark .staff-transfer-option.active,
     body.theme-dark .primary,
     body.theme-dark .settings-action {
@@ -2704,8 +2744,7 @@
                 <div class="item-search-results hidden" id="inventorySearchResults"></div>
                 <div class="inventory-list-head" aria-hidden="true">
                   <span>Item</span>
-                  <span>Unit</span>
-                  <span id="inventoryQtyLabel">Qty used</span>
+                  <span id="inventoryQtyLabel">Qty returned</span>
                 </div>
                 <div class="inventory-list" id="inventoryList"></div>
               </section>
@@ -2720,8 +2759,7 @@
                 <div class="item-search-results hidden" id="suppliesSearchResults"></div>
                 <div class="supply-list-head" aria-hidden="true">
                   <span>Item</span>
-                  <span>Unit</span>
-                  <span>Qty</span>
+                  <span class="supply-needed-label">Need</span>
                 </div>
                 <div class="supply-list" id="suppliesList"></div>
               </section>
@@ -3315,7 +3353,7 @@
     function normalizeInventoryQuantities(quantities = {}, items = DEFAULT_INVENTORY_ITEMS) {
       const allowedIds = new Set(items.map((item) => item.id));
       return Object.fromEntries(Object.entries(quantities || {})
-        .map(([id, value]) => [id, String(value || "").replace(/[^0-9.]/g, "")])
+        .map(([id, value]) => [id, String(value || "").trim()])
         .filter(([id, value]) => allowedIds.has(id) && value));
     }
 
@@ -3555,11 +3593,23 @@
       state[config.activeKey] = normalizeActiveItems(state[config.activeKey], state[config.defaultsKey]);
       state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
       renderItemSearchResults(type);
-      config.list.innerHTML = getVisibleActiveItems(type).map((item) => `
+      const visibleItems = getVisibleActiveItems(type);
+      if (type === "supplies") {
+        config.list.innerHTML = visibleItems.map((item) => {
+          const needed = state[config.quantitiesKey][item.id] === "needed";
+          return `
+            <div class="${config.rowClass}">
+              <span class="${config.nameClass}">${item.favorite ? '<span class="item-inline-star">&#9733;</span>' : ""}${escapeHtml(item.name)}</span>
+              <button class="supply-needed" type="button" data-supplies-needed="${escapeHtml(item.id)}" aria-pressed="${needed ? "true" : "false"}">${needed ? "Needed" : "Need"}</button>
+            </div>
+          `;
+        }).join("");
+        return;
+      }
+      config.list.innerHTML = visibleItems.map((item) => `
         <label class="${config.rowClass}" for="${config.type}-${escapeHtml(item.id)}">
           <span class="${config.nameClass}">${item.favorite ? '<span class="item-inline-star">&#9733;</span>' : ""}${escapeHtml(item.name)}</span>
-          <span class="${config.unitClass}">${escapeHtml(item.unit)}</span>
-          <input id="${config.type}-${escapeHtml(item.id)}" type="text" inputmode="decimal" autocomplete="off" data-${config.type}-qty="${escapeHtml(item.id)}" value="${escapeHtml(state[config.quantitiesKey][item.id] || "")}" placeholder="0">
+          <input id="${config.type}-${escapeHtml(item.id)}" type="text" autocomplete="off" data-${config.type}-qty="${escapeHtml(item.id)}" value="${escapeHtml(state[config.quantitiesKey][item.id] || "")}" placeholder="Qty">
         </label>
       `).join("");
     }
@@ -3601,7 +3651,7 @@
     }
 
     function inventoryQtyLabel() {
-      return state.inventoryMode === "private" ? "Qty returned" : "Qty used";
+      return state.inventoryMode === "private" ? "Qty used" : "Qty returned";
     }
     function escapeHtml(value) {
       return String(value)
@@ -3682,7 +3732,9 @@
     }
 
     function supplyReportLines() {
-      return itemReportLines(state.supplyItems, state.supplyQuantities);
+      const rows = state.supplyItems.filter((item) => state.supplyQuantities[item.id] === "needed");
+      if (!rows.length) return ["- None logged"];
+      return rows.map((item) => `- ${item.name}`);
     }
 
     function itemReportLines(items, quantities) {
@@ -3690,7 +3742,7 @@
         .map((item) => ({ item, quantity: quantities[item.id] || "" }))
         .filter((row) => row.quantity);
       if (!rows.length) return ["- None logged"];
-      return rows.map(({ item, quantity }) => `- ${item.name}: ${quantity} ${item.unit}`);
+      return rows.map(({ item, quantity }) => `- ${item.name}: ${quantity}`);
     }
     function reportLines() {
       const staff = state.shiftStaff.join(", ");
@@ -4934,22 +4986,23 @@
     refs.inventoryList.addEventListener("input", (event) => {
       const input = event.target.closest("[data-inventory-qty]");
       if (!input) return;
-      const clean = input.value.replace(/[^0-9.]/g, "");
-      if (input.value !== clean) input.value = clean;
+      const clean = input.value.trim();
       ensureActiveItemForQuantity("inventory", input.dataset.inventoryQty);
-      state.inventoryQuantities[input.dataset.inventoryQty] = clean;
+      if (clean) state.inventoryQuantities[input.dataset.inventoryQty] = clean;
+      else delete state.inventoryQuantities[input.dataset.inventoryQty];
       saveState();
       renderReport();
     });
 
-    refs.suppliesList.addEventListener("input", (event) => {
-      const input = event.target.closest("[data-supplies-qty]");
-      if (!input) return;
-      const clean = input.value.replace(/[^0-9.]/g, "");
-      if (input.value !== clean) input.value = clean;
-      ensureActiveItemForQuantity("supplies", input.dataset.suppliesQty);
-      state.supplyQuantities[input.dataset.suppliesQty] = clean;
+    refs.suppliesList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-supplies-needed]");
+      if (!button) return;
+      const id = button.dataset.suppliesNeeded;
+      ensureActiveItemForQuantity("supplies", id);
+      if (state.supplyQuantities[id] === "needed") delete state.supplyQuantities[id];
+      else state.supplyQuantities[id] = "needed";
       saveState();
+      renderSupplies();
       renderReport();
     });
 
