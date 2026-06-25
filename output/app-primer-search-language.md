@@ -33,3 +33,15 @@ Inventory and Supplies should use:
 - Starred items prioritized
 - The main item list should respond directly
 - No separate suggestion tray unless the list itself cannot carry the interaction
+
+## Truck Notes Feedback Rule
+
+When a small control changes state, prefer quiet local feedback before adding a toast or modal.
+
+First suggestion:
+
+- Tiny pop on the tapped control
+- Soft pulse on the affected row/card
+- No toast for repeatable setup actions
+
+Use this especially for star/favorite toggles, lightweight selection states, and other repeated configuration taps.

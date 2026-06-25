@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-25-ranked-search-framework">
+  <meta name="app-version" content="2026-06-25-settings-list-expanded">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -642,8 +642,8 @@
       position: sticky;
       top: 0;
       z-index: 6;
-      margin: 0 -16px 13px;
-      padding: 7px 16px 5px;
+      margin: 0 -16px 14px;
+      padding: 7px 16px 4px;
       background: rgba(255, 253, 248, .945);
       box-shadow:
         0 -1px 0 rgba(222, 216, 204, .62),
@@ -664,16 +664,16 @@
     .work-tabs {
       display: flex;
       flex-wrap: nowrap;
-      gap: 5px;
+      gap: 4px;
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scroll-snap-type: x proximity;
       -webkit-overflow-scrolling: touch;
-      margin: 0 0 3px;
-      padding: 3px 0;
+      margin: 0;
+      padding: 4px;
       border: 0;
-      border-radius: 0;
-      background: transparent;
+      border-radius: 8px;
+      background: rgba(243, 239, 230, .48);
       -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, var(--scroll-mask-left, 1)) 0, #000 var(--horizontal-scroll-mask-depth), #000 calc(100% - var(--horizontal-scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-right, 1)) 100%);
       mask-image: linear-gradient(to right, rgba(0, 0, 0, var(--scroll-mask-left, 1)) 0, #000 var(--horizontal-scroll-mask-depth), #000 calc(100% - var(--horizontal-scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-right, 1)) 100%);
       scrollbar-width: none;
@@ -692,25 +692,26 @@
       align-items: center;
       justify-content: center;
       gap: 5px;
-      flex: 0 0 calc((100% - 15px) / 3.5);
+      flex: 0 0 calc((100% - 12px) / 3.5);
       min-width: 0;
-      min-height: 46px;
+      min-height: 42px;
       border: 1px solid transparent;
       border-radius: 6px;
       background: transparent;
       color: var(--muted);
-      font-size: 11.5px;
+      font-size: 12px;
       line-height: 1;
-      padding: 0 8px;
+      padding: 0 7px;
       scroll-snap-align: start;
       text-transform: uppercase;
       white-space: nowrap;
     }
 
     .work-tab[aria-selected="true"] {
-      border-color: rgba(199, 154, 88, .36);
-      background: rgba(199, 154, 88, .075);
-      color: var(--ink-93);
+      border-color: transparent;
+      background: rgba(255, 253, 248, .86);
+      color: var(--ink-84);
+      box-shadow: 0 2px 8px rgba(22, 22, 22, .075);
     }
 
     .tab-badge {
@@ -761,21 +762,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      margin: 5px 0 8px;
+      gap: 4px;
+      margin: 5px 0 3px;
     }
 
     .section-dot {
-      width: 7px;
-      height: 7px;
+      width: 5px;
+      height: 5px;
       border-radius: 999px;
-      background: rgba(107, 103, 96, .36);
+      background: rgba(107, 103, 96, .28);
       transition: width .16s ease, background .16s ease;
     }
 
     .section-dot.active {
-      width: 16px;
-      background: rgba(184, 132, 63, .86);
+      width: 14px;
+      background: rgba(184, 132, 63, .78);
     }
 
     .empty-panel {
@@ -1670,6 +1671,42 @@
       font-weight: 700;
     }
 
+    .settings-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .settings-sort-button {
+      min-width: 50px;
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 0 8px;
+      border: 1px solid rgba(107, 103, 96, .18);
+      border-radius: 7px;
+      background: var(--wash);
+      color: var(--ink-84);
+      cursor: pointer;
+      font-family: var(--copy-font);
+      font-size: 12px;
+      font-weight: 750;
+      line-height: 1;
+    }
+
+    .settings-sort-button::after {
+      content: "\2193";
+      font-size: 12px;
+      transform: translateY(-1px);
+    }
+
+    .settings-sort-button[data-sort="za"]::after {
+      content: "\2191";
+    }
+
     .settings-panel .compact-title-gap .section-title {
       margin-bottom: 5px;
     }
@@ -1749,6 +1786,11 @@
       height: 343px;
     }
 
+    #settingsInventoryList.scroll-list,
+    #settingsSuppliesList.scroll-list {
+      height: 392px;
+    }
+
     .settings-list.scroll-list::-webkit-scrollbar {
       width: 0;
       height: 0;
@@ -1792,7 +1834,11 @@
     }
 
     .settings-row.item-default-row {
-      grid-template-columns: minmax(0, 1fr) auto auto;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .settings-row.favorite-feedback {
+      animation: favoriteRowPulse .42s ease-out;
     }
 
     body:not(.theme-dark) .settings-row {
@@ -1879,6 +1925,21 @@
     .settings-star::before {
       content: "\2605";
       transform: translateY(-1px);
+    }
+
+    .settings-star.favorite-feedback::before {
+      animation: favoriteStarPop .28s cubic-bezier(.2, .9, .28, 1.35);
+    }
+
+    @keyframes favoriteStarPop {
+      0% { transform: translateY(-1px) scale(1); }
+      42% { transform: translateY(-1px) scale(1.28); }
+      100% { transform: translateY(-1px) scale(1); }
+    }
+
+    @keyframes favoriteRowPulse {
+      0% { background: rgba(199, 154, 88, .18); }
+      100% { background: var(--wash); }
     }
 
     .settings-form,
@@ -2077,8 +2138,14 @@
     }
 
     body.theme-dark .work-tabs {
-      background: transparent;
-      box-shadow: none;
+      background: rgba(49, 43, 35, .68);
+      box-shadow: inset 0 0 0 1px rgba(243, 238, 228, .045);
+    }
+
+    body.theme-dark .work-tab[aria-selected="true"] {
+      background: rgba(243, 238, 228, .075);
+      color: var(--ink-93);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
     }
 
     body.theme-dark .work-nav::after {
@@ -2711,7 +2778,10 @@
             </section>
 
             <section class="settings-section compact-title-gap hidden" id="settingsInventorySection" data-settings-panel="inventory" role="tabpanel">
-              <p class="section-title">Inventory defaults</p>
+              <div class="settings-title-row">
+                <p class="section-title">Inventory defaults</p>
+                <button class="settings-sort-button" id="settingsInventorySortButton" type="button" data-settings-sort="inventory" data-sort="newest" aria-label="Sort inventory defaults A to Z">A-Z</button>
+              </div>
               <form class="settings-form" id="settingsInventoryForm" autocomplete="off">
                 <input id="settingsInventoryNameInput" type="text" autocomplete="off" placeholder="Add inventory item">
                 <button class="small-button settings-action" type="submit">Add</button>
@@ -2720,7 +2790,10 @@
             </section>
 
             <section class="settings-section compact-title-gap hidden" id="settingsSuppliesSection" data-settings-panel="supplies" role="tabpanel">
-              <p class="section-title">Supplies defaults</p>
+              <div class="settings-title-row">
+                <p class="section-title">Supplies defaults</p>
+                <button class="settings-sort-button" id="settingsSuppliesSortButton" type="button" data-settings-sort="supplies" data-sort="newest" aria-label="Sort supplies defaults A to Z">A-Z</button>
+              </div>
               <form class="settings-form" id="settingsSuppliesForm" autocomplete="off">
                 <input id="settingsSuppliesNameInput" type="text" autocomplete="off" placeholder="Add supply item">
                 <button class="small-button settings-action" type="submit">Add</button>
@@ -2912,9 +2985,11 @@
       gasFilled: "",
       inventoryMode: "public",
       inventoryDefaults: DEFAULT_INVENTORY_ITEMS.map((item) => ({ ...item })),
+      inventoryDefaultSort: "newest",
       inventoryItems: DEFAULT_INVENTORY_ITEMS.map((item) => ({ ...item })),
       inventoryQuantities: {},
       supplyDefaults: DEFAULT_SUPPLY_ITEMS.map((item) => ({ ...item })),
+      supplyDefaultSort: "newest",
       supplyItems: DEFAULT_SUPPLY_ITEMS.map((item) => ({ ...item })),
       supplyQuantities: {},
       nightMode: false,
@@ -3000,9 +3075,11 @@
       settingsInventoryList: document.getElementById("settingsInventoryList"),
       settingsInventoryForm: document.getElementById("settingsInventoryForm"),
       settingsInventoryNameInput: document.getElementById("settingsInventoryNameInput"),
+      settingsInventorySortButton: document.getElementById("settingsInventorySortButton"),
       settingsSuppliesList: document.getElementById("settingsSuppliesList"),
       settingsSuppliesForm: document.getElementById("settingsSuppliesForm"),
       settingsSuppliesNameInput: document.getElementById("settingsSuppliesNameInput"),
+      settingsSuppliesSortButton: document.getElementById("settingsSuppliesSortButton"),
       settingsRecipientList: document.getElementById("settingsRecipientList"),
       settingsRecipientForm: document.getElementById("settingsRecipientForm"),
       settingsRecipientNameInput: document.getElementById("settingsRecipientNameInput"),
@@ -3086,9 +3163,11 @@
           gasFilled: normalizeDecision(parsed.gasFilled),
           inventoryMode: parsed.inventoryMode === "private" ? "private" : "public",
           inventoryDefaults,
+          inventoryDefaultSort: ["az", "za"].includes(parsed.inventoryDefaultSort) ? parsed.inventoryDefaultSort : "newest",
           inventoryItems,
           inventoryQuantities,
           supplyDefaults,
+          supplyDefaultSort: ["az", "za"].includes(parsed.supplyDefaultSort) ? parsed.supplyDefaultSort : "newest",
           supplyItems,
           supplyQuantities,
           recipients,
@@ -3161,9 +3240,6 @@
 
     function normalizeLibraryItems(items = [], fallbackItems = [], type = "item") {
       const byName = new Map();
-      fallbackItems.forEach((item) => {
-        byName.set(item.name.toLowerCase(), { ...item, id: item.id || createItemId(type, item.name), unit: item.unit || "#", favorite: item.favorite !== false, standard: true });
-      });
       const libraryItems = Array.isArray(items) ? items : [];
       libraryItems.forEach((item) => {
         const name = cleanItemName(item?.name);
@@ -3179,7 +3255,13 @@
           standard: item?.standard === undefined ? Boolean(existing?.standard) : Boolean(item.standard)
         });
       });
-      return sortItemLibrary(Array.from(byName.values()));
+      fallbackItems.forEach((item) => {
+        const key = item.name.toLowerCase();
+        if (!byName.has(key)) {
+          byName.set(key, { ...item, id: item.id || createItemId(type, item.name), unit: item.unit || "#", favorite: item.favorite !== false, standard: true });
+        }
+      });
+      return Array.from(byName.values());
     }
 
     function normalizeActiveItems(items = [], libraryItems = []) {
@@ -3216,6 +3298,13 @@
       return [...items].sort((first, second) => {
         if (Boolean(first.favorite) !== Boolean(second.favorite)) return first.favorite ? -1 : 1;
         return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
+      });
+    }
+
+    function sortItemsByName(items = [], direction = "az") {
+      return [...items].sort((first, second) => {
+        const comparison = first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
+        return direction === "za" ? -comparison : comparison;
       });
     }
 
@@ -3418,9 +3507,10 @@
       if (!clean) return;
       const exists = state[config.defaultsKey].some((item) => item.name.toLowerCase() === clean.toLowerCase());
       if (!exists) {
-        state[config.defaultsKey].push({ id: createItemId(config.singular, clean), name: clean, unit: "#", favorite: true, standard: true });
+        state[config.defaultsKey].unshift({ id: createItemId(config.singular, clean), name: clean, unit: "#", favorite: true, standard: true });
       }
-      state[config.defaultsKey] = sortItemLibrary(state[config.defaultsKey]);
+      state[config.defaultsKey] = normalizeLibraryItems(state[config.defaultsKey], [], config.singular);
+      state[type === "supplies" ? "supplyDefaultSort" : "inventoryDefaultSort"] = "newest";
       input.value = "";
       render();
       input.focus();
@@ -3431,8 +3521,17 @@
       const item = state[config.defaultsKey].find((candidate) => candidate.id === id);
       if (!item) return;
       item.favorite = !item.favorite;
-      state[config.defaultsKey] = sortItemLibrary(state[config.defaultsKey]);
-      render();
+      saveState();
+      window.setTimeout(render, 260);
+    }
+
+    function playFavoriteFeedback(button) {
+      const row = button.closest(".settings-row");
+      button.classList.remove("favorite-feedback");
+      row?.classList.remove("favorite-feedback");
+      void button.offsetWidth;
+      button.classList.add("favorite-feedback");
+      row?.classList.add("favorite-feedback");
     }
 
     function removeDefaultItem(type, id) {
@@ -3442,6 +3541,12 @@
       state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
       render();
       showToast(`${type === "supplies" ? "Supply" : "Inventory"} default removed.`);
+    }
+
+    function toggleSettingsItemSort(type) {
+      const sortKey = type === "supplies" ? "supplyDefaultSort" : "inventoryDefaultSort";
+      state[sortKey] = state[sortKey] === "az" ? "za" : "az";
+      render();
     }
 
     function renderItemList(type) {
@@ -3462,10 +3567,17 @@
     function renderSettingsItemList(type) {
       const config = getItemConfig(type);
       const list = type === "supplies" ? refs.settingsSuppliesList : refs.settingsInventoryList;
-      list.innerHTML = sortItemLibrary(state[config.defaultsKey]).map((item) => `
+      const sortKey = type === "supplies" ? "supplyDefaultSort" : "inventoryDefaultSort";
+      const sortMode = state[sortKey] || "newest";
+      const sortButton = type === "supplies" ? refs.settingsSuppliesSortButton : refs.settingsInventorySortButton;
+      const items = sortMode === "newest" ? state[config.defaultsKey] : sortItemsByName(state[config.defaultsKey], sortMode);
+      sortButton.dataset.sort = sortMode;
+      sortButton.textContent = sortMode === "za" ? "Z-A" : "A-Z";
+      sortButton.setAttribute("aria-label", sortMode === "za" ? `Sort ${type} defaults A to Z` : `Sort ${type} defaults Z to A`);
+      list.innerHTML = items.map((item) => `
         <div class="settings-row item-default-row">
-          <span class="settings-staff-name">${escapeHtml(item.name)}</span>
           <button class="settings-star" type="button" data-settings-star-${config.type}="${escapeHtml(item.id)}" aria-pressed="${item.favorite ? "true" : "false"}" aria-label="${item.favorite ? "Unstar" : "Star"} ${escapeHtml(item.name)}"></button>
+          <span class="settings-staff-name">${escapeHtml(item.name)}</span>
           <button class="settings-remove" type="button" data-settings-remove-${config.type}="${escapeHtml(item.id)}" aria-label="Remove ${escapeHtml(item.name)}"></button>
         </div>
       `).join("");
@@ -4888,6 +5000,14 @@
       render();
     });
 
+    refs.settingsInventorySortButton.addEventListener("click", () => {
+      toggleSettingsItemSort("inventory");
+    });
+
+    refs.settingsSuppliesSortButton.addEventListener("click", () => {
+      toggleSettingsItemSort("supplies");
+    });
+
     refs.staffList.addEventListener("click", (event) => {
       const button = event.target.closest("[data-active-staff-day]");
       if (!button) return;
@@ -4913,6 +5033,7 @@
     refs.settingsInventoryList.addEventListener("click", (event) => {
       const starButton = event.target.closest("[data-settings-star-inventory]");
       if (starButton) {
+        playFavoriteFeedback(starButton);
         toggleDefaultItemFavorite("inventory", starButton.dataset.settingsStarInventory);
         return;
       }
@@ -4923,6 +5044,7 @@
     refs.settingsSuppliesList.addEventListener("click", (event) => {
       const starButton = event.target.closest("[data-settings-star-supplies]");
       if (starButton) {
+        playFavoriteFeedback(starButton);
         toggleDefaultItemFavorite("supplies", starButton.dataset.settingsStarSupplies);
         return;
       }
