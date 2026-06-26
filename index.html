@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-25-one-time-x-removed">
+  <meta name="app-version" content="2026-06-26-rhino-inventory-defaults">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1177,8 +1177,8 @@
 
 
     .supply-needed[aria-pressed="true"] {
-      border-color: rgba(184, 72, 62, .36);
-      background: rgba(184, 72, 62, .30);
+      border-color: rgba(166, 65, 56, .36);
+      background: rgba(166, 65, 56, .30);
       color: var(--ink-93);
     }
 
@@ -2217,9 +2217,9 @@
     }
 
     body.theme-dark .supply-needed[aria-pressed="true"] {
-      background: rgba(184, 72, 62, .30);
+      background: rgba(166, 65, 56, .30);
       color: var(--ink-93);
-      border-color: rgba(208, 103, 92, .36);
+      border-color: rgba(187, 93, 83, .36);
     }
 
 
@@ -3005,15 +3005,24 @@
     const updateCheckIntervalMs = 30 * 60 * 1000;
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
     const testerDataVersion = "staff-pool-2026-06-16";
+    const inventoryDefaultsVersion = "rhino-defaults-2026-06-26";
     const DEFAULT_STAFF_POOL = ["Annie", "Casey", "Danny", "Mandy", "Jen", "Nicole", "Jamie", "Matt"];
     const DEFAULT_INVENTORY_ITEMS = [
-      { id: "inventory-buns", name: "Buns", unit: "#", favorite: true, standard: true },
-      { id: "inventory-burgers", name: "Burgers", unit: "#", favorite: true, standard: true },
-      { id: "inventory-hot-dogs", name: "Hot dogs", unit: "#", favorite: true, standard: true },
-      { id: "inventory-chicken-tenders", name: "Chicken tenders", unit: "#", favorite: true, standard: true },
-      { id: "inventory-fries", name: "Fries", unit: "#", favorite: true, standard: true },
-      { id: "inventory-soda", name: "Soda", unit: "#", favorite: true, standard: true },
-      { id: "inventory-water", name: "Water", unit: "#", favorite: true, standard: true }
+      { id: "inventory-buffalo", name: "Buffalo", unit: "#", favorite: true, standard: true },
+      { id: "inventory-garlic-parm", name: "Garlic Parm", unit: "#", favorite: true, standard: true },
+      { id: "inventory-nc-bbq", name: "NC BBQ", unit: "#", favorite: true, standard: true },
+      { id: "inventory-togarashi", name: "Togarashi", unit: "#", favorite: true, standard: true },
+      { id: "inventory-wings", name: "Wings", unit: "#", favorite: true, standard: true },
+      { id: "inventory-tenders", name: "Tenders", unit: "#", favorite: true, standard: true },
+      { id: "inventory-pork", name: "Pork", unit: "#", favorite: true, standard: true },
+      { id: "inventory-eggrolls", name: "Eggrolls", unit: "#", favorite: true, standard: true },
+      { id: "inventory-mcrhino-sauce", name: "McRhino Sauce", unit: "#", favorite: true, standard: true },
+      { id: "inventory-pickles", name: "Pickles", unit: "#", favorite: true, standard: true },
+      { id: "inventory-onions", name: "Onions", unit: "#", favorite: true, standard: true },
+      { id: "inventory-mcrhino-buns", name: "McRhino Buns", unit: "#", favorite: true, standard: true },
+      { id: "inventory-slider-buns", name: "Slider Buns", unit: "#", favorite: true, standard: true },
+      { id: "inventory-blue-cheese", name: "Blue Cheese", unit: "#", favorite: true, standard: true },
+      { id: "inventory-ketchup", name: "Ketchup", unit: "#", favorite: true, standard: true }
     ];
     const DEFAULT_SUPPLY_ITEMS = [
       { id: "supply-napkins", name: "Napkins", unit: "#", favorite: true, standard: true },
@@ -3026,6 +3035,7 @@
     const settingsPin = "1521";
     const defaultState = {
       testerDataVersion,
+      inventoryDefaultsVersion,
       defaultStaff: DEFAULT_STAFF_POOL,
       shiftStaff: [],
       activeSender: "",
@@ -3194,9 +3204,14 @@
           || Object.values(parsed.inventoryQuantities || {}).some(Boolean)
           || Object.values(parsed.supplyQuantities || {}).some(Boolean);
         const shiftStaff = normalizeNameList(parsed.shiftStaff || (hasSessionInProgress ? savedStaff : []));
-        const inventoryDefaults = normalizeLibraryItems(parsed.inventoryDefaults || parsed.defaultInventoryItems || parsed.inventoryItems, DEFAULT_INVENTORY_ITEMS, "inventory");
-        const inventoryItems = normalizeActiveItems(parsed.inventoryItems?.length ? parsed.inventoryItems : favoriteItems(inventoryDefaults), inventoryDefaults);
-        const inventoryQuantities = normalizeInventoryQuantities(parsed.inventoryQuantities, inventoryItems);
+        const shouldApplyInventoryDefaults = parsed.inventoryDefaultsVersion !== inventoryDefaultsVersion;
+        const inventoryDefaults = shouldApplyInventoryDefaults
+          ? DEFAULT_INVENTORY_ITEMS.map((item) => ({ ...item }))
+          : normalizeLibraryItems(parsed.inventoryDefaults || parsed.defaultInventoryItems || parsed.inventoryItems, DEFAULT_INVENTORY_ITEMS, "inventory");
+        const inventoryItems = shouldApplyInventoryDefaults
+          ? favoriteItems(inventoryDefaults)
+          : normalizeActiveItems(parsed.inventoryItems?.length ? parsed.inventoryItems : favoriteItems(inventoryDefaults), inventoryDefaults);
+        const inventoryQuantities = shouldApplyInventoryDefaults ? {} : normalizeInventoryQuantities(parsed.inventoryQuantities, inventoryItems);
         const supplyDefaults = normalizeLibraryItems(parsed.supplyDefaults || parsed.defaultSupplyItems || parsed.supplyItems, DEFAULT_SUPPLY_ITEMS, "supply");
         const supplyItems = normalizeActiveItems(parsed.supplyItems?.length ? parsed.supplyItems : favoriteItems(supplyDefaults), supplyDefaults);
         const supplyQuantities = normalizeInventoryQuantities(parsed.supplyQuantities, supplyItems);
@@ -3204,6 +3219,7 @@
           ...defaultState,
           ...parsed,
           testerDataVersion,
+          inventoryDefaultsVersion,
           shiftDate: hasSessionInProgress ? (parsed.shiftDate || defaultState.shiftDate) : defaultState.shiftDate,
           defaultStaff,
           nightMode,
