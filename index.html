@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-inventory-text-keyboard">
+  <meta name="app-version" content="2026-06-26-item-list-scroll-runway">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1140,6 +1140,9 @@
       gap: 7px;
       max-height: min(430px, calc(100dvh - 350px));
       min-height: 180px;
+      padding-bottom: calc(176px + env(safe-area-inset-bottom));
+      scroll-padding-bottom: calc(176px + env(safe-area-inset-bottom));
+      box-sizing: border-box;
       overflow-y: auto;
       overscroll-behavior-y: contain;
       -webkit-overflow-scrolling: touch;
@@ -1519,7 +1522,10 @@
     }
 
     #noteInput {
-      min-height: 46px;
+      min-height: 82px;
+      resize: none;
+      overflow-y: auto;
+      white-space: pre-wrap;
     }
 
     .note-list {
@@ -2035,6 +2041,13 @@
 
     .settings-panel input {
       font-size: 15px;
+    }
+
+    #settingsInventoryNameInput,
+    #settingsSuppliesNameInput {
+      font-family: var(--copy-font);
+      font-size: 16px;
+      font-weight: 750;
     }
 
     .settings-panel .field-label {
@@ -2677,17 +2690,17 @@
             <div class="work-tabs" id="workTabs" role="tablist" aria-label="Shift sections">
               <button class="work-tab" id="workTabNotes" type="button" role="tab" data-work-section="notes" aria-controls="notesSection"><span>Notes</span><span class="tab-badge" id="noteCount">0</span></button>
               <button class="work-tab" id="workTabStaff" type="button" role="tab" data-work-section="staff" aria-controls="staffSection"><span>Staff</span><span class="tab-badge" id="staffCount">0</span></button>
-              <button class="work-tab" id="workTabInventory" type="button" role="tab" data-work-section="inventory" aria-controls="inventorySection"><span>Inventory</span></button>
               <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection"><span>Closeout</span></button>
               <button class="work-tab" id="workTabSupplies" type="button" role="tab" data-work-section="supplies" aria-controls="suppliesSection"><span>Supplies</span></button>
+              <button class="work-tab" id="workTabInventory" type="button" role="tab" data-work-section="inventory" aria-controls="inventorySection"><span>Inventory</span></button>
             </div>
 
             <div class="section-indicator" id="sectionIndicator" aria-hidden="true">
               <span class="section-dot" data-work-dot="notes"></span>
               <span class="section-dot" data-work-dot="staff"></span>
-              <span class="section-dot" data-work-dot="inventory"></span>
               <span class="section-dot" data-work-dot="closeout"></span>
               <span class="section-dot" data-work-dot="supplies"></span>
+              <span class="section-dot" data-work-dot="inventory"></span>
             </div>
           </div>
 
@@ -2696,7 +2709,7 @@
             <section class="work-section" id="notesSection" data-work-panel="notes" role="tabpanel" aria-labelledby="workTabNotes">
               <section class="composer" aria-labelledby="noteTitle">
                 <p class="section-title with-icon" id="noteTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19h14"></path><path d="M7 17l1-4 8-8 3 3-8 8-4 1z"></path></svg>New note</p>
-                <input id="noteInput" type="text" autocomplete="off" spellcheck="true" enterkeyhint="done" placeholder="Write a shift note">
+                <textarea id="noteInput" rows="2" autocomplete="off" spellcheck="true" enterkeyhint="done" placeholder="Write a shift note"></textarea>
               </section>
 
               <section class="section" aria-labelledby="feedTitle">
@@ -2738,26 +2751,6 @@
                   <input id="staffNameInput" type="text" autocomplete="off" placeholder="Add daily staff">
                   <button class="small-button" type="submit">Add</button>
                 </form>
-              </section>
-            </section>
-
-            <section class="work-section hidden" id="inventorySection" data-work-panel="inventory" role="tabpanel" aria-labelledby="workTabInventory">
-              <section class="inventory-panel item-panel section" aria-labelledby="inventoryTitle">
-                <p class="section-title with-icon" id="inventoryTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M6 7v12h12V7"></path><path d="M9 11h6"></path><path d="M9 15h6"></path><path d="M8 4h8l1 3H7z"></path></svg>Inventory</p>
-                <div class="inventory-mode" id="inventoryModeGroup" role="group" aria-label="Inventory type">
-                  <button type="button" data-inventory-mode="public">Public vending</button>
-                  <button type="button" data-inventory-mode="private" disabled aria-disabled="true">Private party</button>
-                </div>
-                <form class="item-search" id="inventoryForm" autocomplete="off">
-                  <input id="inventoryItemInput" type="text" autocomplete="off" placeholder="Search or add item">
-                  <button class="small-button" type="submit">Add</button>
-                </form>
-                <div class="item-search-results hidden" id="inventorySearchResults"></div>
-                <div class="inventory-list-head" aria-hidden="true">
-                  <span>Item</span>
-                  <span id="inventoryQtyLabel">Qty returned</span>
-                </div>
-                <div class="inventory-list" id="inventoryList"></div>
               </section>
             </section>
 
@@ -2820,6 +2813,26 @@
                 <div class="supply-list" id="suppliesList"></div>
               </section>
             </section>
+
+            <section class="work-section hidden" id="inventorySection" data-work-panel="inventory" role="tabpanel" aria-labelledby="workTabInventory">
+              <section class="inventory-panel item-panel section" aria-labelledby="inventoryTitle">
+                <p class="section-title with-icon" id="inventoryTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M6 7v12h12V7"></path><path d="M9 11h6"></path><path d="M9 15h6"></path><path d="M8 4h8l1 3H7z"></path></svg>Inventory</p>
+                <div class="inventory-mode" id="inventoryModeGroup" role="group" aria-label="Inventory type">
+                  <button type="button" data-inventory-mode="public">Public vending</button>
+                  <button type="button" data-inventory-mode="private" disabled aria-disabled="true">Private party</button>
+                </div>
+                <form class="item-search" id="inventoryForm" autocomplete="off">
+                  <input id="inventoryItemInput" type="text" autocomplete="off" placeholder="Search or add item">
+                  <button class="small-button" type="submit">Add</button>
+                </form>
+                <div class="item-search-results hidden" id="inventorySearchResults"></div>
+                <div class="inventory-list-head" aria-hidden="true">
+                  <span>Item</span>
+                  <span id="inventoryQtyLabel">How much returned?</span>
+                </div>
+                <div class="inventory-list" id="inventoryList"></div>
+              </section>
+            </section>
             </div>
           </div>
         </section>
@@ -2857,30 +2870,18 @@
         <section id="settingsView" class="view hidden">
           <div class="report-panel settings-panel">
             <div class="settings-tabs" id="settingsTabs" role="tablist" aria-label="Settings sections">
-              <button class="settings-tab" type="button" role="tab" data-settings-section="inventory" aria-controls="settingsInventorySection">Inventory</button>
               <button class="settings-tab" type="button" role="tab" data-settings-section="staff" aria-controls="settingsStaffSection">Staff</button>
               <button class="settings-tab" type="button" role="tab" data-settings-section="supplies" aria-controls="settingsSuppliesSection">Supplies</button>
+              <button class="settings-tab" type="button" role="tab" data-settings-section="inventory" aria-controls="settingsInventorySection">Inventory</button>
             </div>
 
-            <section class="settings-section compact-title-gap hidden" id="settingsStaffSection" data-settings-panel="staff" role="tabpanel">
+            <section class="settings-section compact-title-gap" id="settingsStaffSection" data-settings-panel="staff" role="tabpanel">
               <p class="section-title">Staff pool</p>
               <form class="settings-form" id="settingsStaffForm" autocomplete="off">
                 <input id="settingsStaffNameInput" type="text" autocomplete="off" placeholder="Add pool staff">
                 <button class="small-button settings-action" type="submit">Add</button>
               </form>
               <div class="settings-list scroll-list" id="settingsStaffList"></div>
-            </section>
-
-            <section class="settings-section compact-title-gap" id="settingsInventorySection" data-settings-panel="inventory" role="tabpanel">
-              <div class="settings-title-row">
-                <p class="section-title">Inventory defaults</p>
-                <button class="settings-sort-button" id="settingsInventorySortButton" type="button" data-settings-sort="inventory" data-sort="newest" aria-label="Sort inventory defaults A to Z">A-Z</button>
-              </div>
-              <form class="settings-form" id="settingsInventoryForm" autocomplete="off">
-                <input id="settingsInventoryNameInput" type="text" autocomplete="off" placeholder="Add inventory item">
-                <button class="small-button settings-action" type="submit">Add</button>
-              </form>
-              <div class="settings-list scroll-list" id="settingsInventoryList"></div>
             </section>
 
             <section class="settings-section compact-title-gap hidden" id="settingsSuppliesSection" data-settings-panel="supplies" role="tabpanel">
@@ -2911,6 +2912,18 @@
               <div class="settings-list-header">Saved recipients</div>
               <div class="settings-list scroll-list" id="settingsRecipientList"></div>
             </section>
+            <section class="settings-section compact-title-gap hidden" id="settingsInventorySection" data-settings-panel="inventory" role="tabpanel">
+              <div class="settings-title-row">
+                <p class="section-title">Inventory defaults</p>
+                <button class="settings-sort-button" id="settingsInventorySortButton" type="button" data-settings-sort="inventory" data-sort="newest" aria-label="Sort inventory defaults A to Z">A-Z</button>
+              </div>
+              <form class="settings-form" id="settingsInventoryForm" autocomplete="off">
+                <input id="settingsInventoryNameInput" type="text" autocomplete="off" placeholder="Add inventory item">
+                <button class="small-button settings-action" type="submit">Add</button>
+              </form>
+              <div class="settings-list scroll-list" id="settingsInventoryList"></div>
+            </section>
+
           </div>
         </section>
       </main>
@@ -3078,7 +3091,7 @@
       { id: "supply-ramekins", name: "ramekins", unit: "#", favorite: true, standard: true },
       { id: "supply-ramekin-lids", name: "ramekin LIDS", unit: "#", favorite: true, standard: true }
     ];
-    const workSectionOrder = ["notes", "staff", "inventory", "closeout", "supplies"];
+    const workSectionOrder = ["notes", "staff", "closeout", "supplies", "inventory"];
     const settingsPin = "1521";
     const defaultState = {
       testerDataVersion,
@@ -3124,7 +3137,7 @@
     let settingsDismissTimer = null;
     let settingsReturnView = "notes";
     let settingsReturnSection = "notes";
-    let activeSettingsSection = "inventory";
+    let activeSettingsSection = "staff";
     let inventorySearchTerm = "";
     let suppliesSearchTerm = "";
 
@@ -3258,7 +3271,7 @@
           : normalizeLibraryItems(parsed.inventoryDefaults || parsed.defaultInventoryItems || parsed.inventoryItems, DEFAULT_INVENTORY_ITEMS, "inventory");
         const inventoryItems = shouldApplyInventoryDefaults
           ? favoriteItems(inventoryDefaults)
-          : normalizeActiveItems(parsed.inventoryItems?.length ? parsed.inventoryItems : favoriteItems(inventoryDefaults), inventoryDefaults);
+          : includeCustomDefaultsInActive(normalizeActiveItems(parsed.inventoryItems?.length ? parsed.inventoryItems : favoriteItems(inventoryDefaults), inventoryDefaults), inventoryDefaults, DEFAULT_INVENTORY_ITEMS);
         const inventoryQuantities = shouldApplyInventoryDefaults ? {} : normalizeInventoryQuantities(parsed.inventoryQuantities, inventoryItems);
         const shouldApplySupplyDefaults = parsed.supplyDefaultsVersion !== supplyDefaultsVersion;
         const supplyDefaults = shouldApplySupplyDefaults
@@ -3266,7 +3279,7 @@
           : normalizeLibraryItems(parsed.supplyDefaults || parsed.defaultSupplyItems || parsed.supplyItems, DEFAULT_SUPPLY_ITEMS, "supply");
         const supplyItems = shouldApplySupplyDefaults
           ? favoriteItems(supplyDefaults)
-          : normalizeActiveItems(parsed.supplyItems?.length ? parsed.supplyItems : favoriteItems(supplyDefaults), supplyDefaults);
+          : includeCustomDefaultsInActive(normalizeActiveItems(parsed.supplyItems?.length ? parsed.supplyItems : favoriteItems(supplyDefaults), supplyDefaults), supplyDefaults, DEFAULT_SUPPLY_ITEMS);
         const supplyQuantities = shouldApplySupplyDefaults ? {} : normalizeInventoryQuantities(parsed.supplyQuantities, supplyItems);
         return {
           ...defaultState,
@@ -3354,7 +3367,7 @@
     }
 
     function createDefaultItem(type, name) {
-      return { id: createItemId(type, name), name, unit: "#", favorite: true, standard: true };
+      return { id: createItemId(type, name), name, unit: "#", favorite: false, standard: true };
     }
 
     function cleanItemName(name) {
@@ -3401,7 +3414,8 @@
             name,
             unit: String(item?.unit || libraryItem?.unit || "#"),
             favorite: libraryItem ? Boolean(libraryItem.favorite) : Boolean(item?.favorite),
-            standard: libraryItem ? Boolean(libraryItem.standard) : Boolean(item?.standard)
+            standard: libraryItem ? Boolean(libraryItem.standard) : Boolean(item?.standard),
+            activeAddedAt: Number.isFinite(Number(item?.activeAddedAt)) ? Number(item.activeAddedAt) : 0
           };
         })
         .filter((item) => {
@@ -3422,6 +3436,28 @@
         if (Boolean(first.favorite) !== Boolean(second.favorite)) return first.favorite ? -1 : 1;
         return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
       });
+    }
+
+    function sortActiveDisplayItems(items = []) {
+      return [...items].sort((first, second) => {
+        const firstAdded = Number(first.activeAddedAt) || 0;
+        const secondAdded = Number(second.activeAddedAt) || 0;
+        if (firstAdded || secondAdded) {
+          if (firstAdded !== secondAdded) return secondAdded - firstAdded;
+          return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
+        }
+        if (Boolean(first.favorite) !== Boolean(second.favorite)) return first.favorite ? -1 : 1;
+        return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
+      });
+    }
+
+    function includeCustomDefaultsInActive(activeItems = [], defaultItems = [], bundledDefaults = []) {
+      const activeNames = new Set(activeItems.map((item) => item.name.toLowerCase()));
+      const bundledNames = new Set(bundledDefaults.map((item) => item.name.toLowerCase()));
+      const customDefaults = defaultItems
+        .filter((item) => !bundledNames.has(item.name.toLowerCase()) && !activeNames.has(item.name.toLowerCase()))
+        .map((item) => ({ ...item, activeAddedAt: Number(item.activeAddedAt) || 1 }));
+      return normalizeActiveItems([...customDefaults, ...activeItems], defaultItems);
     }
 
     function sortItemsByName(items = [], direction = "az") {
@@ -3576,7 +3612,7 @@
     function getVisibleActiveItems(type) {
       const config = getItemConfig(type);
       const term = getItemSearchTerm(type).trim();
-      if (!term) return sortItemLibrary(state[config.activeKey]);
+      if (!term) return sortActiveDisplayItems(state[config.activeKey]);
       const activeNames = new Set(state[config.activeKey].map((item) => item.name.toLowerCase()));
       const inactiveDefaults = state[config.defaultsKey].filter((item) => !activeNames.has(item.name.toLowerCase()));
       return rankedItemMatches([...state[config.activeKey], ...inactiveDefaults], term);
@@ -3592,10 +3628,11 @@
     function addActiveItem(type, item) {
       const config = getItemConfig(type);
       const existingIndex = state[config.activeKey].findIndex((existing) => existing.name.toLowerCase() === item.name.toLowerCase());
-      const activeItem = { ...item };
+      const activeItem = { ...item, activeAddedAt: Date.now() };
       if (existingIndex >= 0) state[config.activeKey].splice(existingIndex, 1);
       state[config.activeKey].unshift(activeItem);
       state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
+      saveState();
       setItemSearchTerm(type, "");
       config.input.value = "";
       render();
@@ -3605,10 +3642,16 @@
 
     function ensureActiveItemForQuantity(type, id) {
       const config = getItemConfig(type);
-      if (state[config.activeKey].some((item) => item.id === id)) return;
+      const existingItem = state[config.activeKey].find((item) => item.id === id);
+      if (existingItem) {
+        existingItem.activeAddedAt = Date.now();
+        saveState();
+        return;
+      }
       const defaultItem = state[config.defaultsKey].find((item) => item.id === id);
       if (!defaultItem) return;
-      state[config.activeKey].unshift({ ...defaultItem });
+      state[config.activeKey].unshift({ ...defaultItem, activeAddedAt: Date.now() });
+      saveState();
     }
 
     function addItemFromSearch(type, name) {
@@ -3647,12 +3690,20 @@
       const config = getItemConfig(type);
       const clean = cleanItemName(name);
       if (!clean) return;
-      const exists = state[config.defaultsKey].some((item) => item.name.toLowerCase() === clean.toLowerCase());
-      if (!exists) {
-        state[config.defaultsKey].unshift({ id: createItemId(config.singular, clean), name: clean, unit: "#", favorite: true, standard: true });
+      const existingDefault = state[config.defaultsKey].find((item) => item.name.toLowerCase() === clean.toLowerCase());
+      if (!existingDefault) {
+        state[config.defaultsKey].unshift({ id: createItemId(config.singular, clean), name: clean, unit: "#", favorite: false, standard: true });
       }
       state[config.defaultsKey] = normalizeLibraryItems(state[config.defaultsKey], [], config.singular);
+      const defaultItem = state[config.defaultsKey].find((item) => item.name.toLowerCase() === clean.toLowerCase());
+      if (defaultItem) {
+        const existingActiveIndex = state[config.activeKey].findIndex((item) => item.name.toLowerCase() === clean.toLowerCase());
+        if (existingActiveIndex >= 0) state[config.activeKey].splice(existingActiveIndex, 1);
+        state[config.activeKey].unshift({ ...defaultItem, activeAddedAt: Date.now() });
+        state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
+      }
       state[type === "supplies" ? "supplyDefaultSort" : "inventoryDefaultSort"] = "newest";
+      saveState();
       input.value = "";
       render();
       input.focus();
@@ -3720,7 +3771,7 @@
       config.list.innerHTML = visibleItems.map((item) => `
         <label class="${config.rowClass}" for="${config.type}-${escapeHtml(item.id)}">
           <span class="${config.nameClass}">${item.favorite ? '<span class="item-inline-star">&#9733;</span>' : ""}${escapeHtml(item.name)}</span>
-          <input id="${config.type}-${escapeHtml(item.id)}" type="text" enterkeyhint="done" autocomplete="off" data-${config.type}-qty="${escapeHtml(item.id)}" value="${escapeHtml(state[config.quantitiesKey][item.id] || "")}" placeholder="Qty">
+          <input id="${config.type}-${escapeHtml(item.id)}" type="text" enterkeyhint="done" autocomplete="off" data-${config.type}-qty="${escapeHtml(item.id)}" value="${escapeHtml(state[config.quantitiesKey][item.id] || "")}" placeholder="#/unit">
         </label>
       `).join("");
     }
@@ -3762,7 +3813,7 @@
     }
 
     function inventoryQtyLabel() {
-      return state.inventoryMode === "private" ? "Qty used" : "Qty returned";
+      return state.inventoryMode === "private" ? "How much used?" : "How much returned?";
     }
     function escapeHtml(value) {
       return String(value)
