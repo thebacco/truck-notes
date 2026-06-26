@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-item-feedback-flick">
+  <meta name="app-version" content="2026-06-26-supply-default-list-fix">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -3303,16 +3303,16 @@
           ? DEFAULT_INVENTORY_ITEMS.map((item) => ({ ...item }))
           : normalizeLibraryItems(parsed.inventoryDefaults || parsed.defaultInventoryItems || parsed.inventoryItems, DEFAULT_INVENTORY_ITEMS, "inventory");
         const inventoryItems = shouldApplyInventoryDefaults
-          ? favoriteItems(inventoryDefaults)
-          : includeCustomDefaultsInActive(normalizeActiveItems(parsed.inventoryItems?.length ? parsed.inventoryItems : favoriteItems(inventoryDefaults), inventoryDefaults), inventoryDefaults, DEFAULT_INVENTORY_ITEMS);
+          ? allActiveItems(inventoryDefaults)
+          : includeDefaultsInActive(normalizeActiveItems(parsed.inventoryItems?.length ? parsed.inventoryItems : inventoryDefaults, inventoryDefaults), inventoryDefaults);
         const inventoryQuantities = shouldApplyInventoryDefaults ? {} : normalizeInventoryQuantities(parsed.inventoryQuantities, inventoryItems);
         const shouldApplySupplyDefaults = parsed.supplyDefaultsVersion !== supplyDefaultsVersion;
         const supplyDefaults = shouldApplySupplyDefaults
           ? DEFAULT_SUPPLY_ITEMS.map((item) => ({ ...item }))
           : normalizeLibraryItems(parsed.supplyDefaults || parsed.defaultSupplyItems || parsed.supplyItems, DEFAULT_SUPPLY_ITEMS, "supply");
         const supplyItems = shouldApplySupplyDefaults
-          ? favoriteItems(supplyDefaults)
-          : includeCustomDefaultsInActive(normalizeActiveItems(parsed.supplyItems?.length ? parsed.supplyItems : favoriteItems(supplyDefaults), supplyDefaults), supplyDefaults, DEFAULT_SUPPLY_ITEMS);
+          ? allActiveItems(supplyDefaults)
+          : includeDefaultsInActive(normalizeActiveItems(parsed.supplyItems?.length ? parsed.supplyItems : supplyDefaults, supplyDefaults), supplyDefaults);
         const supplyQuantities = shouldApplySupplyDefaults ? {} : normalizeInventoryQuantities(parsed.supplyQuantities, supplyItems);
         return {
           ...defaultState,
@@ -3464,6 +3464,10 @@
       return sortItemLibrary(items).filter((item) => item.favorite).map((item) => ({ ...item }));
     }
 
+    function allActiveItems(items = []) {
+      return sortItemLibrary(items).map((item) => ({ ...item, activeAddedAt: Number(item.activeAddedAt) || 0 }));
+    }
+
     function sortItemLibrary(items = []) {
       return [...items].sort((first, second) => {
         if (Boolean(first.favorite) !== Boolean(second.favorite)) return first.favorite ? -1 : 1;
@@ -3475,22 +3479,28 @@
       return [...items].sort((first, second) => {
         const firstAdded = Number(first.activeAddedAt) || 0;
         const secondAdded = Number(second.activeAddedAt) || 0;
-        if (firstAdded || secondAdded) {
+        const firstIsCustomAdded = firstAdded && first.standard === false;
+        const secondIsCustomAdded = secondAdded && second.standard === false;
+        if (firstIsCustomAdded || secondIsCustomAdded) {
+          if (firstIsCustomAdded !== secondIsCustomAdded) return firstIsCustomAdded ? -1 : 1;
           if (firstAdded !== secondAdded) return secondAdded - firstAdded;
           return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
         }
         if (Boolean(first.favorite) !== Boolean(second.favorite)) return first.favorite ? -1 : 1;
+        if (firstAdded || secondAdded) {
+          if (firstAdded !== secondAdded) return secondAdded - firstAdded;
+          return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
+        }
         return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
       });
     }
 
-    function includeCustomDefaultsInActive(activeItems = [], defaultItems = [], bundledDefaults = []) {
+    function includeDefaultsInActive(activeItems = [], defaultItems = []) {
       const activeNames = new Set(activeItems.map((item) => item.name.toLowerCase()));
-      const bundledNames = new Set(bundledDefaults.map((item) => item.name.toLowerCase()));
-      const customDefaults = defaultItems
-        .filter((item) => !bundledNames.has(item.name.toLowerCase()) && !activeNames.has(item.name.toLowerCase()))
-        .map((item) => ({ ...item, activeAddedAt: Number(item.activeAddedAt) || 1 }));
-      return normalizeActiveItems([...customDefaults, ...activeItems], defaultItems);
+      const missingDefaults = defaultItems
+        .filter((item) => !activeNames.has(item.name.toLowerCase()))
+        .map((item) => ({ ...item, activeAddedAt: Number(item.activeAddedAt) || 0 }));
+      return normalizeActiveItems([...activeItems, ...missingDefaults], defaultItems);
     }
 
     function sortItemsByName(items = [], direction = "az") {
@@ -4728,9 +4738,9 @@
       state.propaneFilled = "";
       state.gasFilled = "";
       state.inventoryMode = defaultState.inventoryMode;
-      state.inventoryItems = favoriteItems(state.inventoryDefaults);
+      state.inventoryItems = allActiveItems(state.inventoryDefaults);
       state.inventoryQuantities = {};
-      state.supplyItems = favoriteItems(state.supplyDefaults);
+      state.supplyItems = allActiveItems(state.supplyDefaults);
       state.supplyQuantities = {};
       inventorySearchTerm = "";
       suppliesSearchTerm = "";
