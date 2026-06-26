@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-rhino-inventory-defaults">
+  <meta name="app-version" content="2026-06-26-item-search-row-fit">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -789,7 +789,7 @@
       color: var(--muted);
       font-family: var(--copy-font);
       font-size: 17px;
-      font-weight: 650;
+      font-weight: 600;
       text-align: center;
     }
 
@@ -918,6 +918,23 @@
       justify-self: end;
       min-width: 175px;
       max-width: 175px;
+      color: var(--ink-84);
+      font-weight: 500;
+    }
+
+    .sender-row select.is-empty {
+      color: rgba(43, 41, 38, .58);
+      font-weight: 400;
+    }
+
+    .sender-row select option {
+      color: var(--ink-84);
+      font-weight: 500;
+    }
+
+    .sender-row select option[value=""] {
+      color: rgba(43, 41, 38, .58);
+      font-weight: 400;
     }
 
     .sender-title svg {
@@ -1070,7 +1087,7 @@
       cursor: pointer;
       font-family: var(--copy-font);
       font-size: 16px;
-      font-weight: 650;
+      font-weight: 600;
       text-transform: uppercase;
     }
 
@@ -1119,7 +1136,24 @@
     .inventory-list,
     .supply-list {
       display: grid;
+      align-content: start;
       gap: 7px;
+      max-height: min(430px, calc(100dvh - 350px));
+      min-height: 180px;
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, var(--scroll-mask-top, 1)) 0, #000 var(--scroll-mask-depth), #000 calc(100% - var(--scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-bottom, 1)) 100%);
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, var(--scroll-mask-top, 1)) 0, #000 var(--scroll-mask-depth), #000 calc(100% - var(--scroll-mask-depth)), rgba(0, 0, 0, var(--scroll-mask-bottom, 1)) 100%);
+      scrollbar-width: none;
+      touch-action: pan-y;
+    }
+
+    .inventory-list::-webkit-scrollbar,
+    .supply-list::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
     }
 
     .inventory-row,
@@ -1135,7 +1169,7 @@
       min-width: 0;
       color: var(--ink-84);
       font-size: 18px;
-      font-weight: 650;
+      font-weight: 600;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1149,7 +1183,7 @@
     .supply-needed-label {
       color: var(--ink-muted);
       font-size: 16px;
-      font-weight: 650;
+      font-weight: 600;
       text-align: center;
     }
 
@@ -1190,7 +1224,14 @@
 
     .item-search input {
       min-height: 46px;
+      font-family: var(--copy-font);
       font-size: 18px;
+      font-weight: 500;
+    }
+
+    .item-search input::placeholder {
+      font-family: var(--copy-font);
+      font-weight: 400;
     }
 
     .item-search .small-button {
@@ -1227,7 +1268,7 @@
       color: var(--ink-84);
       font-family: var(--copy-font);
       font-size: 16px;
-      font-weight: 650;
+      font-weight: 600;
       text-align: left;
     }
 
@@ -1265,7 +1306,7 @@
       border-radius: 8px;
       color: var(--ink-muted);
       font-size: 14px;
-      font-weight: 650;
+      font-weight: 600;
       background: rgba(243, 239, 230, .55);
     }
     .money-grid {
@@ -1845,7 +1886,7 @@
       color: var(--muted);
       font-family: var(--display-font);
       font-size: 13px;
-      font-weight: 650;
+      font-weight: 600;
       text-transform: uppercase;
     }
 
@@ -2636,16 +2677,16 @@
             <div class="work-tabs" id="workTabs" role="tablist" aria-label="Shift sections">
               <button class="work-tab" id="workTabNotes" type="button" role="tab" data-work-section="notes" aria-controls="notesSection"><span>Notes</span><span class="tab-badge" id="noteCount">0</span></button>
               <button class="work-tab" id="workTabStaff" type="button" role="tab" data-work-section="staff" aria-controls="staffSection"><span>Staff</span><span class="tab-badge" id="staffCount">0</span></button>
-              <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection"><span>Closeout</span></button>
               <button class="work-tab" id="workTabInventory" type="button" role="tab" data-work-section="inventory" aria-controls="inventorySection"><span>Inventory</span></button>
+              <button class="work-tab" id="workTabCloseout" type="button" role="tab" data-work-section="closeout" aria-controls="closeoutSection"><span>Closeout</span></button>
               <button class="work-tab" id="workTabSupplies" type="button" role="tab" data-work-section="supplies" aria-controls="suppliesSection"><span>Supplies</span></button>
             </div>
 
             <div class="section-indicator" id="sectionIndicator" aria-hidden="true">
               <span class="section-dot" data-work-dot="notes"></span>
               <span class="section-dot" data-work-dot="staff"></span>
-              <span class="section-dot" data-work-dot="closeout"></span>
               <span class="section-dot" data-work-dot="inventory"></span>
+              <span class="section-dot" data-work-dot="closeout"></span>
               <span class="section-dot" data-work-dot="supplies"></span>
             </div>
           </div>
@@ -2700,6 +2741,26 @@
               </section>
             </section>
 
+            <section class="work-section hidden" id="inventorySection" data-work-panel="inventory" role="tabpanel" aria-labelledby="workTabInventory">
+              <section class="inventory-panel item-panel section" aria-labelledby="inventoryTitle">
+                <p class="section-title with-icon" id="inventoryTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M6 7v12h12V7"></path><path d="M9 11h6"></path><path d="M9 15h6"></path><path d="M8 4h8l1 3H7z"></path></svg>Inventory</p>
+                <div class="inventory-mode" id="inventoryModeGroup" role="group" aria-label="Inventory type">
+                  <button type="button" data-inventory-mode="public">Public vending</button>
+                  <button type="button" data-inventory-mode="private" disabled aria-disabled="true">Private party</button>
+                </div>
+                <form class="item-search" id="inventoryForm" autocomplete="off">
+                  <input id="inventoryItemInput" type="text" autocomplete="off" placeholder="Search or add item">
+                  <button class="small-button" type="submit">Add</button>
+                </form>
+                <div class="item-search-results hidden" id="inventorySearchResults"></div>
+                <div class="inventory-list-head" aria-hidden="true">
+                  <span>Item</span>
+                  <span id="inventoryQtyLabel">Qty returned</span>
+                </div>
+                <div class="inventory-list" id="inventoryList"></div>
+              </section>
+            </section>
+
             <section class="work-section hidden" id="closeoutSection" data-work-panel="closeout" role="tabpanel" aria-labelledby="workTabCloseout">
               <section class="money-panel" aria-labelledby="moneyTitle">
                 <p class="section-title with-icon" id="moneyTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12v5H6z"></path><path d="M4 12h16v7H4z"></path><path d="M8 16h8"></path><path d="M9 7l1-3h4l1 3"></path></svg>Register</p>
@@ -2742,26 +2803,6 @@
                     </div>
                   </div>
                 </div>
-              </section>
-            </section>
-
-            <section class="work-section hidden" id="inventorySection" data-work-panel="inventory" role="tabpanel" aria-labelledby="workTabInventory">
-              <section class="inventory-panel item-panel section" aria-labelledby="inventoryTitle">
-                <p class="section-title with-icon" id="inventoryTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M6 7v12h12V7"></path><path d="M9 11h6"></path><path d="M9 15h6"></path><path d="M8 4h8l1 3H7z"></path></svg>Inventory</p>
-                <div class="inventory-mode" id="inventoryModeGroup" role="group" aria-label="Inventory type">
-                  <button type="button" data-inventory-mode="public">Public vending</button>
-                  <button type="button" data-inventory-mode="private" disabled aria-disabled="true">Private party</button>
-                </div>
-                <form class="item-search" id="inventoryForm" autocomplete="off">
-                  <input id="inventoryItemInput" type="text" autocomplete="off" placeholder="Search or add item">
-                  <button class="small-button" type="submit">Add</button>
-                </form>
-                <div class="item-search-results hidden" id="inventorySearchResults"></div>
-                <div class="inventory-list-head" aria-hidden="true">
-                  <span>Item</span>
-                  <span id="inventoryQtyLabel">Qty returned</span>
-                </div>
-                <div class="inventory-list" id="inventoryList"></div>
               </section>
             </section>
             <section class="work-section hidden" id="suppliesSection" data-work-panel="supplies" role="tabpanel" aria-labelledby="workTabSupplies">
@@ -2816,12 +2857,12 @@
         <section id="settingsView" class="view hidden">
           <div class="report-panel settings-panel">
             <div class="settings-tabs" id="settingsTabs" role="tablist" aria-label="Settings sections">
-              <button class="settings-tab" type="button" role="tab" data-settings-section="staff" aria-controls="settingsStaffSection">Staff</button>
               <button class="settings-tab" type="button" role="tab" data-settings-section="inventory" aria-controls="settingsInventorySection">Inventory</button>
+              <button class="settings-tab" type="button" role="tab" data-settings-section="staff" aria-controls="settingsStaffSection">Staff</button>
               <button class="settings-tab" type="button" role="tab" data-settings-section="supplies" aria-controls="settingsSuppliesSection">Supplies</button>
             </div>
 
-            <section class="settings-section compact-title-gap" id="settingsStaffSection" data-settings-panel="staff" role="tabpanel">
+            <section class="settings-section compact-title-gap hidden" id="settingsStaffSection" data-settings-panel="staff" role="tabpanel">
               <p class="section-title">Staff pool</p>
               <form class="settings-form" id="settingsStaffForm" autocomplete="off">
                 <input id="settingsStaffNameInput" type="text" autocomplete="off" placeholder="Add pool staff">
@@ -2830,7 +2871,7 @@
               <div class="settings-list scroll-list" id="settingsStaffList"></div>
             </section>
 
-            <section class="settings-section compact-title-gap hidden" id="settingsInventorySection" data-settings-panel="inventory" role="tabpanel">
+            <section class="settings-section compact-title-gap" id="settingsInventorySection" data-settings-panel="inventory" role="tabpanel">
               <div class="settings-title-row">
                 <p class="section-title">Inventory defaults</p>
                 <button class="settings-sort-button" id="settingsInventorySortButton" type="button" data-settings-sort="inventory" data-sort="newest" aria-label="Sort inventory defaults A to Z">A-Z</button>
@@ -2854,7 +2895,7 @@
               <div class="settings-list scroll-list" id="settingsSuppliesList"></div>
             </section>
 
-            <section class="settings-section compact-title-gap" id="settingsRecipientsSection" data-settings-panel="staff" role="tabpanel">
+            <section class="settings-section compact-title-gap hidden" id="settingsRecipientsSection" data-settings-panel="staff" role="tabpanel">
               <p class="section-title">Recipients</p>
               <form class="recipient-settings-form" id="settingsRecipientForm" autocomplete="off">
                 <label for="settingsRecipientNameInput">
@@ -3006,6 +3047,7 @@
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
     const testerDataVersion = "staff-pool-2026-06-16";
     const inventoryDefaultsVersion = "rhino-defaults-2026-06-26";
+    const supplyDefaultsVersion = "rhino-supplies-2026-06-26";
     const DEFAULT_STAFF_POOL = ["Annie", "Casey", "Danny", "Mandy", "Jen", "Nicole", "Jamie", "Matt"];
     const DEFAULT_INVENTORY_ITEMS = [
       { id: "inventory-buffalo", name: "Buffalo", unit: "#", favorite: true, standard: true },
@@ -3025,17 +3067,23 @@
       { id: "inventory-ketchup", name: "Ketchup", unit: "#", favorite: true, standard: true }
     ];
     const DEFAULT_SUPPLY_ITEMS = [
-      { id: "supply-napkins", name: "Napkins", unit: "#", favorite: true, standard: true },
-      { id: "supply-cups", name: "Cups", unit: "#", favorite: true, standard: true },
-      { id: "supply-straws", name: "Straws", unit: "#", favorite: true, standard: true },
-      { id: "supply-paper-boats", name: "Paper boats", unit: "#", favorite: true, standard: true },
-      { id: "supply-gloves", name: "Gloves", unit: "#", favorite: true, standard: true }
+      { id: "supply-half-tray", name: "half tray", unit: "#", favorite: true, standard: true },
+      { id: "supply-full-tray", name: "full tray", unit: "#", favorite: true, standard: true },
+      { id: "supply-napkins", name: "napkins", unit: "#", favorite: true, standard: true },
+      { id: "supply-forks", name: "forks", unit: "#", favorite: true, standard: true },
+      { id: "supply-knives", name: "knives", unit: "#", favorite: true, standard: true },
+      { id: "supply-spoons", name: "spoons", unit: "#", favorite: true, standard: true },
+      { id: "supply-gloves-large", name: "gloves LARGE", unit: "#", favorite: true, standard: true },
+      { id: "supply-gloves-xl", name: "gloves XL", unit: "#", favorite: true, standard: true },
+      { id: "supply-ramekins", name: "ramekins", unit: "#", favorite: true, standard: true },
+      { id: "supply-ramekin-lids", name: "ramekin LIDS", unit: "#", favorite: true, standard: true }
     ];
-    const workSectionOrder = ["notes", "staff", "closeout", "inventory", "supplies"];
+    const workSectionOrder = ["notes", "staff", "inventory", "closeout", "supplies"];
     const settingsPin = "1521";
     const defaultState = {
       testerDataVersion,
       inventoryDefaultsVersion,
+      supplyDefaultsVersion,
       defaultStaff: DEFAULT_STAFF_POOL,
       shiftStaff: [],
       activeSender: "",
@@ -3076,7 +3124,7 @@
     let settingsDismissTimer = null;
     let settingsReturnView = "notes";
     let settingsReturnSection = "notes";
-    let activeSettingsSection = "staff";
+    let activeSettingsSection = "inventory";
     let inventorySearchTerm = "";
     let suppliesSearchTerm = "";
 
@@ -3212,14 +3260,20 @@
           ? favoriteItems(inventoryDefaults)
           : normalizeActiveItems(parsed.inventoryItems?.length ? parsed.inventoryItems : favoriteItems(inventoryDefaults), inventoryDefaults);
         const inventoryQuantities = shouldApplyInventoryDefaults ? {} : normalizeInventoryQuantities(parsed.inventoryQuantities, inventoryItems);
-        const supplyDefaults = normalizeLibraryItems(parsed.supplyDefaults || parsed.defaultSupplyItems || parsed.supplyItems, DEFAULT_SUPPLY_ITEMS, "supply");
-        const supplyItems = normalizeActiveItems(parsed.supplyItems?.length ? parsed.supplyItems : favoriteItems(supplyDefaults), supplyDefaults);
-        const supplyQuantities = normalizeInventoryQuantities(parsed.supplyQuantities, supplyItems);
+        const shouldApplySupplyDefaults = parsed.supplyDefaultsVersion !== supplyDefaultsVersion;
+        const supplyDefaults = shouldApplySupplyDefaults
+          ? DEFAULT_SUPPLY_ITEMS.map((item) => ({ ...item }))
+          : normalizeLibraryItems(parsed.supplyDefaults || parsed.defaultSupplyItems || parsed.supplyItems, DEFAULT_SUPPLY_ITEMS, "supply");
+        const supplyItems = shouldApplySupplyDefaults
+          ? favoriteItems(supplyDefaults)
+          : normalizeActiveItems(parsed.supplyItems?.length ? parsed.supplyItems : favoriteItems(supplyDefaults), supplyDefaults);
+        const supplyQuantities = shouldApplySupplyDefaults ? {} : normalizeInventoryQuantities(parsed.supplyQuantities, supplyItems);
         return {
           ...defaultState,
           ...parsed,
           testerDataVersion,
           inventoryDefaultsVersion,
+          supplyDefaultsVersion,
           shiftDate: hasSessionInProgress ? (parsed.shiftDate || defaultState.shiftDate) : defaultState.shiftDate,
           defaultStaff,
           nightMode,
@@ -3346,8 +3400,8 @@
             id: String(item?.id || libraryItem?.id || `item-custom-${crypto.randomUUID()}`),
             name,
             unit: String(item?.unit || libraryItem?.unit || "#"),
-            favorite: Boolean(libraryItem?.favorite || item?.favorite),
-            standard: Boolean(libraryItem?.standard || item?.standard)
+            favorite: libraryItem ? Boolean(libraryItem.favorite) : Boolean(item?.favorite),
+            standard: libraryItem ? Boolean(libraryItem.standard) : Boolean(item?.standard)
           };
         })
         .filter((item) => {
@@ -3522,7 +3576,7 @@
     function getVisibleActiveItems(type) {
       const config = getItemConfig(type);
       const term = getItemSearchTerm(type).trim();
-      if (!term) return type === "supplies" ? sortItemLibrary(state[config.activeKey]) : state[config.activeKey];
+      if (!term) return sortItemLibrary(state[config.activeKey]);
       const activeNames = new Set(state[config.activeKey].map((item) => item.name.toLowerCase()));
       const inactiveDefaults = state[config.defaultsKey].filter((item) => !activeNames.has(item.name.toLowerCase()));
       return rankedItemMatches([...state[config.activeKey], ...inactiveDefaults], term);
@@ -3865,6 +3919,8 @@
       ` + senderNames.map((name) => `
         <option value="${escapeHtml(name)}" ${name === state.activeOperator ? "selected" : ""}>${escapeHtml(name)}</option>
       `).join("");
+      refs.senderSelect.classList.toggle("is-empty", !state.activeSender);
+      refs.operatorSelect.classList.toggle("is-empty", !state.activeOperator);
     }
 
     function renderInventory() {
@@ -4311,7 +4367,7 @@
     }
 
     function updateScrollCues() {
-      document.querySelectorAll(".staff-transfer-list, .settings-list.scroll-list, .item-search-results").forEach(updateVerticalScrollCue);
+      document.querySelectorAll(".staff-transfer-list, .settings-list.scroll-list, .item-search-results, .inventory-list, .supply-list").forEach(updateVerticalScrollCue);
       updateHorizontalScrollCue(refs.workTabs);
     }
 
@@ -4891,7 +4947,7 @@
     });
 
     document.addEventListener("scroll", (event) => {
-      const list = event.target.closest?.(".staff-transfer-list, .settings-list.scroll-list, #workTabs");
+      const list = event.target.closest?.(".staff-transfer-list, .settings-list.scroll-list, .item-search-results, .inventory-list, .supply-list, #workTabs");
       if (list) updateScrollCue(list);
     }, true);
 
