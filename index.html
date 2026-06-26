@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-item-search-row-fit">
+  <meta name="app-version" content="2026-06-26-inventory-decimal-keyboard">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -3720,7 +3720,7 @@
       config.list.innerHTML = visibleItems.map((item) => `
         <label class="${config.rowClass}" for="${config.type}-${escapeHtml(item.id)}">
           <span class="${config.nameClass}">${item.favorite ? '<span class="item-inline-star">&#9733;</span>' : ""}${escapeHtml(item.name)}</span>
-          <input id="${config.type}-${escapeHtml(item.id)}" type="text" autocomplete="off" data-${config.type}-qty="${escapeHtml(item.id)}" value="${escapeHtml(state[config.quantitiesKey][item.id] || "")}" placeholder="Qty">
+          <input id="${config.type}-${escapeHtml(item.id)}" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" data-${config.type}-qty="${escapeHtml(item.id)}" value="${escapeHtml(state[config.quantitiesKey][item.id] || "")}" placeholder="Qty">
         </label>
       `).join("");
     }
