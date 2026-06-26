@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-25-supplies-need-red">
+  <meta name="app-version" content="2026-06-25-one-time-x-removed">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1080,6 +1080,17 @@
       color: var(--ink-93);
     }
 
+    .inventory-mode button:disabled {
+      border-color: rgba(107, 103, 96, .18);
+      background: rgba(107, 103, 96, .14);
+      color: rgba(107, 103, 96, .62);
+      cursor: not-allowed;
+      opacity: .72;
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: rgba(107, 103, 96, .72);
+    }
+
     .inventory-list-head,
     .inventory-row {
       display: grid;
@@ -1164,9 +1175,10 @@
       text-transform: uppercase;
     }
 
+
     .supply-needed[aria-pressed="true"] {
-      border-color: rgba(184, 72, 62, .22);
-      background: rgba(208, 103, 92, .18);
+      border-color: rgba(184, 72, 62, .36);
+      background: rgba(184, 72, 62, .30);
       color: var(--ink-93);
     }
 
@@ -2143,6 +2155,8 @@
     body.theme-dark .work-nav,
     body.theme-dark .staff-panel,
     body.theme-dark .sender-panel,
+    body.theme-dark .inventory-panel,
+    body.theme-dark .item-panel,
     body.theme-dark .money-panel,
     body.theme-dark .check-panel,
     body.theme-dark .composer,
@@ -2203,10 +2217,11 @@
     }
 
     body.theme-dark .supply-needed[aria-pressed="true"] {
-      background: rgba(208, 103, 92, .18);
+      background: rgba(184, 72, 62, .30);
       color: var(--ink-93);
-      border-color: rgba(208, 103, 92, .24);
+      border-color: rgba(208, 103, 92, .36);
     }
+
 
     body.theme-dark .staff-transfer-option.active,
     body.theme-dark .primary,
@@ -2735,7 +2750,7 @@
                 <p class="section-title with-icon" id="inventoryTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M6 7v12h12V7"></path><path d="M9 11h6"></path><path d="M9 15h6"></path><path d="M8 4h8l1 3H7z"></path></svg>Inventory</p>
                 <div class="inventory-mode" id="inventoryModeGroup" role="group" aria-label="Inventory type">
                   <button type="button" data-inventory-mode="public">Public vending</button>
-                  <button type="button" data-inventory-mode="private">Private party</button>
+                  <button type="button" data-inventory-mode="private" disabled aria-disabled="true">Private party</button>
                 </div>
                 <form class="item-search" id="inventoryForm" autocomplete="off">
                   <input id="inventoryItemInput" type="text" autocomplete="off" placeholder="Search or add item">
@@ -3199,7 +3214,7 @@
           tabsClosed: normalizeTabsClosed(parsed.tabsClosed),
           propaneFilled: normalizeDecision(parsed.propaneFilled),
           gasFilled: normalizeDecision(parsed.gasFilled),
-          inventoryMode: parsed.inventoryMode === "private" ? "private" : "public",
+          inventoryMode: "public",
           inventoryDefaults,
           inventoryDefaultSort: ["az", "za"].includes(parsed.inventoryDefaultSort) ? parsed.inventoryDefaultSort : "newest",
           inventoryItems,
@@ -3491,7 +3506,7 @@
     function getVisibleActiveItems(type) {
       const config = getItemConfig(type);
       const term = getItemSearchTerm(type).trim();
-      if (!term) return state[config.activeKey];
+      if (!term) return type === "supplies" ? sortItemLibrary(state[config.activeKey]) : state[config.activeKey];
       const activeNames = new Set(state[config.activeKey].map((item) => item.name.toLowerCase()));
       const inactiveDefaults = state[config.defaultsKey].filter((item) => !activeNames.has(item.name.toLowerCase()));
       return rankedItemMatches([...state[config.activeKey], ...inactiveDefaults], term);
@@ -3530,13 +3545,32 @@
       const config = getItemConfig(type);
       const clean = cleanItemName(name);
       if (!clean) return;
-      const existingActive = state[config.activeKey].find((item) => item.name.toLowerCase() === clean.toLowerCase());
-      if (existingActive) {
-        addActiveItem(type, existingActive);
+      const exactLibraryItem = state[config.defaultsKey].find((item) => item.name.toLowerCase() === clean.toLowerCase());
+      if (exactLibraryItem) {
+        addActiveItem(type, exactLibraryItem);
         return;
       }
-      const libraryItem = state[config.defaultsKey].find((item) => item.name.toLowerCase() === clean.toLowerCase());
-      addActiveItem(type, libraryItem || { id: `${config.singular}-custom-${crypto.randomUUID()}`, name: clean, unit: "#", favorite: false, standard: false });
+      const bestMatch = rankedItemMatches(state[config.defaultsKey], clean)[0];
+      if (bestMatch) {
+        addActiveItem(type, bestMatch);
+        return;
+      }
+      const existingActive = state[config.activeKey].find((item) => item.name.toLowerCase() === clean.toLowerCase());
+      addActiveItem(type, existingActive || { id: `${config.singular}-custom-${crypto.randomUUID()}`, name: clean, unit: "#", favorite: false, standard: false });
+    }
+
+    function clearItemSearchAndFocus(type, id) {
+      const config = getItemConfig(type);
+      if (!getItemSearchTerm(type).trim()) return false;
+      ensureActiveItemForQuantity(type, id);
+      setItemSearchTerm(type, "");
+      config.input.value = "";
+      renderItemList(type);
+      requestAnimationFrame(() => {
+        const target = document.getElementById(`${config.type}-${CSS.escape(id)}`);
+        target?.focus();
+      });
+      return true;
     }
 
     function addDefaultItem(type, name, input) {
@@ -3556,9 +3590,15 @@
 
     function toggleDefaultItemFavorite(type, id) {
       const config = getItemConfig(type);
-      const item = state[config.defaultsKey].find((candidate) => candidate.id === id);
+      const itemIndex = state[config.defaultsKey].findIndex((candidate) => candidate.id === id);
+      const item = state[config.defaultsKey][itemIndex];
       if (!item) return;
       item.favorite = !item.favorite;
+      if (type === "supplies" && item.favorite) {
+        state[config.defaultsKey].splice(itemIndex, 1);
+        state[config.defaultsKey].unshift(item);
+        state.supplyDefaultSort = "newest";
+      }
       saveState();
       window.setTimeout(render, 260);
     }
@@ -3580,6 +3620,7 @@
       render();
       showToast(`${type === "supplies" ? "Supply" : "Inventory"} default removed.`);
     }
+
 
     function toggleSettingsItemSort(type) {
       const sortKey = type === "supplies" ? "supplyDefaultSort" : "inventoryDefaultSort";
@@ -3811,9 +3852,13 @@
     }
 
     function renderInventory() {
+      if (state.inventoryMode === "private") state.inventoryMode = "public";
       refs.inventoryQtyLabel.textContent = inventoryQtyLabel();
       refs.inventoryModeGroup.querySelectorAll("[data-inventory-mode]").forEach((button) => {
-        button.setAttribute("aria-pressed", String(button.dataset.inventoryMode === state.inventoryMode));
+        const isPrivate = button.dataset.inventoryMode === "private";
+        button.disabled = isPrivate;
+        button.setAttribute("aria-disabled", String(isPrivate));
+        button.setAttribute("aria-pressed", String(!isPrivate && button.dataset.inventoryMode === state.inventoryMode));
       });
       renderItemList("inventory");
     }
@@ -4978,10 +5023,25 @@
 
     refs.inventoryModeGroup.addEventListener("click", (event) => {
       const button = event.target.closest("[data-inventory-mode]");
-      if (!button) return;
-      state.inventoryMode = button.dataset.inventoryMode === "private" ? "private" : "public";
+      if (!button || button.disabled || button.dataset.inventoryMode === "private") return;
+      state.inventoryMode = "public";
       render();
     });
+
+    refs.inventoryList.addEventListener("focusin", (event) => {
+      const input = event.target.closest("[data-inventory-qty]");
+      if (!input) return;
+      clearItemSearchAndFocus("inventory", input.dataset.inventoryQty);
+    });
+
+    refs.inventoryList.addEventListener("pointerdown", (event) => {
+      const row = event.target.closest(".inventory-row");
+      if (!row) return;
+      const input = row.querySelector("[data-inventory-qty]");
+      if (!input) return;
+      clearItemSearchAndFocus("inventory", input.dataset.inventoryQty);
+    });
+
 
     refs.inventoryList.addEventListener("input", (event) => {
       const input = event.target.closest("[data-inventory-qty]");
@@ -5001,6 +5061,10 @@
       ensureActiveItemForQuantity("supplies", id);
       if (state.supplyQuantities[id] === "needed") delete state.supplyQuantities[id];
       else state.supplyQuantities[id] = "needed";
+      if (suppliesSearchTerm.trim()) {
+        suppliesSearchTerm = "";
+        refs.suppliesItemInput.value = "";
+      }
       saveState();
       renderSupplies();
       renderReport();
@@ -5032,14 +5096,32 @@
       if (item) addActiveItem("supplies", item);
     });
 
+    function submitItemSearch(type) {
+      const config = getItemConfig(type);
+      addItemFromSearch(type, config.input.value);
+      setItemSearchTerm(type, "");
+      config.input.value = "";
+      renderItemList(type);
+    }
+
     refs.inventoryForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      addItemFromSearch("inventory", refs.inventoryItemInput.value);
+      submitItemSearch("inventory");
+    });
+
+    refs.inventoryForm.querySelector("button[type='submit']").addEventListener("click", (event) => {
+      event.preventDefault();
+      submitItemSearch("inventory");
     });
 
     refs.suppliesForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      addItemFromSearch("supplies", refs.suppliesItemInput.value);
+      submitItemSearch("supplies");
+    });
+
+    refs.suppliesForm.querySelector("button[type='submit']").addEventListener("click", (event) => {
+      event.preventDefault();
+      submitItemSearch("supplies");
     });
     refs.settingsStaffForm.addEventListener("submit", (event) => {
       event.preventDefault();
