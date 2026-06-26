@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-supply-default-list-fix">
+  <meta name="app-version" content="2026-06-26-unstarred-item-defaults">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -3092,37 +3092,37 @@
     const updateCheckIntervalMs = 30 * 60 * 1000;
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
     const testerDataVersion = "staff-pool-2026-06-16";
-    const inventoryDefaultsVersion = "rhino-defaults-2026-06-26";
-    const supplyDefaultsVersion = "rhino-supplies-2026-06-26";
+    const inventoryDefaultsVersion = "rhino-defaults-unstarred-2026-06-26";
+    const supplyDefaultsVersion = "rhino-supplies-unstarred-2026-06-26";
     const DEFAULT_STAFF_POOL = ["Annie", "Casey", "Danny", "Mandy", "Jen", "Nicole", "Jamie", "Matt"];
     const DEFAULT_INVENTORY_ITEMS = [
-      { id: "inventory-buffalo", name: "Buffalo", unit: "#", favorite: true, standard: true },
-      { id: "inventory-garlic-parm", name: "Garlic Parm", unit: "#", favorite: true, standard: true },
-      { id: "inventory-nc-bbq", name: "NC BBQ", unit: "#", favorite: true, standard: true },
-      { id: "inventory-togarashi", name: "Togarashi", unit: "#", favorite: true, standard: true },
-      { id: "inventory-wings", name: "Wings", unit: "#", favorite: true, standard: true },
-      { id: "inventory-tenders", name: "Tenders", unit: "#", favorite: true, standard: true },
-      { id: "inventory-pork", name: "Pork", unit: "#", favorite: true, standard: true },
-      { id: "inventory-eggrolls", name: "Eggrolls", unit: "#", favorite: true, standard: true },
-      { id: "inventory-mcrhino-sauce", name: "McRhino Sauce", unit: "#", favorite: true, standard: true },
-      { id: "inventory-pickles", name: "Pickles", unit: "#", favorite: true, standard: true },
-      { id: "inventory-onions", name: "Onions", unit: "#", favorite: true, standard: true },
-      { id: "inventory-mcrhino-buns", name: "McRhino Buns", unit: "#", favorite: true, standard: true },
-      { id: "inventory-slider-buns", name: "Slider Buns", unit: "#", favorite: true, standard: true },
-      { id: "inventory-blue-cheese", name: "Blue Cheese", unit: "#", favorite: true, standard: true },
-      { id: "inventory-ketchup", name: "Ketchup", unit: "#", favorite: true, standard: true }
+      { id: "inventory-buffalo", name: "Buffalo", unit: "#", favorite: false, standard: true },
+      { id: "inventory-garlic-parm", name: "Garlic Parm", unit: "#", favorite: false, standard: true },
+      { id: "inventory-nc-bbq", name: "NC BBQ", unit: "#", favorite: false, standard: true },
+      { id: "inventory-togarashi", name: "Togarashi", unit: "#", favorite: false, standard: true },
+      { id: "inventory-wings", name: "Wings", unit: "#", favorite: false, standard: true },
+      { id: "inventory-tenders", name: "Tenders", unit: "#", favorite: false, standard: true },
+      { id: "inventory-pork", name: "Pork", unit: "#", favorite: false, standard: true },
+      { id: "inventory-eggrolls", name: "Eggrolls", unit: "#", favorite: false, standard: true },
+      { id: "inventory-mcrhino-sauce", name: "McRhino Sauce", unit: "#", favorite: false, standard: true },
+      { id: "inventory-pickles", name: "Pickles", unit: "#", favorite: false, standard: true },
+      { id: "inventory-onions", name: "Onions", unit: "#", favorite: false, standard: true },
+      { id: "inventory-mcrhino-buns", name: "McRhino Buns", unit: "#", favorite: false, standard: true },
+      { id: "inventory-slider-buns", name: "Slider Buns", unit: "#", favorite: false, standard: true },
+      { id: "inventory-blue-cheese", name: "Blue Cheese", unit: "#", favorite: false, standard: true },
+      { id: "inventory-ketchup", name: "Ketchup", unit: "#", favorite: false, standard: true }
     ];
     const DEFAULT_SUPPLY_ITEMS = [
-      { id: "supply-half-tray", name: "half tray", unit: "#", favorite: true, standard: true },
-      { id: "supply-full-tray", name: "full tray", unit: "#", favorite: true, standard: true },
-      { id: "supply-napkins", name: "napkins", unit: "#", favorite: true, standard: true },
-      { id: "supply-forks", name: "forks", unit: "#", favorite: true, standard: true },
-      { id: "supply-knives", name: "knives", unit: "#", favorite: true, standard: true },
-      { id: "supply-spoons", name: "spoons", unit: "#", favorite: true, standard: true },
-      { id: "supply-gloves-large", name: "gloves LARGE", unit: "#", favorite: true, standard: true },
-      { id: "supply-gloves-xl", name: "gloves XL", unit: "#", favorite: true, standard: true },
-      { id: "supply-ramekins", name: "ramekins", unit: "#", favorite: true, standard: true },
-      { id: "supply-ramekin-lids", name: "ramekin LIDS", unit: "#", favorite: true, standard: true }
+      { id: "supply-half-tray", name: "half tray", unit: "#", favorite: false, standard: true },
+      { id: "supply-full-tray", name: "full tray", unit: "#", favorite: false, standard: true },
+      { id: "supply-napkins", name: "napkins", unit: "#", favorite: false, standard: true },
+      { id: "supply-forks", name: "forks", unit: "#", favorite: false, standard: true },
+      { id: "supply-knives", name: "knives", unit: "#", favorite: false, standard: true },
+      { id: "supply-spoons", name: "spoons", unit: "#", favorite: false, standard: true },
+      { id: "supply-gloves-large", name: "gloves LARGE", unit: "#", favorite: false, standard: true },
+      { id: "supply-gloves-xl", name: "gloves XL", unit: "#", favorite: false, standard: true },
+      { id: "supply-ramekins", name: "ramekins", unit: "#", favorite: false, standard: true },
+      { id: "supply-ramekin-lids", name: "ramekin LIDS", unit: "#", favorite: false, standard: true }
     ];
     const workSectionOrder = ["notes", "staff", "closeout", "supplies", "inventory"];
     const settingsPin = "1521";
