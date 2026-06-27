@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-clear-stale-item-promotions">
+  <meta name="app-version" content="2026-06-27-inventory-accepted-feedback">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -1200,6 +1200,14 @@
       font-weight: 500;
     }
 
+    .inventory-row.qty-accepted {
+      animation: inventoryAcceptedRow .34s ease-out;
+    }
+
+    .inventory-row input.qty-accepted {
+      animation: inventoryAcceptedField .34s ease-out;
+    }
+
     .supply-needed {
       min-height: 40px;
       border: 1px solid var(--line);
@@ -1243,6 +1251,22 @@
     @keyframes neededRowPulse {
       0% { background: rgba(166, 65, 56, .12); }
       100% { background: var(--wash); }
+    }
+
+    @keyframes inventoryAcceptedRow {
+      0% { background: rgba(199, 154, 88, .16); }
+      100% { background: var(--wash); }
+    }
+
+    @keyframes inventoryAcceptedField {
+      0% {
+        border-color: rgba(199, 154, 88, .44);
+        box-shadow: 0 0 0 2px rgba(199, 154, 88, .14);
+      }
+      100% {
+        border-color: var(--line);
+        box-shadow: none;
+      }
     }
 
     @keyframes itemFlickUp {
@@ -3799,6 +3823,15 @@
       row?.classList.add("need-feedback");
     }
 
+    function playInventoryAcceptedFeedback(input) {
+      const row = input.closest(".inventory-row");
+      input.classList.remove("qty-accepted");
+      row?.classList.remove("qty-accepted");
+      void input.offsetWidth;
+      input.classList.add("qty-accepted");
+      row?.classList.add("qty-accepted");
+    }
+
     function captureItemRowRects(type) {
       const config = getItemConfig(type);
       return new Map(Array.from(config.list.querySelectorAll("[data-item-row]"))
@@ -5303,10 +5336,19 @@
       }
       ensureActiveItemForQuantity("inventory", id, { promote: Boolean(clean) });
       saveState();
-      input.blur();
-      renderInventory();
-      if (previousRects) requestAnimationFrame(() => animateItemRowsFrom("inventory", previousRects, id));
-      renderReport();
+      if (!clean) {
+        input.blur();
+        renderInventory();
+        renderReport();
+        return;
+      }
+      playInventoryAcceptedFeedback(input);
+      window.setTimeout(() => {
+        input.blur();
+        renderInventory();
+        if (previousRects) requestAnimationFrame(() => animateItemRowsFrom("inventory", previousRects, id));
+        renderReport();
+      }, 150);
     });
 
     refs.suppliesList.addEventListener("click", (event) => {
