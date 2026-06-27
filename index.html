@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-selected-item-queue">
+  <meta name="app-version" content="2026-06-26-clear-stale-item-promotions">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -3697,6 +3697,17 @@
       if (item) item.activeAddedAt = 0;
     }
 
+    function clearStaleItemPromotions(type) {
+      const config = getItemConfig(type);
+      state[config.activeKey].forEach((item) => {
+        const value = state[config.quantitiesKey][item.id];
+        const isSelected = type === "supplies"
+          ? value === "needed"
+          : Boolean(String(value || "").trim());
+        if (!isSelected) item.activeAddedAt = 0;
+      });
+    }
+
     function addItemFromSearch(type, name) {
       const config = getItemConfig(type);
       const clean = cleanItemName(name);
@@ -3850,6 +3861,7 @@
       state[config.defaultsKey] = normalizeLibraryItems(state[config.defaultsKey], type === "supplies" ? DEFAULT_SUPPLY_ITEMS : DEFAULT_INVENTORY_ITEMS, config.singular);
       state[config.activeKey] = normalizeActiveItems(state[config.activeKey], state[config.defaultsKey]);
       state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
+      clearStaleItemPromotions(type);
       renderItemSearchResults(type);
       const visibleItems = getVisibleActiveItems(type);
       if (type === "supplies") {
