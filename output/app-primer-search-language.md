@@ -45,3 +45,25 @@ First suggestion:
 - No toast for repeatable setup actions
 
 Use this especially for star/favorite toggles, lightweight selection states, and other repeated configuration taps.
+
+## Truck Notes Promotion Rule
+
+Blank actions should never promote, reorder, complete, or otherwise advance an item.
+
+Examples:
+
+- Pressing Return in an empty Inventory quantity field should not move that item up.
+- A row should only promote after the user enters meaningful content or selects a real state.
+- Whitespace-only input counts as blank.
+
+This applies to future promotable objects, not only Inventory and Supplies.
+
+## Truck Notes Selected Queue Rule
+
+Promoted items should form a stable selected-items queue.
+
+- The first selected item rises to the top of the selected group.
+- The next selected item rises below the prior selected item, not above it.
+- The selected queue should preserve selection order.
+- Clearing the value or toggling the selected state off should remove the item from the queue.
+- Do not use a newest-first queue for selected work items unless explicitly requested.

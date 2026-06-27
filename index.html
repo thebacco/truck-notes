@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-inventory-return-motion">
+  <meta name="app-version" content="2026-06-26-selected-item-queue">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -3478,18 +3478,12 @@
       return [...items].sort((first, second) => {
         const firstAdded = Number(first.activeAddedAt) || 0;
         const secondAdded = Number(second.activeAddedAt) || 0;
-        const firstIsCustomAdded = firstAdded && first.standard === false;
-        const secondIsCustomAdded = secondAdded && second.standard === false;
-        if (firstIsCustomAdded || secondIsCustomAdded) {
-          if (firstIsCustomAdded !== secondIsCustomAdded) return firstIsCustomAdded ? -1 : 1;
-          if (firstAdded !== secondAdded) return secondAdded - firstAdded;
+        if (firstAdded || secondAdded) {
+          if (Boolean(firstAdded) !== Boolean(secondAdded)) return firstAdded ? -1 : 1;
+          if (firstAdded !== secondAdded) return firstAdded - secondAdded;
           return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
         }
         if (Boolean(first.favorite) !== Boolean(second.favorite)) return first.favorite ? -1 : 1;
-        if (firstAdded || secondAdded) {
-          if (firstAdded !== secondAdded) return secondAdded - firstAdded;
-          return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
-        }
         return first.name.localeCompare(second.name, undefined, { sensitivity: "base" });
       });
     }
@@ -3697,6 +3691,12 @@
       saveState();
     }
 
+    function clearActiveItemPromotion(type, id) {
+      const config = getItemConfig(type);
+      const item = state[config.activeKey].find((candidate) => candidate.id === id);
+      if (item) item.activeAddedAt = 0;
+    }
+
     function addItemFromSearch(type, name) {
       const config = getItemConfig(type);
       const clean = cleanItemName(name);
@@ -3807,7 +3807,7 @@
 
         const distance = Math.abs(deltaY);
         const isPromoted = row.dataset.itemRow === promotedId;
-        const duration = Math.min(620, Math.max(360, 330 + distance * (isPromoted ? .42 : .26)));
+        const duration = Math.round(Math.max(360, 330 + distance * (isPromoted ? .72 : .38)));
         row.style.transition = "none";
         row.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
         row.style.zIndex = isPromoted ? "2" : "1";
@@ -5268,7 +5268,10 @@
       const clean = input.value.trim();
       ensureActiveItemForQuantity("inventory", input.dataset.inventoryQty, { promote: false });
       if (clean) state.inventoryQuantities[input.dataset.inventoryQty] = clean;
-      else delete state.inventoryQuantities[input.dataset.inventoryQty];
+      else {
+        delete state.inventoryQuantities[input.dataset.inventoryQty];
+        clearActiveItemPromotion("inventory", input.dataset.inventoryQty);
+      }
       saveState();
       renderReport();
     });
@@ -5282,7 +5285,10 @@
       const clean = input.value.trim();
       const previousRects = clean ? captureItemRowRects("inventory") : null;
       if (clean) state.inventoryQuantities[id] = clean;
-      else delete state.inventoryQuantities[id];
+      else {
+        delete state.inventoryQuantities[id];
+        clearActiveItemPromotion("inventory", id);
+      }
       ensureActiveItemForQuantity("inventory", id, { promote: Boolean(clean) });
       saveState();
       input.blur();
@@ -5299,7 +5305,10 @@
       const previousRects = willNeed ? captureItemRowRects("supplies") : null;
       playNeedFeedback(button);
       if (willNeed) state.supplyQuantities[id] = "needed";
-      else delete state.supplyQuantities[id];
+      else {
+        delete state.supplyQuantities[id];
+        clearActiveItemPromotion("supplies", id);
+      }
       button.setAttribute("aria-pressed", willNeed ? "true" : "false");
       if (suppliesSearchTerm.trim()) {
         suppliesSearchTerm = "";
