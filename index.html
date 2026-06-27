@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-27-inventory-accepted-feedback">
+  <meta name="app-version" content="2026-06-27-reset-items-on-update">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4812,6 +4812,16 @@
       emailNotes();
     }
 
+    function resetInventoryAndSuppliesState() {
+      state.inventoryMode = defaultState.inventoryMode;
+      state.inventoryItems = allActiveItems(state.inventoryDefaults);
+      state.inventoryQuantities = {};
+      state.supplyItems = allActiveItems(state.supplyDefaults);
+      state.supplyQuantities = {};
+      inventorySearchTerm = "";
+      suppliesSearchTerm = "";
+    }
+
     function resetShift() {
       state.notes = [];
       state.shiftStaff = [];
@@ -4821,13 +4831,7 @@
       state.tabsClosed = "";
       state.propaneFilled = "";
       state.gasFilled = "";
-      state.inventoryMode = defaultState.inventoryMode;
-      state.inventoryItems = allActiveItems(state.inventoryDefaults);
-      state.inventoryQuantities = {};
-      state.supplyItems = allActiveItems(state.supplyDefaults);
-      state.supplyQuantities = {};
-      inventorySearchTerm = "";
-      suppliesSearchTerm = "";
+      resetInventoryAndSuppliesState();
       requiredHighlightActive = false;
       currentView = "notes";
       activeWorkSection = "notes";
@@ -4950,10 +4954,12 @@
       if (!lastSeenAppVersion || lastSeenAppVersion === appVersion) return;
       currentView = "notes";
       activeWorkSection = "notes";
+      resetInventoryAndSuppliesState();
       state.tabsClosed = "";
       state.propaneFilled = "";
       state.gasFilled = "";
       if (!state.themePreferenceSet) state.nightMode = false;
+      saveState();
       refs.settingsLockDialog.classList.add("hidden");
       refs.resetDialog.classList.add("hidden");
       refs.installDialog.classList.add("hidden");
