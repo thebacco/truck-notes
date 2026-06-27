@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-26-supply-reorder-motion">
+  <meta name="app-version" content="2026-06-26-inventory-return-motion">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -3788,15 +3788,17 @@
       row?.classList.add("need-feedback");
     }
 
-    function captureSupplyRowRects() {
-      return new Map(Array.from(refs.suppliesList.querySelectorAll("[data-supply-row]"))
-        .map((row) => [row.dataset.supplyRow, row.getBoundingClientRect()]));
+    function captureItemRowRects(type) {
+      const config = getItemConfig(type);
+      return new Map(Array.from(config.list.querySelectorAll("[data-item-row]"))
+        .map((row) => [row.dataset.itemRow, row.getBoundingClientRect()]));
     }
 
-    function animateSupplyRowsFrom(previousRects, promotedId = "") {
-      const rows = Array.from(refs.suppliesList.querySelectorAll("[data-supply-row]"));
+    function animateItemRowsFrom(type, previousRects, promotedId = "") {
+      const config = getItemConfig(type);
+      const rows = Array.from(config.list.querySelectorAll("[data-item-row]"));
       rows.forEach((row) => {
-        const previous = previousRects.get(row.dataset.supplyRow);
+        const previous = previousRects.get(row.dataset.itemRow);
         if (!previous) return;
         const current = row.getBoundingClientRect();
         const deltaX = previous.left - current.left;
@@ -3804,15 +3806,15 @@
         if (Math.abs(deltaX) < .5 && Math.abs(deltaY) < .5) return;
 
         const distance = Math.abs(deltaY);
-        const isPromoted = row.dataset.supplyRow === promotedId;
-        const duration = Math.min(560, Math.max(320, 280 + distance * (isPromoted ? .34 : .22)));
+        const isPromoted = row.dataset.itemRow === promotedId;
+        const duration = Math.min(620, Math.max(360, 330 + distance * (isPromoted ? .42 : .26)));
         row.style.transition = "none";
         row.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
         row.style.zIndex = isPromoted ? "2" : "1";
 
         row.getBoundingClientRect();
         requestAnimationFrame(() => {
-          row.style.transition = `transform ${duration}ms cubic-bezier(.16, .92, .24, 1)`;
+          row.style.transition = `transform ${duration}ms cubic-bezier(.28, .78, .22, 1)`;
           row.style.transform = "";
         });
 
@@ -3854,7 +3856,7 @@
         config.list.innerHTML = visibleItems.map((item) => {
           const needed = state[config.quantitiesKey][item.id] === "needed";
           return `
-            <div class="${config.rowClass}" data-supply-row="${escapeHtml(item.id)}">
+            <div class="${config.rowClass}" data-item-row="${escapeHtml(item.id)}">
               <span class="${config.nameClass}">${item.favorite ? '<span class="item-inline-star">&#9733;</span>' : ""}${escapeHtml(item.name)}</span>
               <button class="supply-needed" type="button" data-supplies-needed="${escapeHtml(item.id)}" aria-pressed="${needed ? "true" : "false"}">Need</button>
             </div>
@@ -3863,7 +3865,7 @@
         return;
       }
       config.list.innerHTML = visibleItems.map((item) => `
-        <label class="${config.rowClass}" for="${config.type}-${escapeHtml(item.id)}">
+        <label class="${config.rowClass}" data-item-row="${escapeHtml(item.id)}" for="${config.type}-${escapeHtml(item.id)}">
           <span class="${config.nameClass}">${item.favorite ? '<span class="item-inline-star">&#9733;</span>' : ""}${escapeHtml(item.name)}</span>
           <input id="${config.type}-${escapeHtml(item.id)}" type="text" enterkeyhint="done" autocomplete="off" data-${config.type}-qty="${escapeHtml(item.id)}" value="${escapeHtml(state[config.quantitiesKey][item.id] || "")}" placeholder="#/unit">
         </label>
@@ -5264,10 +5266,28 @@
       const input = event.target.closest("[data-inventory-qty]");
       if (!input) return;
       const clean = input.value.trim();
-      ensureActiveItemForQuantity("inventory", input.dataset.inventoryQty);
+      ensureActiveItemForQuantity("inventory", input.dataset.inventoryQty, { promote: false });
       if (clean) state.inventoryQuantities[input.dataset.inventoryQty] = clean;
       else delete state.inventoryQuantities[input.dataset.inventoryQty];
       saveState();
+      renderReport();
+    });
+
+    refs.inventoryList.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      const input = event.target.closest("[data-inventory-qty]");
+      if (!input) return;
+      event.preventDefault();
+      const id = input.dataset.inventoryQty;
+      const clean = input.value.trim();
+      const previousRects = clean ? captureItemRowRects("inventory") : null;
+      if (clean) state.inventoryQuantities[id] = clean;
+      else delete state.inventoryQuantities[id];
+      ensureActiveItemForQuantity("inventory", id, { promote: Boolean(clean) });
+      saveState();
+      input.blur();
+      renderInventory();
+      if (previousRects) requestAnimationFrame(() => animateItemRowsFrom("inventory", previousRects, id));
       renderReport();
     });
 
@@ -5276,7 +5296,7 @@
       if (!button) return;
       const id = button.dataset.suppliesNeeded;
       const willNeed = state.supplyQuantities[id] !== "needed";
-      const previousRects = willNeed ? captureSupplyRowRects() : null;
+      const previousRects = willNeed ? captureItemRowRects("supplies") : null;
       playNeedFeedback(button);
       if (willNeed) state.supplyQuantities[id] = "needed";
       else delete state.supplyQuantities[id];
@@ -5289,7 +5309,7 @@
         ensureActiveItemForQuantity("supplies", id, { promote: willNeed });
         saveState();
         renderSupplies();
-        if (previousRects) requestAnimationFrame(() => animateSupplyRowsFrom(previousRects, id));
+        if (previousRects) requestAnimationFrame(() => animateItemRowsFrom("supplies", previousRects, id));
         renderReport();
       }, willNeed ? 120 : 130);
     });
