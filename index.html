@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-27-reset-items-on-update">
+  <meta name="app-version" content="2026-06-27-remove-progress-map">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -758,28 +758,6 @@
       flex: 0 0 100%;
     }
 
-
-    .section-indicator {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      margin: 5px 0 3px;
-    }
-
-    .section-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 999px;
-      background: rgba(107, 103, 96, .28);
-      transition: width .16s ease, background .16s ease;
-    }
-
-    .section-dot.active {
-      width: 14px;
-      background: rgba(184, 132, 63, .78);
-    }
-
     .empty-panel {
       display: grid;
       gap: 10px;
@@ -1234,12 +1212,6 @@
 
     .supply-row.need-feedback {
       animation: neededRowPulse .42s ease-out;
-    }
-
-    .settings-row.promote-feedback {
-      position: relative;
-      z-index: 1;
-      animation: itemFlickUp .34s cubic-bezier(.18, .82, .28, 1) .1s both, neededRowPulse .42s ease-out;
     }
 
     @keyframes neededButtonPop {
@@ -2294,6 +2266,18 @@
       box-shadow: inset 0 0 0 1px rgba(243, 238, 228, .045);
     }
 
+    body.theme-dark .settings-tabs {
+      border-color: rgba(243, 238, 228, .08);
+      background: rgba(49, 43, 35, .68);
+      box-shadow: inset 0 0 0 1px rgba(243, 238, 228, .045);
+    }
+
+    body.theme-dark .settings-tab[aria-selected="true"] {
+      background: rgba(243, 238, 228, .075);
+      color: var(--ink-93);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+    }
+
     body.theme-dark .work-tab[aria-selected="true"] {
       background: rgba(243, 238, 228, .075);
       color: var(--ink-93);
@@ -2751,13 +2735,6 @@
               <button class="work-tab" id="workTabInventory" type="button" role="tab" data-work-section="inventory" aria-controls="inventorySection"><span>Inventory</span></button>
             </div>
 
-            <div class="section-indicator" id="sectionIndicator" aria-hidden="true">
-              <span class="section-dot" data-work-dot="notes"></span>
-              <span class="section-dot" data-work-dot="staff"></span>
-              <span class="section-dot" data-work-dot="closeout"></span>
-              <span class="section-dot" data-work-dot="supplies"></span>
-              <span class="section-dot" data-work-dot="inventory"></span>
-            </div>
           </div>
 
           <div class="work-sections" id="workSections">
@@ -3469,7 +3446,7 @@
             id: String(item?.id || libraryItem?.id || `item-custom-${crypto.randomUUID()}`),
             name,
             unit: String(item?.unit || libraryItem?.unit || "#"),
-            favorite: libraryItem ? Boolean(libraryItem.favorite) : Boolean(item?.favorite),
+            favorite: false,
             standard: libraryItem ? Boolean(libraryItem.standard) : Boolean(item?.standard),
             activeAddedAt: Number.isFinite(Number(item?.activeAddedAt)) ? Number(item.activeAddedAt) : 0
           };
@@ -3488,7 +3465,7 @@
     }
 
     function allActiveItems(items = []) {
-      return sortItemLibrary(items).map((item) => ({ ...item, activeAddedAt: Number(item.activeAddedAt) || 0 }));
+      return sortItemsByName(items).map((item) => ({ ...item, favorite: false, activeAddedAt: Number(item.activeAddedAt) || 0 }));
     }
 
     function sortItemLibrary(items = []) {
@@ -3516,7 +3493,7 @@
       const activeNames = new Set(activeItems.map((item) => item.name.toLowerCase()));
       const missingDefaults = defaultItems
         .filter((item) => !activeNames.has(item.name.toLowerCase()))
-        .map((item) => ({ ...item, activeAddedAt: Number(item.activeAddedAt) || 0 }));
+        .map((item) => ({ ...item, favorite: false, activeAddedAt: Number(item.activeAddedAt) || 0 }));
       return normalizeActiveItems([...activeItems, ...missingDefaults], defaultItems);
     }
 
@@ -3675,7 +3652,10 @@
       if (!term) return sortActiveDisplayItems(state[config.activeKey]);
       const activeNames = new Set(state[config.activeKey].map((item) => item.name.toLowerCase()));
       const inactiveDefaults = state[config.defaultsKey].filter((item) => !activeNames.has(item.name.toLowerCase()));
-      return rankedItemMatches([...state[config.activeKey], ...inactiveDefaults], term);
+      return rankedItemMatches([
+        ...state[config.activeKey].map((item) => ({ ...item, favorite: false })),
+        ...inactiveDefaults.map((item) => ({ ...item, favorite: false }))
+      ], term);
     }
 
     function renderItemSearchResults(type) {
@@ -3688,7 +3668,7 @@
     function addActiveItem(type, item) {
       const config = getItemConfig(type);
       const existingIndex = state[config.activeKey].findIndex((existing) => existing.name.toLowerCase() === item.name.toLowerCase());
-      const activeItem = { ...item, activeAddedAt: Date.now() };
+      const activeItem = { ...item, favorite: false, activeAddedAt: Date.now() };
       if (existingIndex >= 0) state[config.activeKey].splice(existingIndex, 1);
       state[config.activeKey].unshift(activeItem);
       state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
@@ -3711,7 +3691,7 @@
       }
       const defaultItem = state[config.defaultsKey].find((item) => item.id === id);
       if (!defaultItem) return;
-      state[config.activeKey].unshift({ ...defaultItem, activeAddedAt: shouldPromote ? Date.now() : 0 });
+      state[config.activeKey].unshift({ ...defaultItem, favorite: false, activeAddedAt: shouldPromote ? Date.now() : 0 });
       saveState();
     }
 
@@ -3777,7 +3757,7 @@
       if (defaultItem) {
         const existingActiveIndex = state[config.activeKey].findIndex((item) => item.name.toLowerCase() === clean.toLowerCase());
         if (existingActiveIndex >= 0) state[config.activeKey].splice(existingActiveIndex, 1);
-        state[config.activeKey].unshift({ ...defaultItem, activeAddedAt: Date.now() });
+        state[config.activeKey].unshift({ ...defaultItem, favorite: false, activeAddedAt: Date.now() });
         state[config.quantitiesKey] = normalizeInventoryQuantities(state[config.quantitiesKey], state[config.activeKey]);
       }
       state[type === "supplies" ? "supplyDefaultSort" : "inventoryDefaultSort"] = "newest";
@@ -3798,10 +3778,8 @@
         state[config.defaultsKey].unshift(item);
         state[type === "supplies" ? "supplyDefaultSort" : "inventoryDefaultSort"] = "newest";
       }
-      const activeItem = state[config.activeKey].find((candidate) => candidate.name.toLowerCase() === item.name.toLowerCase());
-      if (activeItem) activeItem.favorite = item.favorite;
       saveState();
-      window.setTimeout(render, 360);
+      return item.favorite;
     }
 
     function playFavoriteFeedback(button, willPromote = false) {
@@ -3811,7 +3789,6 @@
       void button.offsetWidth;
       button.classList.add("favorite-feedback");
       row?.classList.add("favorite-feedback");
-      if (willPromote) row?.classList.add("promote-feedback");
     }
 
     function playNeedFeedback(button, willPromote = false) {
@@ -3838,11 +3815,16 @@
         .map((row) => [row.dataset.itemRow, row.getBoundingClientRect()]));
     }
 
-    function animateItemRowsFrom(type, previousRects, promotedId = "") {
-      const config = getItemConfig(type);
-      const rows = Array.from(config.list.querySelectorAll("[data-item-row]"));
+    function captureSettingsRowRects(type) {
+      const list = type === "supplies" ? refs.settingsSuppliesList : refs.settingsInventoryList;
+      return new Map(Array.from(list.querySelectorAll("[data-settings-item-row]"))
+        .map((row) => [row.dataset.settingsItemRow, row.getBoundingClientRect()]));
+    }
+
+    function animateRowsFrom(rows, previousRects, promotedId = "", keyAttribute = "itemRow") {
       rows.forEach((row) => {
-        const previous = previousRects.get(row.dataset.itemRow);
+        const rowId = row.dataset[keyAttribute];
+        const previous = previousRects.get(rowId);
         if (!previous) return;
         const current = row.getBoundingClientRect();
         const deltaX = previous.left - current.left;
@@ -3850,7 +3832,7 @@
         if (Math.abs(deltaX) < .5 && Math.abs(deltaY) < .5) return;
 
         const distance = Math.abs(deltaY);
-        const isPromoted = row.dataset.itemRow === promotedId;
+        const isPromoted = rowId === promotedId;
         const duration = Math.round(Math.max(360, 330 + distance * (isPromoted ? .72 : .38)));
         row.style.transition = "none";
         row.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
@@ -3871,6 +3853,16 @@
         row.addEventListener("transitionend", cleanup);
         window.setTimeout(cleanup, duration + 80);
       });
+    }
+
+    function animateItemRowsFrom(type, previousRects, promotedId = "") {
+      const config = getItemConfig(type);
+      animateRowsFrom(Array.from(config.list.querySelectorAll("[data-item-row]")), previousRects, promotedId, "itemRow");
+    }
+
+    function animateSettingsRowsFrom(type, previousRects, promotedId = "") {
+      const list = type === "supplies" ? refs.settingsSuppliesList : refs.settingsInventoryList;
+      animateRowsFrom(Array.from(list.querySelectorAll("[data-settings-item-row]")), previousRects, promotedId, "settingsItemRow");
     }
 
     function removeDefaultItem(type, id) {
@@ -3928,7 +3920,7 @@
       sortButton.textContent = sortMode === "za" ? "Z-A" : "A-Z";
       sortButton.setAttribute("aria-label", sortMode === "za" ? `Sort ${type} defaults A to Z` : `Sort ${type} defaults Z to A`);
       list.innerHTML = items.map((item) => `
-        <div class="settings-row item-default-row">
+        <div class="settings-row item-default-row" data-settings-item-row="${escapeHtml(item.id)}">
           <button class="settings-star" type="button" data-settings-star-${config.type}="${escapeHtml(item.id)}" aria-pressed="${item.favorite ? "true" : "false"}" aria-label="${item.favorite ? "Unstar" : "Star"} ${escapeHtml(item.name)}"></button>
           <span class="settings-staff-name">${escapeHtml(item.name)}</span>
           <button class="settings-remove" type="button" data-settings-remove-${config.type}="${escapeHtml(item.id)}" aria-label="Remove ${escapeHtml(item.name)}"></button>
@@ -5481,8 +5473,16 @@
     refs.settingsInventoryList.addEventListener("click", (event) => {
       const starButton = event.target.closest("[data-settings-star-inventory]");
       if (starButton) {
-        playFavoriteFeedback(starButton, starButton.getAttribute("aria-pressed") !== "true");
-        toggleDefaultItemFavorite("inventory", starButton.dataset.settingsStarInventory);
+        const willFavorite = starButton.getAttribute("aria-pressed") !== "true";
+        const previousRects = willFavorite ? captureSettingsRowRects("inventory") : null;
+        const id = starButton.dataset.settingsStarInventory;
+        playFavoriteFeedback(starButton);
+        toggleDefaultItemFavorite("inventory", id);
+        window.setTimeout(() => {
+          renderSettingsItemList("inventory");
+          renderInventory();
+          if (previousRects) requestAnimationFrame(() => animateSettingsRowsFrom("inventory", previousRects, id));
+        }, willFavorite ? 120 : 130);
         return;
       }
       const removeButton = event.target.closest("[data-settings-remove-inventory]");
@@ -5492,8 +5492,16 @@
     refs.settingsSuppliesList.addEventListener("click", (event) => {
       const starButton = event.target.closest("[data-settings-star-supplies]");
       if (starButton) {
-        playFavoriteFeedback(starButton, starButton.getAttribute("aria-pressed") !== "true");
-        toggleDefaultItemFavorite("supplies", starButton.dataset.settingsStarSupplies);
+        const willFavorite = starButton.getAttribute("aria-pressed") !== "true";
+        const previousRects = willFavorite ? captureSettingsRowRects("supplies") : null;
+        const id = starButton.dataset.settingsStarSupplies;
+        playFavoriteFeedback(starButton);
+        toggleDefaultItemFavorite("supplies", id);
+        window.setTimeout(() => {
+          renderSettingsItemList("supplies");
+          renderSupplies();
+          if (previousRects) requestAnimationFrame(() => animateSettingsRowsFrom("supplies", previousRects, id));
+        }, willFavorite ? 120 : 130);
         return;
       }
       const removeButton = event.target.closest("[data-settings-remove-supplies]");
