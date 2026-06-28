@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="app-version" content="2026-06-27-remove-progress-map">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="app-version" content="2026-06-28-lock-viewport-zoom">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4958,6 +4958,25 @@
       refs.staffRequiredDialog.classList.add("hidden");
       refs.closeoutRequiredDialog.classList.add("hidden");
     }
+
+    let lastTouchEndAt = 0;
+
+    function preventZoomGesture(event) {
+      event.preventDefault();
+    }
+
+    function preventDoubleTapZoom(event) {
+      const editableTarget = event.target.closest?.("input, textarea, select, [contenteditable='true']");
+      if (editableTarget) return;
+      const now = performance.now();
+      if (now - lastTouchEndAt <= 300) event.preventDefault();
+      lastTouchEndAt = now;
+    }
+
+    window.addEventListener("gesturestart", preventZoomGesture, { passive: false });
+    window.addEventListener("gesturechange", preventZoomGesture, { passive: false });
+    window.addEventListener("gestureend", preventZoomGesture, { passive: false });
+    document.addEventListener("touchend", preventDoubleTapZoom, { passive: false });
 
     refs.workTabs.addEventListener("click", (event) => {
       const button = event.target.closest("[data-work-section]");
