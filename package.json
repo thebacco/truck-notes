@@ -1,10 +1,11 @@
-﻿{
+{
   "name": "truck-notes",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node serve.mjs"
+    "dev": "node serve.mjs",
+    "build": "node --check serve.mjs && node --check netlify/lib/auth-utils.mjs && node --check netlify/functions/request-magic-link.mjs && node --check netlify/functions/verify-magic-link.mjs && node --check netlify/functions/send-notes-sms.mjs"
   }
 }
 

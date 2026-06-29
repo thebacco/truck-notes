@@ -4,7 +4,7 @@ import {
   jsonResponse,
   normalizeEmail,
   signPayload
-} from "./auth-utils.mjs";
+} from "../lib/auth-utils.mjs";
 
 function escapeHtml(value = "") {
   return String(value)

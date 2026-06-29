@@ -2,7 +2,7 @@ import {
   jsonResponse,
   signPayload,
   verifyToken
-} from "./auth-utils.mjs";
+} from "../lib/auth-utils.mjs";
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") return jsonResponse(405, { error: "POST required" });
