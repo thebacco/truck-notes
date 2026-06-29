@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-06-28-lock-viewport-zoom">
+  <meta name="app-version" content="2026-06-29-login-confirm-copy">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -892,13 +892,27 @@
       font-weight: 850;
     }
 
-    .sender-row select {
+    .sender-row select,
+    .sender-value {
       min-height: 46px;
       justify-self: end;
       min-width: 175px;
       max-width: 175px;
       color: var(--ink-84);
       font-weight: 500;
+    }
+
+    .sender-value {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, .72);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .sender-row select.is-empty {
@@ -1480,6 +1494,7 @@
 
     #staffSection .sender-title,
     #staffSection .sender-row select,
+    #staffSection .sender-value,
     #staffSection .staff-transfer-option {
       font-size: 18px;
     }
@@ -2180,6 +2195,79 @@
       background: rgba(22, 22, 22, .3);
     }
 
+    .auth-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 24;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, .98), rgba(255, 253, 248, .94)),
+        linear-gradient(160deg, rgba(197, 141, 59, .18), transparent 48%);
+    }
+
+    .auth-card {
+      width: 100%;
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 18px 48px rgba(22, 22, 22, .18);
+    }
+
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .auth-brand img {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+    }
+
+    .auth-brand h2 {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: 34px;
+      line-height: .9;
+      color: var(--ink-93);
+    }
+
+    .auth-card p {
+      margin: 0;
+      color: var(--muted);
+      font-family: var(--copy-font);
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .auth-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .auth-message {
+      min-height: 20px;
+    }
+
+    .auth-email-confirm {
+      min-height: 19px;
+      padding: 0 2px;
+      font-family: var(--copy-font);
+      font-size: 15px;
+      font-weight: 550;
+      line-height: 1.2;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .dialog {
       width: 100%;
       display: grid;
@@ -2196,6 +2284,7 @@
     body.theme-dark input[type="number"],
     body.theme-dark input[type="password"],
     body.theme-dark select,
+    body.theme-dark .sender-value,
     body.theme-dark textarea,
     body.theme-dark .staff-transfer-option,
     body.theme-dark .decision-button,
@@ -2247,6 +2336,18 @@
     body.theme-dark .dialog {
       background: rgba(42, 38, 32, .9);
       box-shadow: 0 10px 28px rgba(0, 0, 0, .24);
+    }
+
+    body.theme-dark .auth-screen {
+      background:
+        linear-gradient(180deg, rgba(33, 30, 26, .98), rgba(33, 30, 26, .94)),
+        linear-gradient(160deg, rgba(199, 154, 88, .12), transparent 50%);
+    }
+
+    body.theme-dark .auth-card {
+      border-color: var(--line);
+      background: rgba(42, 38, 32, .94);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, .34);
     }
 
     body.theme-dark .money-panel.required-missing,
@@ -2686,6 +2787,26 @@
           <div class="splash-brand"><strong>Miss Tasty!</strong><span>Truck Notes!</span></div>
         </div>
       </div>
+      <div class="auth-screen hidden" id="authScreen">
+        <div class="auth-card">
+          <div class="auth-brand">
+            <img src="icon.png" alt="">
+            <div>
+              <p class="eyebrow">Miss Tasty</p>
+              <h2>Truck Notes</h2>
+            </div>
+          </div>
+          <p>Select your name to get a one sign in link.</p>
+          <form class="auth-form" id="authForm" autocomplete="off">
+            <select id="authNameSelect" required>
+              <option value="">Choose your name</option>
+            </select>
+            <p class="auth-email-confirm" id="authEmailDisplay" aria-live="polite">Select a name to see the email on file.</p>
+            <button class="primary" id="authSubmitButton" type="submit">Email Link</button>
+          </form>
+          <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+        </div>
+      </div>
       <div class="status"><span id="statusTime">9:41</span><span>5G 100%</span></div>
 
       <header>
@@ -2710,6 +2831,10 @@
               </button>
               <button class="header-menu-row" id="settingsButton" type="button">
                 <span>Settings</span>
+                <span aria-hidden="true">›</span>
+              </button>
+              <button class="header-menu-row hidden" id="signOutButton" type="button">
+                <span id="signedInLabel">Sign out</span>
                 <span aria-hidden="true">›</span>
               </button>
             </div>
@@ -2758,10 +2883,11 @@
 
             <section class="work-section hidden" id="staffSection" data-work-panel="staff" role="tabpanel" aria-labelledby="workTabStaff">
               <section class="sender-panel" aria-label="Sender and operator">
-                <label class="sender-row" for="senderSelect">
+                <div class="sender-row">
                   <span class="sender-title">Sender:</span>
-                  <select id="senderSelect"></select>
-                </label>
+                  <select id="senderSelect" class="hidden" aria-hidden="true" tabindex="-1"></select>
+                  <span class="sender-value" id="senderIdentity">Sign in</span>
+                </div>
                 <label class="sender-row" for="operatorSelect">
                   <span class="sender-title">Operator:</span>
                   <select id="operatorSelect"></select>
@@ -2940,6 +3066,10 @@
                   <span class="field-label">Email</span>
                   <input id="settingsRecipientEmailInput" type="email" autocomplete="off" placeholder="name@example.com">
                 </label>
+                <label for="settingsRecipientPhoneInput">
+                  <span class="field-label">Phone</span>
+                  <input id="settingsRecipientPhoneInput" type="tel" inputmode="tel" autocomplete="off" placeholder="(555) 555-5555">
+                </label>
                 <button class="small-button settings-action" type="submit">Add recipient</button>
               </form>
               <div class="settings-list-header">Saved recipients</div>
@@ -3086,6 +3216,7 @@
     ];
 
     const storageKey = "truckNotes:v1";
+    const authSessionKey = "truckNotesAuthSession";
     const installPromptSeenKey = "truckNotesInstallPromptSeen";
     const lastSeenAppVersionKey = "truckNotesLastSeenAppVersion";
     const splashSeenVersionKey = "truckNotesSplashSeenVersion";
@@ -3177,9 +3308,16 @@
     const refs = {
       statusTime: document.getElementById("statusTime"),
       shiftControls: document.getElementById("shiftControls"),
+      authScreen: document.getElementById("authScreen"),
+      authForm: document.getElementById("authForm"),
+      authNameSelect: document.getElementById("authNameSelect"),
+      authEmailDisplay: document.getElementById("authEmailDisplay"),
+      authSubmitButton: document.getElementById("authSubmitButton"),
+      authMessage: document.getElementById("authMessage"),
       shiftDate: document.getElementById("shiftDate"),
       resetButton: document.getElementById("resetButton"),
       senderSelect: document.getElementById("senderSelect"),
+      senderIdentity: document.getElementById("senderIdentity"),
       operatorSelect: document.getElementById("operatorSelect"),
       staffList: document.getElementById("staffList"),
       defaultStaffDayList: document.getElementById("defaultStaffDayList"),
@@ -3222,6 +3360,8 @@
       headerMenuButton: document.getElementById("headerMenuButton"),
       headerMenu: document.getElementById("headerMenu"),
       menuNightModeButton: document.getElementById("menuNightModeButton"),
+      signOutButton: document.getElementById("signOutButton"),
+      signedInLabel: document.getElementById("signedInLabel"),
       settingsButton: document.getElementById("settingsButton"),
       settingsTabs: document.getElementById("settingsTabs"),
       settingsTabButtons: Array.from(document.querySelectorAll("[data-settings-section]")),
@@ -3241,6 +3381,7 @@
       settingsRecipientForm: document.getElementById("settingsRecipientForm"),
       settingsRecipientNameInput: document.getElementById("settingsRecipientNameInput"),
       settingsRecipientEmailInput: document.getElementById("settingsRecipientEmailInput"),
+      settingsRecipientPhoneInput: document.getElementById("settingsRecipientPhoneInput"),
       recipientCount: document.getElementById("recipientCount"),
       recipientList: document.getElementById("recipientList"),
       reportPreview: document.getElementById("reportPreview"),
@@ -3356,17 +3497,202 @@
       saveState();
     }
 
+    function normalizePhoneNumber(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      const digits = raw.replace(/\D/g, "");
+      if (raw.startsWith("+") && digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+      if (digits.length === 10) return `+1${digits}`;
+      if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+      return "";
+    }
+
     function normalizeRecipients(recipients = DEFAULT_RECIPIENTS) {
       const cleanRecipients = Array.isArray(recipients)
         ? recipients
             .map((recipient) => ({
               name: String(recipient?.name || "").trim(),
-              email: String(recipient?.email || "").trim()
+              email: String(recipient?.email || "").trim(),
+              phone: normalizePhoneNumber(recipient?.phone)
             }))
-            .filter((recipient) => recipient.name && recipient.email.includes("@"))
+            .filter((recipient) => recipient.name && (recipient.email.includes("@") || recipient.phone))
         : [];
       return (cleanRecipients.length ? cleanRecipients : DEFAULT_RECIPIENTS.map((recipient) => ({ ...recipient })))
         .sort((first, second) => first.name.localeCompare(second.name, undefined, { sensitivity: "base" }));
+    }
+
+    function loadAuthSession() {
+      try {
+        const session = JSON.parse(localStorage.getItem(authSessionKey) || "null");
+        if (!session || !session.email) return null;
+        return session;
+      } catch {
+        localStorage.removeItem(authSessionKey);
+        return null;
+      }
+    }
+
+    function saveAuthSession(session) {
+      localStorage.setItem(authSessionKey, JSON.stringify(session));
+    }
+
+    function clearAuthSession() {
+      localStorage.removeItem(authSessionKey);
+    }
+
+    function getAuthSession() {
+      return loadAuthSession();
+    }
+
+    function matchingRecipientForAuth(session = getAuthSession()) {
+      if (!session?.email) return null;
+      const authEmail = session.email.toLowerCase();
+      return normalizeRecipients(state.recipients).find((recipient) => recipient.email.toLowerCase() === authEmail) || null;
+    }
+
+    function currentSenderName(session = getAuthSession()) {
+      if (!session?.email) return "";
+      return matchingRecipientForAuth(session)?.name || session.name || session.email;
+    }
+
+    function loginNameOptions() {
+      const byName = new Map();
+      normalizeNameList([
+        ...state.defaultStaff,
+        ...state.recipients.map((recipient) => recipient.name)
+      ]).forEach((name) => byName.set(name.toLowerCase(), { name, email: "" }));
+      normalizeRecipients(state.recipients).forEach((recipient) => {
+        const key = recipient.name.toLowerCase();
+        byName.set(key, {
+          name: recipient.name,
+          email: recipient.email || byName.get(key)?.email || ""
+        });
+      });
+      return Array.from(byName.values()).sort((first, second) => sortNames(first.name, second.name));
+    }
+
+    function selectedLoginNameOption() {
+      const selectedName = refs.authNameSelect.value;
+      if (!selectedName) return null;
+      return loginNameOptions().find((option) => option.name === selectedName) || null;
+    }
+
+    function syncAuthEmailForSelectedName(force = false) {
+      const option = selectedLoginNameOption();
+      if (!option) {
+        refs.authEmailDisplay.textContent = "Select a name to see the email on file.";
+        refs.authMessage.textContent = "Select your name.";
+        return;
+      }
+      refs.authEmailDisplay.textContent = option.email ? `Link will be sent to ${option.email}` : `No email is paired with ${option.name}.`;
+      refs.authSubmitButton.disabled = !option.email;
+      refs.authMessage.textContent = option.email
+        ? ""
+        : `No email is paired with ${option.name}.`;
+    }
+
+    function syncSenderFromAuth() {
+      const senderName = currentSenderName();
+      if (!senderName) return;
+      if (state.activeSender !== senderName) {
+        state.activeSender = senderName;
+        saveState();
+      }
+    }
+
+    function renderAuthGate() {
+      const session = getAuthSession();
+      const isSignedIn = Boolean(session);
+      refs.authScreen.classList.toggle("hidden", isSignedIn);
+      refs.signOutButton.classList.toggle("hidden", !isSignedIn);
+      refs.signedInLabel.textContent = session?.email ? `Sign out ${session.email}` : "Sign out";
+      if (!isSignedIn) {
+        const selectedName = refs.authNameSelect.value;
+        const options = loginNameOptions();
+        refs.authNameSelect.innerHTML = `
+          <option value="">Choose your name</option>
+        ` + options.map((option) => `
+          <option value="${escapeHtml(option.name)}">${escapeHtml(option.name)}</option>
+        `).join("");
+        if (selectedName && options.some((option) => option.name === selectedName)) {
+          refs.authNameSelect.value = selectedName;
+        }
+        if (refs.authNameSelect.value) syncAuthEmailForSelectedName(false);
+        else refs.authSubmitButton.disabled = true;
+        requestAnimationFrame(() => refs.authNameSelect.focus({ preventScroll: true }));
+      }
+    }
+
+    async function requestMagicLink(name, email) {
+      const cleanName = String(name || "").trim().replace(/\s+/g, " ");
+      const cleanEmail = String(email || selectedLoginNameOption()?.email || "").trim().toLowerCase();
+      if (!cleanName) {
+        refs.authMessage.textContent = "Select your name.";
+        return;
+      }
+      if (!cleanEmail.includes("@")) {
+        refs.authMessage.textContent = "No valid email is paired with this name.";
+        return;
+      }
+      refs.authSubmitButton.disabled = true;
+      refs.authSubmitButton.setAttribute("aria-busy", "true");
+      refs.authMessage.textContent = "Sending...";
+      try {
+        const response = await fetch("/.netlify/functions/request-magic-link", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ name: cleanName, email: cleanEmail })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || "Magic link request failed");
+        refs.authMessage.textContent = "Check your email.";
+      } catch (error) {
+        console.error(error);
+        refs.authMessage.textContent = "Could not send link.";
+      } finally {
+        refs.authSubmitButton.disabled = false;
+        refs.authSubmitButton.removeAttribute("aria-busy");
+      }
+    }
+
+    async function verifyMagicLinkToken(token) {
+      refs.authScreen.classList.remove("hidden");
+      refs.authMessage.textContent = "Signing in...";
+      try {
+        const response = await fetch("/.netlify/functions/verify-magic-link", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ token })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.session) throw new Error(result.error || "Magic link verification failed");
+        saveAuthSession(result.session);
+        syncSenderFromAuth();
+        window.history.replaceState({}, document.title, window.location.pathname);
+        refs.authMessage.textContent = "";
+        render();
+        showToast("Signed in.");
+      } catch (error) {
+        console.error(error);
+        clearAuthSession();
+        refs.authMessage.textContent = "Link expired. Request a new one.";
+        renderAuthGate();
+      }
+    }
+
+    function signOut() {
+      clearAuthSession();
+      closeHeaderMenu();
+      renderAuthGate();
+      showToast("Signed out.");
+    }
+
+    function handleMagicLinkFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("magic_token");
+      if (!token) return false;
+      verifyMagicLinkToken(token);
+      return true;
     }
 
     function normalizeNameList(names = []) {
@@ -4041,10 +4367,11 @@
     }
     function reportLines() {
       const staff = state.shiftStaff.join(", ");
+      const sender = currentSenderName() || state.activeSender || "Not signed in";
       const lines = [
         "Truck Notes",
         `Date: ${formatDate(state.shiftDate)}`,
-        `Sender: ${state.activeSender || "None selected"}`,
+        `Sender: ${sender}`,
         `Operator: ${state.activeOperator || "None selected"}`,
         `Staff: ${staff || "None listed"}`,
         "",
@@ -4084,26 +4411,23 @@
     }
 
     function renderSender() {
+      syncSenderFromAuth();
+      const sender = currentSenderName() || "Sign in";
       const senderNames = state.recipients
         .map((recipient) => recipient.name)
         .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
-      if (state.activeSender && !senderNames.includes(state.activeSender)) {
-        state.activeSender = "";
-      }
       if (state.activeOperator && !senderNames.includes(state.activeOperator)) {
         state.activeOperator = "";
       }
       refs.senderSelect.innerHTML = `
-        <option value="" ${state.activeSender ? "" : "selected"}>Choose sender</option>
-      ` + senderNames.map((name) => `
-        <option value="${escapeHtml(name)}" ${name === state.activeSender ? "selected" : ""}>${escapeHtml(name)}</option>
-      `).join("");
+        <option value="${escapeHtml(sender)}" selected>${escapeHtml(sender)}</option>
+      `;
+      refs.senderIdentity.textContent = sender;
       refs.operatorSelect.innerHTML = `
         <option value="" ${state.activeOperator ? "" : "selected"}>Choose operator</option>
       ` + senderNames.map((name) => `
         <option value="${escapeHtml(name)}" ${name === state.activeOperator ? "selected" : ""}>${escapeHtml(name)}</option>
       `).join("");
-      refs.senderSelect.classList.toggle("is-empty", !state.activeSender);
       refs.operatorSelect.classList.toggle("is-empty", !state.activeOperator);
     }
 
@@ -4343,12 +4667,13 @@
     }
 
     function renderRecipients() {
-      refs.recipientCount.textContent = `${state.recipients.length} saved`;
+      const textableCount = state.recipients.filter((recipient) => recipient.phone).length;
+      refs.recipientCount.textContent = `${textableCount}/${state.recipients.length} textable`;
       const sortedRecipients = normalizeRecipients(state.recipients);
       refs.recipientList.innerHTML = sortedRecipients.map((recipient) => `
         <div class="recipient-row">
           <strong>${escapeHtml(recipient.name)}</strong>
-          <span>${escapeHtml(recipient.email)}</span>
+          <span>${escapeHtml(recipient.phone || recipient.email || "No phone")}</span>
         </div>
       `).join("");
     }
@@ -4373,7 +4698,7 @@
 
       refs.settingsRecipientList.innerHTML = state.recipients.map((recipient, index) => `
         <div class="settings-row">
-          <span><strong>${escapeHtml(recipient.name)}</strong><small>${escapeHtml(recipient.email)}</small></span>
+          <span><strong>${escapeHtml(recipient.name)}</strong><small>${escapeHtml([recipient.email, recipient.phone].filter(Boolean).join(" / ") || "No contact")}</small></span>
           <button class="settings-remove" type="button" data-remove-recipient="${index}" aria-label="Remove ${escapeHtml(recipient.name)}"></button>
         </div>
       `).join("");
@@ -4511,7 +4836,7 @@
       refs.settingsView.classList.toggle("hidden", !showingSettings);
       refs.toggleViewButton.textContent = showingReport || showingSettings ? "Back to Notes" : "Review Notes";
       refs.sendButton.innerHTML = showingReport
-        ? `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path></svg><span>Email Notes</span>`
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path></svg><span>Text Notes</span>`
         : "Publish";
       refs.sendButton.classList.toggle("hidden", showingSettings);
       refs.headerMenuButton.classList.toggle("hidden", showingSettings);
@@ -4576,6 +4901,7 @@
       renderSettings();
       renderReport();
       renderView();
+      renderAuthGate();
       saveState();
       requestAnimationFrame(updateScrollCues);
     }
@@ -4645,18 +4971,24 @@
       showToast("Pool staff removed.");
     }
 
-    function addRecipient(name, email) {
+    function addRecipient(name, email, phone) {
       const cleanName = name.trim().replace(/\s+/g, " ");
       const cleanEmail = email.trim();
-      if (!cleanName || !cleanEmail.includes("@")) {
-        showToast("Enter a recipient name and email.");
+      const cleanPhone = normalizePhoneNumber(phone);
+      if (!cleanName || (!cleanEmail.includes("@") && !cleanPhone)) {
+        showToast("Enter a name plus email or phone.");
         return;
       }
-      if (!state.recipients.some((recipient) => recipient.email.toLowerCase() === cleanEmail.toLowerCase())) {
-        state.recipients.push({ name: cleanName, email: cleanEmail });
+      const duplicate = state.recipients.some((recipient) => (
+        (cleanEmail && recipient.email.toLowerCase() === cleanEmail.toLowerCase())
+        || (cleanPhone && recipient.phone === cleanPhone)
+      ));
+      if (!duplicate) {
+        state.recipients.push({ name: cleanName, email: cleanEmail, phone: cleanPhone });
       }
       refs.settingsRecipientNameInput.value = "";
       refs.settingsRecipientEmailInput.value = "";
+      refs.settingsRecipientPhoneInput.value = "";
       render();
       refs.settingsRecipientNameInput.focus();
       showToast("Recipient added.");
@@ -4700,7 +5032,6 @@
 
     function getMissingSenderOperatorFields() {
       return [
-        !state.activeSender ? "sender" : "",
         !state.activeOperator ? "operator" : ""
       ].filter(Boolean);
     }
@@ -4779,20 +5110,43 @@
       requiredHighlightActive = false;
       currentView = "report";
       render();
-      if (pendingCloseoutAction === "email") sendEmailNotes();
+      if (pendingCloseoutAction === "email") sendTextNotes();
       return true;
     }
 
-    function sendEmailNotes() {
-      const recipients = state.recipients.map((recipient) => recipient.email).join(",");
-      const subject = `Truck Notes - ${formatDate(state.shiftDate)}`;
+    async function sendTextNotes() {
+      const recipients = normalizeRecipients(state.recipients).filter((recipient) => recipient.phone);
+      if (!recipients.length) {
+        showToast("Add recipient phone numbers before texting.");
+        return;
+      }
       const body = refs.reportPreview.value || buildReport();
-      window.location.href = `mailto:${recipients}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      refs.emailReportButton.disabled = true;
+      refs.emailReportButton.setAttribute("aria-busy", "true");
+      try {
+        const response = await fetch("/.netlify/functions/send-notes-sms", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            to: recipients.map((recipient) => recipient.phone),
+            body
+          })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || "Text send failed");
+        showToast(`Text sent to ${result.sent || recipients.length} recipient${(result.sent || recipients.length) === 1 ? "" : "s"}.`);
+      } catch (error) {
+        console.error(error);
+        showToast("Text failed. Check Twilio setup.");
+      } finally {
+        refs.emailReportButton.disabled = false;
+        refs.emailReportButton.removeAttribute("aria-busy");
+      }
     }
 
     function emailNotes() {
       if (!ensureNotesReady("email")) return;
-      sendEmailNotes();
+      sendTextNotes();
     }
 
     function requireRequiredFields() {
@@ -5165,11 +5519,6 @@
       render();
     });
 
-    refs.senderSelect.addEventListener("change", () => {
-      state.activeSender = refs.senderSelect.value;
-      render();
-    });
-
     refs.operatorSelect.addEventListener("change", () => {
       state.activeOperator = refs.operatorSelect.value;
       render();
@@ -5529,7 +5878,7 @@
 
     refs.settingsRecipientForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      addRecipient(refs.settingsRecipientNameInput.value, refs.settingsRecipientEmailInput.value);
+      addRecipient(refs.settingsRecipientNameInput.value, refs.settingsRecipientEmailInput.value, refs.settingsRecipientPhoneInput.value);
     });
 
     refs.settingsRecipientList.addEventListener("click", (event) => {
@@ -5556,6 +5905,18 @@
       state.themePreferenceSet = true;
       render();
     });
+
+    refs.signOutButton.addEventListener("click", signOut);
+
+    refs.authNameSelect.addEventListener("change", () => {
+      syncAuthEmailForSelectedName(true);
+    });
+
+    refs.authForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      requestMagicLink(refs.authNameSelect.value);
+    });
+
     refs.noteInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -5658,6 +6019,7 @@
     runLaunchSplash();
 
     resetViewAfterAppUpdate();
+    handleMagicLinkFromUrl();
     render();
 
     const isLocalPreview = location.hostname === "localhost" || location.hostname === "127.0.0.1";

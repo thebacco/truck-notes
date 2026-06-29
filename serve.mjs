@@ -19,7 +19,7 @@ const contentTypes = {
 };
 
 const reloadClients = new Set();
-const reloadExtensions = new Set([".html", ".js", ".css", ".svg", ".png", ".webmanifest"]);
+const reloadExtensions = new Set([".html", ".js", ".mjs", ".css", ".svg", ".png", ".webmanifest"]);
 let reloadTimer = null;
 
 function broadcastReload() {
@@ -55,6 +55,23 @@ async function getGitCommit() {
   } catch {
     return "unknown";
   }
+}
+
+async function readRequestBody(request) {
+  const chunks = [];
+  for await (const chunk of request) chunks.push(chunk);
+  return Buffer.concat(chunks).toString("utf8");
+}
+
+async function runLocalFunction(functionName, request) {
+  const functionUrl = new URL(`./netlify/functions/${functionName}.mjs`, import.meta.url);
+  const { handler } = await import(`${functionUrl.href}?t=${Date.now()}`);
+  return handler({
+    httpMethod: request.method,
+    headers: request.headers,
+    body: await readRequestBody(request),
+    isBase64Encoded: false
+  });
 }
 
 async function watchForReloads() {
@@ -106,6 +123,14 @@ const server = createServer(async (request, response) => {
         host: displayHost,
         port
       }, null, 2));
+      return;
+    }
+
+    if (url.pathname.startsWith("/.netlify/functions/")) {
+      const functionName = url.pathname.split("/").pop();
+      const functionResponse = await runLocalFunction(functionName, request);
+      response.writeHead(functionResponse.statusCode || 200, functionResponse.headers || {});
+      response.end(functionResponse.body || "");
       return;
     }
 

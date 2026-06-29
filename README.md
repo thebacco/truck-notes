@@ -42,7 +42,52 @@ You can override the port when needed:
 $env:PORT=8020; npm run dev
 ```
 
-The fixed recipient list lives in `RECIPIENTS` inside `index.html`.
+The default recipient list lives in `DEFAULT_RECIPIENTS` inside `index.html`. Recipients can include email and phone. SMS sends only to recipients with phone numbers.
+
+## Twilio SMS
+
+The `Text Notes` action posts to the Netlify function at:
+
+```text
+/.netlify/functions/send-notes-sms
+```
+
+Set these environment variables in Netlify before using live SMS:
+
+```text
+TWILIO_ACCOUNT_SID
+TWILIO_AUTH_TOKEN
+TWILIO_FROM_NUMBER
+```
+
+Do not put Twilio credentials in `index.html`; the browser should only call the serverless function.
+
+## Resend Magic Link Auth
+
+The sign-in screen posts to:
+
+```text
+/.netlify/functions/request-magic-link
+```
+
+The magic link returns to the app with a short-lived token, then the app verifies it at:
+
+```text
+/.netlify/functions/verify-magic-link
+```
+
+Set these environment variables in Netlify:
+
+```text
+RESEND_API_KEY
+RESEND_FROM_EMAIL
+AUTH_SECRET
+AUTH_ALLOWED_EMAILS
+```
+
+`RESEND_API_KEY` is required. `RESEND_FROM_EMAIL` should be a sender on the verified Resend domain. `AUTH_SECRET` is strongly recommended; if it is missing, the function falls back to `RESEND_API_KEY` for token signing. `AUTH_ALLOWED_EMAILS` is optional and can be a comma-separated allowlist.
+
+Users select their name from the app's known names list, confirm the paired email, and request a magic link. Magic links expire after 15 minutes. Once verified, the local app session does not expire; the user stays signed in until they use Sign out or clear app/browser storage. The signed-in identity supplies the Sender value, so users only choose Operator during a shift.
 
 ## Design standards
 
