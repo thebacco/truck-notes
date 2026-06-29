@@ -16,7 +16,12 @@ export function normalizeEmail(value = "") {
 
 export function getRequestOrigin(event) {
   const headers = event.headers || {};
-  return headers.origin || headers.Origin || process.env.URL || process.env.DEPLOY_PRIME_URL || "http://localhost:8010";
+  const configuredUrl = process.env.AUTH_APP_URL || process.env.PUBLIC_APP_URL || process.env.URL || process.env.DEPLOY_PRIME_URL || "";
+  const requestOrigin = headers.origin || headers.Origin || "";
+
+  if (configuredUrl) return configuredUrl;
+  if (requestOrigin && !/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::|\/|$)/i.test(requestOrigin)) return requestOrigin;
+  return "https://truck-notes.netlify.app";
 }
 
 export function authSecret() {
