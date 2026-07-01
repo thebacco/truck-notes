@@ -2335,6 +2335,11 @@
         #312b23;
     }
 
+    body.theme-dark .sender-row select.is-empty,
+    body.theme-dark .sender-row select option[value=""] {
+      color: rgba(243, 238, 228, .54);
+    }
+
     body.theme-dark .metric,
     body.theme-dark .work-nav,
     body.theme-dark .staff-panel,
@@ -4226,7 +4231,7 @@
 
     function animateItemRowsFrom(type, previousRects, promotedId = "") {
       const config = getItemConfig(type);
-      animateRowsFrom(Array.from(config.list.querySelectorAll("[data-item-row]")), previousRects, promotedId, "itemRow", type === "supplies" ? .9 : 1);
+      animateRowsFrom(Array.from(config.list.querySelectorAll("[data-item-row]")), previousRects, promotedId, "itemRow", type === "supplies" ? .79 : 1);
     }
 
     function animateSettingsRowsFrom(type, previousRects, promotedId = "") {
