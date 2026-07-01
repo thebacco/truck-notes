@@ -1169,7 +1169,7 @@
       min-width: 0;
       color: var(--ink-84);
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 500;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1234,11 +1234,11 @@
     }
 
     .supply-needed.need-feedback {
-      animation: neededButtonPop .26s cubic-bezier(.2, .9, .28, 1.35);
+      animation: neededButtonPop .234s cubic-bezier(.2, .9, .28, 1.35);
     }
 
     .supply-row.need-feedback {
-      animation: neededRowPulse .42s ease-out;
+      animation: neededRowPulse .378s ease-out;
     }
 
     @keyframes neededButtonPop {
@@ -3230,6 +3230,8 @@
 
     const storageKey = "truckNotes:v1";
     const authSessionKey = "truckNotesAuthSession";
+    const authBypassForTesting = true;
+    const authBypassUserName = "Matt";
     const installPromptSeenKey = "truckNotesInstallPromptSeen";
     const lastSeenAppVersionKey = "truckNotesLastSeenAppVersion";
     const splashSeenVersionKey = "truckNotesSplashSeenVersion";
@@ -3535,6 +3537,7 @@
     }
 
     function loadAuthSession() {
+      if (authBypassForTesting) return testingAuthSession();
       try {
         const session = JSON.parse(localStorage.getItem(authSessionKey) || "null");
         if (!session || !session.email) return null;
@@ -3550,6 +3553,7 @@
     }
 
     function clearAuthSession() {
+      if (authBypassForTesting) return;
       localStorage.removeItem(authSessionKey);
     }
 
@@ -3557,8 +3561,20 @@
       return loadAuthSession();
     }
 
+    function testingAuthSession() {
+      const bypassName = authBypassUserName.toLowerCase();
+      const user = normalizeRecipients(state.recipients).find((recipient) => recipient.name.toLowerCase() === bypassName)
+        || DEFAULT_RECIPIENTS.find((recipient) => recipient.name.toLowerCase() === bypassName)
+        || { name: authBypassUserName, email: "matt@truck-notes.local" };
+      return {
+        email: user.email || "matt@truck-notes.local",
+        name: user.name || authBypassUserName,
+        token: "testing-auth-bypass"
+      };
+    }
+
     function ensureLocalPreviewAuthSession() {
-      if (!isLocalPreviewHost) return;
+      if (authBypassForTesting || !isLocalPreviewHost) return;
       if (getAuthSession()) return;
       const previewUser = normalizeRecipients(state.recipients).find((recipient) => recipient.name.toLowerCase() === "matt")
         || normalizeRecipients(state.recipients)[0]
@@ -3630,7 +3646,7 @@
       const session = getAuthSession();
       const isSignedIn = Boolean(session);
       refs.authScreen.classList.toggle("hidden", isSignedIn);
-      refs.signOutButton.classList.toggle("hidden", !isSignedIn);
+      refs.signOutButton.classList.toggle("hidden", !isSignedIn || authBypassForTesting);
       refs.signedInLabel.textContent = "Sign out";
       if (!isSignedIn) {
         const selectedName = refs.authNameSelect.value;
@@ -4173,7 +4189,7 @@
         .map((row) => [row.dataset.settingsItemRow, row.getBoundingClientRect()]));
     }
 
-    function animateRowsFrom(rows, previousRects, promotedId = "", keyAttribute = "itemRow") {
+    function animateRowsFrom(rows, previousRects, promotedId = "", keyAttribute = "itemRow", durationScale = 1) {
       rows.forEach((row) => {
         const rowId = row.dataset[keyAttribute];
         const previous = previousRects.get(rowId);
@@ -4185,7 +4201,8 @@
 
         const distance = Math.abs(deltaY);
         const isPromoted = rowId === promotedId;
-        const duration = Math.round(Math.max(360, 330 + distance * (isPromoted ? .72 : .38)));
+        const baseDuration = Math.max(360, 330 + distance * (isPromoted ? .72 : .38));
+        const duration = Math.round(baseDuration * durationScale);
         row.style.transition = "none";
         row.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
         row.style.zIndex = isPromoted ? "2" : "1";
@@ -4209,7 +4226,7 @@
 
     function animateItemRowsFrom(type, previousRects, promotedId = "") {
       const config = getItemConfig(type);
-      animateRowsFrom(Array.from(config.list.querySelectorAll("[data-item-row]")), previousRects, promotedId, "itemRow");
+      animateRowsFrom(Array.from(config.list.querySelectorAll("[data-item-row]")), previousRects, promotedId, "itemRow", type === "supplies" ? .9 : 1);
     }
 
     function animateSettingsRowsFrom(type, previousRects, promotedId = "") {
@@ -5766,7 +5783,7 @@
         renderSupplies();
         if (previousRects) requestAnimationFrame(() => animateItemRowsFrom("supplies", previousRects, id));
         renderReport();
-      }, willNeed ? 120 : 130);
+      }, willNeed ? 108 : 130);
     });
 
     refs.inventoryItemInput.addEventListener("input", () => {
