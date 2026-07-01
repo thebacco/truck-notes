@@ -3618,7 +3618,7 @@
       const isSignedIn = Boolean(session);
       refs.authScreen.classList.toggle("hidden", isSignedIn);
       refs.signOutButton.classList.toggle("hidden", !isSignedIn);
-      refs.signedInLabel.textContent = session?.email ? `Sign out ${session.email}` : "Sign out";
+      refs.signedInLabel.textContent = "Sign out";
       if (!isSignedIn) {
         const selectedName = refs.authNameSelect.value;
         const options = loginNameOptions();
