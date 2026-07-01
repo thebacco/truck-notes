@@ -3544,6 +3544,19 @@
       return loadAuthSession();
     }
 
+    function ensureLocalPreviewAuthSession() {
+      if (!isLocalPreviewHost) return;
+      if (getAuthSession()) return;
+      const previewUser = normalizeRecipients(state.recipients).find((recipient) => recipient.name.toLowerCase() === "matt")
+        || normalizeRecipients(state.recipients)[0]
+        || { name: "Preview", email: "preview@truck-notes.local" };
+      saveAuthSession({
+        email: previewUser.email || "preview@truck-notes.local",
+        name: previewUser.name || "Preview",
+        token: "local-preview-session"
+      });
+    }
+
     function matchingRecipientForAuth(session = getAuthSession()) {
       if (!session?.email) return null;
       const authEmail = session.email.toLowerCase();
@@ -6019,6 +6032,7 @@
     runLaunchSplash();
 
     resetViewAfterAppUpdate();
+    ensureLocalPreviewAuthSession();
     handleMagicLinkFromUrl();
     render();
 
