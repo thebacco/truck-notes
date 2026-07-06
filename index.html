@@ -1089,6 +1089,17 @@
       box-shadow: 0 10px 28px rgba(22, 22, 22, .06);
     }
 
+    .fixed-list-panel {
+      height: var(--work-section-min-height, auto);
+      min-height: 0;
+      grid-template-rows: auto auto auto auto minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    #inventorySection .fixed-list-panel {
+      grid-template-rows: auto auto auto auto auto minmax(0, 1fr);
+    }
+
     .inventory-mode {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1155,10 +1166,10 @@
       display: grid;
       align-content: start;
       gap: 7px;
-      max-height: min(430px, calc(100dvh - 350px));
-      min-height: 180px;
-      padding-bottom: calc(112px + env(safe-area-inset-bottom));
-      scroll-padding-bottom: calc(112px + env(safe-area-inset-bottom));
+      max-height: none;
+      min-height: 0;
+      padding-bottom: 16px;
+      scroll-padding-bottom: 16px;
       box-sizing: border-box;
       overflow-y: auto;
       overscroll-behavior-y: contain;
@@ -2997,7 +3008,7 @@
               </section>
             </section>
             <section class="work-section hidden" id="suppliesSection" data-work-panel="supplies" role="tabpanel" aria-labelledby="workTabSupplies">
-              <section class="item-panel section" aria-labelledby="suppliesTitle">
+              <section class="item-panel fixed-list-panel section" aria-labelledby="suppliesTitle">
                 <p class="section-title with-icon" id="suppliesTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14"></path><path d="M7 7l1 12h8l1-12"></path><path d="M9 4h6l1 3H8z"></path><path d="M10 11h4"></path><path d="M10 15h4"></path></svg>Supplies</p>
                 <form class="item-search" id="suppliesForm" autocomplete="off">
                   <input id="suppliesItemInput" type="text" autocomplete="off" placeholder="Search or add supply">
@@ -3013,7 +3024,7 @@
             </section>
 
             <section class="work-section hidden" id="inventorySection" data-work-panel="inventory" role="tabpanel" aria-labelledby="workTabInventory">
-              <section class="inventory-panel item-panel section" aria-labelledby="inventoryTitle">
+              <section class="inventory-panel item-panel fixed-list-panel section" aria-labelledby="inventoryTitle">
                 <p class="section-title with-icon" id="inventoryTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M6 7v12h12V7"></path><path d="M9 11h6"></path><path d="M9 15h6"></path><path d="M8 4h8l1 3H7z"></path></svg>Inventory</p>
                 <div class="inventory-mode" id="inventoryModeGroup" role="group" aria-label="Inventory type">
                   <button type="button" data-inventory-mode="public">Public vending</button>
@@ -4617,7 +4628,9 @@
     function updateWorkSectionHeight() {
       const activePanel = refs.workPanels.find((panel) => panel.dataset.workPanel === activeWorkSection);
       if (!activePanel) return;
-      const sectionHeight = Math.max(activePanel.offsetHeight, getMinimumWorkSectionHeight());
+      const minSectionHeight = getMinimumWorkSectionHeight();
+      refs.workSections.style.setProperty("--work-section-min-height", `${minSectionHeight}px`);
+      const sectionHeight = Math.max(activePanel.offsetHeight, minSectionHeight);
       refs.workSections.style.height = `${sectionHeight}px`;
     }
     function renderWorkSections() {
@@ -5446,6 +5459,7 @@
 
     refs.appMain.addEventListener("touchstart", (event) => {
       if (currentView !== "notes" || event.touches.length !== 1) return;
+      if (activeWorkSection === "supplies" || activeWorkSection === "inventory") return;
       if (isNestedVerticalScrollTarget(event.target)) return;
       const touch = event.touches[0];
       mainBounceStart = {
