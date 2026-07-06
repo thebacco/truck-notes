@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-06-29-login-confirm-copy">
+  <meta name="app-version" content="2026-07-06-footer-refresh">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -2195,7 +2195,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      padding: 12px 18px calc(10px + env(safe-area-inset-bottom));
+      padding: 10px 20px max(8px, calc(env(safe-area-inset-bottom) - 16px));
       border-top: 1px solid rgba(222, 216, 204, .72);
       background: var(--panel);
       box-shadow: 0 -14px 24px rgba(22, 22, 22, .08);
@@ -3260,6 +3260,7 @@
     const authBypassUserName = "Matt";
     const installPromptSeenKey = "truckNotesInstallPromptSeen";
     const lastSeenAppVersionKey = "truckNotesLastSeenAppVersion";
+    const lastSeenDeployTagKey = "truckNotesLastSeenDeployTag";
     const splashSeenVersionKey = "truckNotesSplashSeenVersion";
     const updateCheckIntervalMs = 30 * 60 * 1000;
     const appVersion = document.querySelector('meta[name="app-version"]')?.content || "";
@@ -5358,8 +5359,17 @@
         const response = await fetch(new URL("index.html", location.href), { cache: "no-store" });
         const html = await response.text();
         const latestVersion = html.match(/<meta\s+name=["']app-version["']\s+content=["']([^"']+)["']/i)?.[1];
+        const latestDeployTag = response.headers.get("etag") || response.headers.get("last-modified") || latestVersion || "";
+        const lastSeenDeployTag = localStorage.getItem(lastSeenDeployTagKey);
+        if (latestDeployTag && lastSeenDeployTag && latestDeployTag !== lastSeenDeployTag) {
+          localStorage.setItem(lastSeenDeployTagKey, latestDeployTag);
+          localStorage.setItem(lastSeenAppVersionKey, latestVersion || appVersion);
+          location.reload();
+          return;
+        }
+        if (latestDeployTag) localStorage.setItem(lastSeenDeployTagKey, latestDeployTag);
         if (latestVersion && latestVersion !== appVersion) {
-          localStorage.setItem(lastSeenAppVersionKey, appVersion);
+          localStorage.setItem(lastSeenAppVersionKey, latestVersion);
           location.reload();
         }
       } catch {}
@@ -5378,6 +5388,7 @@
       if (!appVersion) return;
       const lastSeenAppVersion = localStorage.getItem(lastSeenAppVersionKey);
       localStorage.setItem(lastSeenAppVersionKey, appVersion);
+      if (!localStorage.getItem(lastSeenDeployTagKey)) localStorage.setItem(lastSeenDeployTagKey, appVersion);
       if (!lastSeenAppVersion || lastSeenAppVersion === appVersion) return;
       currentView = "notes";
       activeWorkSection = "notes";
