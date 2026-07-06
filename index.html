@@ -644,15 +644,9 @@
       flex-direction: column;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      transition: transform .22s cubic-bezier(.2, .82, .18, 1);
-      will-change: transform;
       padding: 0 16px calc(132px + env(safe-area-inset-bottom));
       scrollbar-width: none;
       -ms-overflow-style: none;
-    }
-
-    main.rubber-banding {
-      transition: none;
     }
 
     main::-webkit-scrollbar {
@@ -756,11 +750,18 @@
     .work-sections {
       overflow: hidden;
       touch-action: pan-y;
-      transition: height .18s ease;
+      transition:
+        height .18s ease,
+        transform .34s cubic-bezier(.22, 1, .36, 1);
+      will-change: height, transform;
     }
 
     .work-sections.dragging {
       touch-action: none;
+    }
+
+    .work-sections.rubber-banding {
+      transition: height .18s ease;
     }
 
     .work-track {
@@ -2194,7 +2195,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      padding: 13px 16px calc(24px + env(safe-area-inset-bottom));
+      padding: 12px 18px calc(10px + env(safe-area-inset-bottom));
       border-top: 1px solid rgba(222, 216, 204, .72);
       background: var(--panel);
       box-shadow: 0 -14px 24px rgba(22, 22, 22, .08);
@@ -4581,9 +4582,9 @@
     }
 
     function resetMainRubberBand() {
-      if (!refs.appMain) return;
-      refs.appMain.classList.remove("rubber-banding");
-      refs.appMain.style.transform = "";
+      if (!refs.workSections) return;
+      refs.workSections.classList.remove("rubber-banding");
+      refs.workSections.style.transform = "";
     }
 
     function setWorkSwipeDuration(ms) {
@@ -5447,13 +5448,13 @@
       if (!mainBounceStart.dragging) {
         if (Math.abs(deltaY) < 10 || Math.abs(deltaY) < Math.abs(deltaX) * 1.35) return;
         mainBounceStart.dragging = true;
-        refs.appMain.classList.add("rubber-banding");
+        refs.workSections.classList.add("rubber-banding");
       }
 
       event.preventDefault();
-      const height = refs.appMain.clientHeight || 1;
-      const offset = Math.max(-28, Math.min(28, rubberBandOffset(deltaY, height) * .38));
-      refs.appMain.style.transform = `translateY(${offset}px)`;
+      const height = refs.workSections.clientHeight || refs.appMain.clientHeight || 1;
+      const offset = Math.max(-38, Math.min(38, rubberBandOffset(deltaY, height) * .52));
+      refs.workSections.style.transform = `translateY(${offset}px)`;
     }, { passive: false });
 
     refs.appMain.addEventListener("touchend", () => {
