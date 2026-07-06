@@ -1157,8 +1157,8 @@
       gap: 7px;
       max-height: min(430px, calc(100dvh - 350px));
       min-height: 180px;
-      padding-bottom: calc(176px + env(safe-area-inset-bottom));
-      scroll-padding-bottom: calc(176px + env(safe-area-inset-bottom));
+      padding-bottom: calc(112px + env(safe-area-inset-bottom));
+      scroll-padding-bottom: calc(112px + env(safe-area-inset-bottom));
       box-sizing: border-box;
       overflow-y: auto;
       overscroll-behavior-y: contain;
@@ -4588,6 +4588,10 @@
       refs.workSections.style.transform = "";
     }
 
+    function isNestedVerticalScrollTarget(target) {
+      return Boolean(target?.closest?.(".inventory-list, .supply-list, .staff-transfer-list, .settings-list.scroll-list, .item-search-results"));
+    }
+
     function setWorkSwipeDuration(ms) {
       refs.workTrack.style.setProperty("--work-swipe-duration", `${ms}ms`);
     }
@@ -5442,6 +5446,7 @@
 
     refs.appMain.addEventListener("touchstart", (event) => {
       if (currentView !== "notes" || event.touches.length !== 1) return;
+      if (isNestedVerticalScrollTarget(event.target)) return;
       const touch = event.touches[0];
       mainBounceStart = {
         x: touch.clientX,
@@ -5485,6 +5490,7 @@
       workSwipeStart = {
         x: touch.clientX,
         y: touch.clientY,
+        startedInScrollList: isNestedVerticalScrollTarget(event.target),
         startedAt: now,
         lastX: touch.clientX,
         lastAt: now,
@@ -5506,7 +5512,13 @@
       workSwipeStart.lastAt = now;
 
       if (!workSwipeStart.dragging) {
-        if (Math.abs(deltaX) < 10 || Math.abs(deltaX) < Math.abs(deltaY) * 1.1) return;
+        if (Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(deltaX) * 1.15) {
+          workSwipeStart = null;
+          return;
+        }
+        const requiredAxisRatio = workSwipeStart.startedInScrollList ? 1.8 : 1.45;
+        const requiredDistance = workSwipeStart.startedInScrollList ? 18 : 12;
+        if (Math.abs(deltaX) < requiredDistance || Math.abs(deltaX) < Math.abs(deltaY) * requiredAxisRatio) return;
         workSwipeStart.dragging = true;
         setWorkSwipeDuration(280);
         refs.workSections.classList.add("dragging");
