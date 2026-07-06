@@ -644,9 +644,15 @@
       flex-direction: column;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      transition: transform .22s cubic-bezier(.2, .82, .18, 1);
+      will-change: transform;
       padding: 0 16px calc(132px + env(safe-area-inset-bottom));
       scrollbar-width: none;
       -ms-overflow-style: none;
+    }
+
+    main.rubber-banding {
+      transition: none;
     }
 
     main::-webkit-scrollbar {
@@ -3332,6 +3338,7 @@
     let pendingCloseoutAction = "review";
     let workSwipeStart = null;
     let settingsSwipeStart = null;
+    let mainBounceStart = null;
     let settingsDismissTimer = null;
     let settingsReturnView = "notes";
     let settingsReturnSection = "notes";
@@ -4568,6 +4575,17 @@
       return sign * ((distance * dimension * constant) / (dimension + constant * distance));
     }
 
+    function hasMeaningfulMainScroll() {
+      if (!refs.appMain) return false;
+      return refs.appMain.scrollHeight - refs.appMain.clientHeight > 24;
+    }
+
+    function resetMainRubberBand() {
+      if (!refs.appMain) return;
+      refs.appMain.classList.remove("rubber-banding");
+      refs.appMain.style.transform = "";
+    }
+
     function setWorkSwipeDuration(ms) {
       refs.workTrack.style.setProperty("--work-swipe-duration", `${ms}ms`);
     }
@@ -5409,6 +5427,45 @@
       moveWorkSection(event.key === "ArrowRight" ? 1 : -1);
       refs.workTabButtons.find((button) => button.dataset.workSection === activeWorkSection)?.focus();
     });
+
+    refs.appMain.addEventListener("touchstart", (event) => {
+      if (currentView !== "notes" || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      mainBounceStart = {
+        x: touch.clientX,
+        y: touch.clientY,
+        dragging: false
+      };
+    }, { passive: true });
+
+    refs.appMain.addEventListener("touchmove", (event) => {
+      if (!mainBounceStart || currentView !== "notes") return;
+      if (hasMeaningfulMainScroll()) return;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - mainBounceStart.x;
+      const deltaY = touch.clientY - mainBounceStart.y;
+      if (!mainBounceStart.dragging) {
+        if (Math.abs(deltaY) < 10 || Math.abs(deltaY) < Math.abs(deltaX) * 1.35) return;
+        mainBounceStart.dragging = true;
+        refs.appMain.classList.add("rubber-banding");
+      }
+
+      event.preventDefault();
+      const height = refs.appMain.clientHeight || 1;
+      const offset = Math.max(-28, Math.min(28, rubberBandOffset(deltaY, height) * .38));
+      refs.appMain.style.transform = `translateY(${offset}px)`;
+    }, { passive: false });
+
+    refs.appMain.addEventListener("touchend", () => {
+      if (!mainBounceStart) return;
+      mainBounceStart = null;
+      resetMainRubberBand();
+    }, { passive: true });
+
+    refs.appMain.addEventListener("touchcancel", () => {
+      mainBounceStart = null;
+      resetMainRubberBand();
+    }, { passive: true });
 
     refs.workSections.addEventListener("touchstart", (event) => {
       const touch = event.touches[0];
