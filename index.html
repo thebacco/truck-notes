@@ -692,6 +692,10 @@
       height: 6px;
     }
 
+    main.fixed-work-panel .work-section {
+      min-height: 0;
+    }
+
     .work-tabs {
       display: flex;
       flex-wrap: nowrap;
@@ -792,6 +796,7 @@
 
     .work-section {
       width: 100%;
+      min-height: var(--work-section-min-height, auto);
       min-width: 100%;
       flex: 0 0 100%;
     }
@@ -5501,10 +5506,12 @@
 
     refs.appMain.addEventListener("touchmove", (event) => {
       if (!mainBounceStart || currentView !== "notes") return;
-      if (hasMeaningfulMainScroll()) return;
       const touch = event.touches[0];
       const deltaX = touch.clientX - mainBounceStart.x;
       const deltaY = touch.clientY - mainBounceStart.y;
+      const canMainScroll = hasMeaningfulMainScroll();
+      const isTopPull = canMainScroll && refs.appMain.scrollTop <= 1 && deltaY > 0;
+      if (canMainScroll && !isTopPull) return;
       if (!mainBounceStart.dragging) {
         if (Math.abs(deltaY) < 10 || Math.abs(deltaY) < Math.abs(deltaX) * 1.35) return;
         mainBounceStart.dragging = true;
