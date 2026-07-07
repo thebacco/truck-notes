@@ -649,6 +649,11 @@
       -ms-overflow-style: none;
     }
 
+    main.fixed-work-panel {
+      overflow: hidden;
+      padding-bottom: 0;
+    }
+
     main::-webkit-scrollbar {
       width: 0;
       height: 0;
@@ -676,6 +681,15 @@
       height: 18px;
       pointer-events: none;
       background: linear-gradient(180deg, rgba(255, 253, 248, .94), rgba(255, 253, 248, 0));
+    }
+
+    main.fixed-work-panel .work-nav {
+      margin-bottom: 3px;
+    }
+
+    main.fixed-work-panel .work-nav::after {
+      bottom: -6px;
+      height: 6px;
     }
 
     .work-tabs {
@@ -1090,7 +1104,10 @@
     }
 
     .fixed-list-panel {
-      height: var(--work-section-min-height, auto);
+      margin-top: 8px;
+      box-sizing: border-box;
+      padding-bottom: 0;
+      height: calc(var(--work-section-min-height, 500px) - 8px);
       min-height: 0;
       grid-template-rows: auto auto auto auto minmax(0, 1fr);
       overflow: hidden;
@@ -1163,9 +1180,11 @@
 
     .inventory-list,
     .supply-list {
+      --scroll-mask-depth: 21px;
       display: grid;
       align-content: start;
       gap: 7px;
+      margin-bottom: 4px;
       max-height: none;
       min-height: 0;
       padding-bottom: 16px;
@@ -1193,6 +1212,10 @@
       padding: 7px 8px;
       border-radius: 8px;
       background: var(--wash);
+    }
+
+    .supply-row {
+      background: #f6f2eb;
     }
 
     .inventory-name,
@@ -2209,7 +2232,7 @@
       padding: 10px 20px max(8px, calc(env(safe-area-inset-bottom) - 16px));
       border-top: 1px solid rgba(222, 216, 204, .72);
       background: var(--panel);
-      box-shadow: 0 -14px 24px rgba(22, 22, 22, .08);
+      box-shadow: none;
     }
 
     .view {
@@ -2449,7 +2472,8 @@
     body.theme-dark .decision-row,
     body.theme-dark .recipient-row,
     body.theme-dark .settings-row,
-    body.theme-dark .settings-toggle-row {
+    body.theme-dark .settings-toggle-row,
+    body.theme-dark .supply-row {
       background: var(--wash);
       color: var(--ink-84);
     }
@@ -2511,7 +2535,7 @@
     body.theme-dark .footer {
       border-top-color: rgba(243, 238, 228, .12);
       background: var(--panel);
-      box-shadow: 0 -14px 24px rgba(0, 0, 0, .3);
+      box-shadow: none;
     }
 
     body.theme-dark .scrim {
@@ -4622,7 +4646,9 @@
       const mainHeight = refs.appMain?.clientHeight || 0;
       const subnavHeight = refs.workNav?.offsetHeight || 0;
       const footerHeight = refs.footer?.offsetHeight || 0;
-      return Math.max(240, mainHeight - subnavHeight - footerHeight - 8);
+      const isFixedPanel = activeWorkSection === "supplies" || activeWorkSection === "inventory";
+      const bottomClearance = isFixedPanel ? footerHeight + 18 : footerHeight + 8;
+      return Math.max(240, mainHeight - subnavHeight - bottomClearance);
     }
 
     function updateWorkSectionHeight() {
@@ -4630,10 +4656,14 @@
       if (!activePanel) return;
       const minSectionHeight = getMinimumWorkSectionHeight();
       refs.workSections.style.setProperty("--work-section-min-height", `${minSectionHeight}px`);
-      const sectionHeight = Math.max(activePanel.offsetHeight, minSectionHeight);
+      const isFixedPanel = activeWorkSection === "supplies" || activeWorkSection === "inventory";
+      const sectionHeight = isFixedPanel ? minSectionHeight : Math.max(activePanel.offsetHeight, minSectionHeight);
       refs.workSections.style.height = `${sectionHeight}px`;
     }
     function renderWorkSections() {
+      const isFixedPanel = activeWorkSection === "supplies" || activeWorkSection === "inventory";
+      refs.appMain?.classList.toggle("fixed-work-panel", isFixedPanel);
+      if (isFixedPanel) refs.appMain?.scrollTo({ top: 0, behavior: "auto" });
       refs.workTabButtons.forEach((button) => {
         const isSelected = button.dataset.workSection === activeWorkSection;
         button.setAttribute("aria-selected", String(isSelected));
