@@ -649,11 +649,6 @@
       -ms-overflow-style: none;
     }
 
-    main.fixed-work-panel {
-      overflow: hidden;
-      padding-bottom: 0;
-    }
-
     main::-webkit-scrollbar {
       width: 0;
       height: 0;
@@ -799,6 +794,11 @@
     #notesSection,
     #closeoutSection {
       min-height: calc(var(--work-section-min-height, 510px) + 157px);
+    }
+
+    #suppliesSection,
+    #inventorySection {
+      min-height: calc(var(--work-section-min-height, 500px) + 178px);
     }
 
     .empty-panel {
@@ -4661,8 +4661,7 @@
       if (!activePanel) return;
       const minSectionHeight = getMinimumWorkSectionHeight();
       refs.workSections.style.setProperty("--work-section-min-height", `${minSectionHeight}px`);
-      const isFixedPanel = activeWorkSection === "supplies" || activeWorkSection === "inventory";
-      const sectionHeight = isFixedPanel ? minSectionHeight : Math.max(activePanel.offsetHeight, minSectionHeight);
+      const sectionHeight = Math.max(activePanel.offsetHeight, minSectionHeight);
       refs.workSections.style.height = `${sectionHeight}px`;
     }
     function renderWorkSections() {
