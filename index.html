@@ -670,6 +670,8 @@
       box-shadow:
         0 -1px 0 rgba(222, 216, 204, .62),
         0 1px 0 rgba(222, 216, 204, .58);
+      transition: transform .34s cubic-bezier(.22, 1, .36, 1);
+      will-change: transform;
     }
 
     .work-nav::after {
@@ -683,6 +685,10 @@
       background: linear-gradient(180deg, rgba(255, 253, 248, .94), rgba(255, 253, 248, 0));
     }
 
+    .work-nav.rubber-banding {
+      transition: none;
+    }
+
     main.fixed-work-panel .work-nav {
       margin-bottom: 3px;
     }
@@ -690,10 +696,6 @@
     main.fixed-work-panel .work-nav::after {
       bottom: -6px;
       height: 6px;
-    }
-
-    main.fixed-work-panel .work-section {
-      min-height: 0;
     }
 
     .work-tabs {
@@ -796,7 +798,6 @@
 
     .work-section {
       width: 100%;
-      min-height: var(--work-section-min-height, auto);
       min-width: 100%;
       flex: 0 0 100%;
     }
@@ -4624,8 +4625,16 @@
 
     function resetMainRubberBand() {
       if (!refs.workSections) return;
+      refs.workNav.classList.remove("rubber-banding");
       refs.workSections.classList.remove("rubber-banding");
+      refs.workNav.style.transform = "";
       refs.workSections.style.transform = "";
+    }
+
+    function setMainRubberBand(offset) {
+      const transform = offset ? `translateY(${offset}px)` : "";
+      refs.workNav.style.transform = transform;
+      refs.workSections.style.transform = transform;
     }
 
     function isNestedVerticalScrollTarget(target) {
@@ -5515,13 +5524,14 @@
       if (!mainBounceStart.dragging) {
         if (Math.abs(deltaY) < 10 || Math.abs(deltaY) < Math.abs(deltaX) * 1.35) return;
         mainBounceStart.dragging = true;
+        refs.workNav.classList.add("rubber-banding");
         refs.workSections.classList.add("rubber-banding");
       }
 
       event.preventDefault();
       const height = refs.workSections.clientHeight || refs.appMain.clientHeight || 1;
       const offset = Math.max(-38, Math.min(38, rubberBandOffset(deltaY, height) * .52));
-      refs.workSections.style.transform = `translateY(${offset}px)`;
+      setMainRubberBand(offset);
     }, { passive: false });
 
     refs.appMain.addEventListener("touchend", () => {
