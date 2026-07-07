@@ -1181,6 +1181,7 @@
       font-size: 13px;
       font-weight: 700;
       text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .inventory-list,
@@ -1250,9 +1251,18 @@
       margin-top: 10px;
     }
 
-    #suppliesSection .supply-list-head span:first-child {
+    #inventorySection .inventory-list-head {
+      margin-top: 10px;
+    }
+
+    #suppliesSection .supply-list-head span:first-child,
+    #inventorySection .inventory-list-head span {
       font-size: 16px;
       font-weight: 600;
+    }
+
+    #inventoryQtyLabel {
+      text-align: center;
     }
 
     .inventory-row input {
@@ -3066,7 +3076,7 @@
                 <div class="item-search-results hidden" id="inventorySearchResults"></div>
                 <div class="inventory-list-head" aria-hidden="true">
                   <span>Item</span>
-                  <span id="inventoryQtyLabel">How much returned?</span>
+                  <span id="inventoryQtyLabel">Returned</span>
                 </div>
                 <div class="inventory-list" id="inventoryList"></div>
               </section>
@@ -4383,7 +4393,7 @@
     }
 
     function inventoryQtyLabel() {
-      return state.inventoryMode === "private" ? "How much used?" : "How much returned?";
+      return state.inventoryMode === "private" ? "Usage" : "Returned";
     }
     function escapeHtml(value) {
       return String(value)
