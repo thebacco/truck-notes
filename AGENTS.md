@@ -91,6 +91,9 @@ Every Rhino PWA should include:
 
 Installed app refresh behavior matters. When committing and pushing PWA changes,
 make sure cache names or update logic allow phones to pick up the new build.
+For every production PWA commit, bump the app version marker and service worker
+cache name unless the commit is documentation-only and cannot affect runtime
+assets.
 
 ## Visual Design Defaults
 
@@ -109,11 +112,16 @@ Use the Rhino mobile staff-tool look:
 
 Typography:
 
-- Use `Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-  "Segoe UI", sans-serif`.
+- Use the app's established brand/typekit stack when present. Current Rhino
+  staff tools use Centrifuge for compact UI labels and action text, Voltage for
+  the Miss Tasty brand mark, and Univers for entered data, selected values,
+  readable field content, names, quantities, and other operational data.
 - Keep letter spacing at `0`.
 - Use compact, strong labels for staff workflows.
 - Avoid oversized marketing-style hero typography inside operational tools.
+- Treat headings/action labels differently from data labels: action and section
+  labels can carry more character; values the user must read back should be
+  quieter and more legible.
 
 Geometry:
 
@@ -123,6 +131,9 @@ Geometry:
   around 52px high.
 - Use restrained shadows. Surfaces should feel polished, not like stacked heavy
   cards.
+- For material surface experiments, preserve the established 8px geometry and
+  interaction wiring. Test softer borders, subtle layered fills, very light
+  texture, and rounded-surface-aware shadows before changing layout.
 - Avoid nested cards.
 
 ## Button And Control Defaults
@@ -203,9 +214,16 @@ For swipe or paged workflows:
 For scrollable lists:
 
 - Prefer faded edge masks as scroll affordances when scrollbars are hidden.
+- Prefer a partial-item reveal at the scroll edge when possible. Seeing a cut
+  off item is the strongest affordance that more content exists.
+- Start with native scroll plus native iOS overscroll bounce/rubber-band. Use
+  real scroll runway to let the browser provide physics before adding custom
+  transform-based fake scrolling.
 - Use `-webkit-overflow-scrolling: touch`.
 - Use `overscroll-behavior` to contain scroll where appropriate.
 - Keep list height and padding stable so dynamic content does not shift controls.
+- Avoid hard clipping at scroll boundaries unless there is no better option.
+  Use soft fades and partial-item reveal instead.
 
 ## Persistence Defaults
 
@@ -250,6 +268,11 @@ Prevent common mobile irritants where appropriate:
 - For phone-first changes, verify mobile-sized layout and touch behavior when
   possible.
 - Before commit, run `git status --short --branch` and inspect the diff.
+- Before release commits, reset or verify test-only UI state that would affect
+  field testing: Supplies need buttons cleared, Inventory entry fields cleared,
+  search fields cleared, temporary animation/promoted states cleared, and theme
+  defaults intentionally set. Do not delete saved notes or staff unless the user
+  explicitly asks.
 - Commit with a clear message and push to the tracked remote.
 
 ## Sync Protocol For This Guide
@@ -263,4 +286,3 @@ When the user gives a new PWA convention:
    - `C:\Projects\receipt-scanner\AGENTS.md`
 3. Commit and push each repo with a message describing the convention change.
 4. Confirm which repos were updated and provide the commit hash for each.
-
