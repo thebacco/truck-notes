@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-07-07-soft-material-surfaces">
+  <meta name="app-version" content="2026-08-04-rhino-professional">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -2883,6 +2883,1278 @@
       }
     }
   </style>
+  <style id="claude-skin">
+    /* ============================================================
+       CLAUDE SKIN - v4 "Rhino Professional"
+       Visual-only reskin. No layout, spacing, radius, scroll,
+       gesture, or logic changes.
+
+       Palette moved off warm cream/parchment onto the restaurant's
+       own materials, which is what makes it read as a real product
+       instead of a default template:
+         navy   #1f3f66  brand / primary action
+         silver #c7c7c2  Benjamin Moore Silver Chain - light base
+         fur    #464a4d  Benjamin Moore Raccoon Fur  - dark base
+         gold   #c9992f  accent only, never a whole button surface
+
+       Hierarchy change: navy carries the primary action, gold is
+       demoted to an accent (selected-tab underline, badges, focus).
+       Solid-gold buttons everywhere is the single biggest "cartoon"
+       tell in the current build.
+
+       Empty states are rebuilt: dashed placeholder boxes are the
+       loudest "unfinished project" signal in the app, so they become
+       real designed empty states - soft inset well, centred glyph,
+       quiet label.
+       ============================================================ */
+
+    :root {
+      --ink: #23262a;
+      --ink-93: #16191c;
+      --ink-84: #33383d;
+      --muted: #767c82;
+
+      --panel: #ffffff;
+      --wash: #eceef0;
+      --line: rgba(70, 74, 77, .16);
+
+      --surface: linear-gradient(180deg, #ffffff 0%, #fbfcfc 100%);
+      --surface-border: rgba(70, 74, 77, .09);
+      --surface-shadow:
+        0 1px 2px rgba(35, 38, 42, .05),
+        0 14px 26px -14px rgba(35, 38, 42, .3);
+
+      --navy: #1f3f66;
+      --gold: #c9992f;
+      --green: #2f6b52;
+      --accent: #a8382c;
+      --accent-ink: #ffffff;
+      --yes: #2f7d55;
+      --no: #b4413a;
+    }
+
+    body.theme-dark {
+      --ink: #e8eaeb;
+      --ink-93: #f5f6f7;
+      --ink-84: #d2d6d8;
+      --muted: #9aa1a6;
+
+      --panel: #24282b;
+      --wash: #33383b;
+      --line: rgba(232, 234, 235, .13);
+
+      --surface: linear-gradient(180deg, #2c3134 0%, #262b2e 100%);
+      --surface-border: rgba(232, 234, 235, .08);
+      --surface-shadow:
+        0 1px 2px rgba(0, 0, 0, .4),
+        0 16px 30px -14px rgba(0, 0, 0, .6);
+
+      --navy: #7ea3cc;
+      --gold: #d7ab45;
+      --green: #6fa88c;
+      --accent: #d2695e;
+      --yes: #46a173;
+      --no: #cf5a52;
+    }
+
+    /* Page ground: cool Silver Chain grey. Cards sit brighter on top,
+       which is what creates depth - not borders. */
+    .screen,
+    .auth-screen {
+      background: linear-gradient(180deg, #e4e6e6 0%, #d8dbdb 100%);
+    }
+
+    body.theme-dark .screen,
+    body.theme-dark .auth-screen {
+      background: linear-gradient(180deg, #191c1e 0%, #131517 100%);
+    }
+
+    body {
+      background: #d3d6d6;
+    }
+
+    body.theme-dark {
+      background: #101213;
+    }
+
+    /* Nav + action bars: clean white, separated by shadow not rules */
+    header {
+      background: var(--panel);
+      border-bottom-color: transparent;
+      box-shadow: 0 1px 12px -7px rgba(35, 38, 42, .5);
+    }
+
+    .footer {
+      background: var(--panel);
+      border-top-color: transparent;
+      box-shadow: 0 -8px 18px -13px rgba(35, 38, 42, .4);
+    }
+
+    body.theme-dark header {
+      box-shadow: 0 1px 14px -7px rgba(0, 0, 0, .7);
+    }
+
+    body.theme-dark .footer {
+      box-shadow: 0 -8px 20px -13px rgba(0, 0, 0, .65);
+    }
+
+    /* Brand mark reads navy, not green - ties to the actual brand */
+    .eyebrow,
+    .splash-brand strong {
+      color: var(--navy);
+    }
+
+    body.theme-dark .eyebrow,
+    body.theme-dark .splash-brand strong {
+      color: #8fb0d6;
+    }
+
+    .splash-screen {
+      background: linear-gradient(180deg, #ffffff 0%, #eceeee 100%);
+    }
+
+    body.theme-dark .splash-screen {
+      background: linear-gradient(180deg, #24282b 0%, #191c1e 100%);
+    }
+
+    /* --------------------------------------------------------
+       EMPTY STATES - the main "unfinished" fix.
+       Was: 1px dashed box with a sentence in it (reads wireframe).
+       Now: recessed well, centred glyph, quiet caption. Sized so
+       total content height stays under the existing min-height,
+       so nothing shifts.
+       -------------------------------------------------------- */
+    .empty,
+    .empty-panel {
+      border: 0;
+      border-radius: 8px;
+      background: rgba(70, 74, 77, .045);
+      box-shadow: inset 0 0 0 1px rgba(70, 74, 77, .07);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    body.theme-dark .empty,
+    body.theme-dark .empty-panel {
+      background: rgba(232, 234, 235, .04);
+      box-shadow: inset 0 0 0 1px rgba(232, 234, 235, .06);
+    }
+
+    .empty {
+      gap: 9px;
+      font-size: 14px;
+      letter-spacing: .01em;
+    }
+
+    .empty::before,
+    .empty-panel::before {
+      content: "";
+      width: 30px;
+      height: 30px;
+      display: block;
+      justify-self: center;
+      margin-inline: auto;
+      opacity: .85;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%23949a9f%27%20stroke-width%3D%271.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M6%203.5h9.5L20%208v12.5H6z%27%2F%3E%3Cpath%20d%3D%27M15.5%203.5V8H20%27%2F%3E%3Cpath%20d%3D%27M9%2012h8%27%2F%3E%3Cpath%20d%3D%27M9%2015.5h8%27%2F%3E%3Cpath%20d%3D%27M9%2019h5%27%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+    }
+
+    body.theme-dark .empty::before,
+    body.theme-dark .empty-panel::before {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%237e868c%27%20stroke-width%3D%271.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M6%203.5h9.5L20%208v12.5H6z%27%2F%3E%3Cpath%20d%3D%27M15.5%203.5V8H20%27%2F%3E%3Cpath%20d%3D%27M9%2012h8%27%2F%3E%3Cpath%20d%3D%27M9%2015.5h8%27%2F%3E%3Cpath%20d%3D%27M9%2019h5%27%2F%3E%3C%2Fsvg%3E");
+    }
+
+    #suppliesSection .empty-panel::before,
+    #inventorySection .empty-panel::before {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%23949a9f%27%20stroke-width%3D%271.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M3.5%207.5%2012%203l8.5%204.5v9L12%2021l-8.5-4.5z%27%2F%3E%3Cpath%20d%3D%27M3.5%207.5%2012%2012l8.5-4.5%27%2F%3E%3Cpath%20d%3D%27M12%2012v9%27%2F%3E%3C%2Fsvg%3E");
+    }
+
+    body.theme-dark #suppliesSection .empty-panel::before,
+    body.theme-dark #inventorySection .empty-panel::before {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%237e868c%27%20stroke-width%3D%271.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M3.5%207.5%2012%203l8.5%204.5v9L12%2021l-8.5-4.5z%27%2F%3E%3Cpath%20d%3D%27M3.5%207.5%2012%2012l8.5-4.5%27%2F%3E%3Cpath%20d%3D%27M12%2012v9%27%2F%3E%3C%2Fsvg%3E");
+    }
+
+    .empty-panel {
+      font-size: 15px;
+    }
+
+    /* --------------------------------------------------------
+       BUTTONS - navy primary, quiet neutral secondary.
+       Subtle gradient + shadow. Depth, not a bevel.
+       -------------------------------------------------------- */
+    .primary {
+      background: linear-gradient(180deg, #26496f 0%, #1c3a5e 100%);
+      color: #ffffff;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .12),
+        0 1px 2px rgba(20, 30, 45, .18),
+        0 10px 18px -9px rgba(20, 30, 45, .5);
+      transition: transform .1s ease, box-shadow .1s ease, filter .1s ease;
+    }
+
+    body.theme-dark .primary {
+      background: linear-gradient(180deg, #34618f 0%, #2a5079 100%);
+      color: #ffffff;
+    }
+
+    .secondary {
+      background: linear-gradient(180deg, #ffffff 0%, #f4f6f6 100%);
+      color: var(--ink-93);
+      box-shadow:
+        inset 0 0 0 1px rgba(70, 74, 77, .16),
+        0 1px 2px rgba(35, 38, 42, .06),
+        0 8px 16px -10px rgba(35, 38, 42, .3);
+      transition: transform .1s ease, box-shadow .1s ease, filter .1s ease;
+    }
+
+    body.theme-dark .secondary {
+      background: linear-gradient(180deg, #343a3e 0%, #2c3235 100%);
+      color: var(--ink-93);
+      box-shadow:
+        inset 0 0 0 1px rgba(232, 234, 235, .12),
+        0 1px 2px rgba(0, 0, 0, .35),
+        0 8px 18px -10px rgba(0, 0, 0, .6);
+    }
+
+    /* "Review Notes" - was a gold outline, now a quiet neutral that
+       lets Publish own the emphasis */
+    .gold-outline {
+      border-color: transparent;
+      background: linear-gradient(180deg, #ffffff 0%, #f4f6f6 100%);
+      color: var(--ink-93);
+      box-shadow:
+        inset 0 0 0 1px rgba(70, 74, 77, .16),
+        0 1px 2px rgba(35, 38, 42, .06),
+        0 8px 16px -10px rgba(35, 38, 42, .3);
+    }
+
+    body.theme-dark .gold-outline {
+      border-color: transparent;
+      background: linear-gradient(180deg, #343a3e 0%, #2c3235 100%);
+      color: var(--ink-93);
+      box-shadow:
+        inset 0 0 0 1px rgba(232, 234, 235, .12),
+        0 1px 2px rgba(0, 0, 0, .35),
+        0 8px 18px -10px rgba(0, 0, 0, .6);
+    }
+
+    .small-button {
+      background: linear-gradient(180deg, #ffffff 0%, #f2f4f5 100%);
+      color: var(--ink-84);
+      box-shadow:
+        inset 0 0 0 1px rgba(70, 74, 77, .14),
+        0 1px 3px rgba(35, 38, 42, .07);
+      transition: transform .1s ease, filter .1s ease;
+    }
+
+    body.theme-dark .small-button {
+      background: linear-gradient(180deg, #343a3e 0%, #2d3336 100%);
+      color: var(--ink-84);
+      box-shadow:
+        inset 0 0 0 1px rgba(232, 234, 235, .11),
+        0 1px 3px rgba(0, 0, 0, .4);
+    }
+
+    .danger {
+      background: transparent;
+      color: var(--accent);
+      box-shadow: inset 0 0 0 1px rgba(168, 56, 44, .3);
+      transition: transform .1s ease, filter .1s ease;
+    }
+
+    body.theme-dark .danger {
+      background: transparent;
+      box-shadow: inset 0 0 0 1px rgba(210, 105, 94, .32);
+    }
+
+    .primary:active,
+    .secondary:active,
+    .gold-outline:active,
+    .danger:active,
+    .small-button:active {
+      transform: scale(.975);
+      filter: brightness(.97);
+    }
+
+    .primary:disabled,
+    .secondary:disabled {
+      opacity: .42;
+    }
+
+    /* Icon buttons: neutral graphite, not near-black */
+    .icon-button {
+      background: #3c4247;
+      color: #ffffff;
+    }
+
+    body.theme-dark .icon-button {
+      background: #444b50;
+    }
+
+    /* Round icon chips beside section titles - same graphite family */
+    .section-title.with-icon svg,
+    .sender-title svg {
+      background: #3c4247;
+      stroke: #ffffff;
+      box-shadow: none;
+    }
+
+    body.theme-dark .section-title.with-icon svg,
+    body.theme-dark .sender-title svg {
+      background: #545c62;
+      stroke: #ffffff;
+      box-shadow: none;
+    }
+
+    /* --------------------------------------------------------
+       SUBNAV - segmented control, gold reduced to a thin active
+       underline instead of filling shapes
+       -------------------------------------------------------- */
+    /* Settings tabs stay a segmented control: fixed, small, non-scrolling
+       set - exactly what a segmented control is for. */
+    .settings-tabs {
+      background: rgba(70, 74, 77, .09);
+      box-shadow: inset 0 0 0 1px rgba(70, 74, 77, .05);
+    }
+
+    body.theme-dark .settings-tabs {
+      background: rgba(0, 0, 0, .3);
+      box-shadow: inset 0 0 0 1px rgba(232, 234, 235, .05);
+    }
+
+    .settings-tab[aria-selected="true"] {
+      background: #ffffff;
+      color: var(--ink-93);
+      box-shadow: 0 2px 8px -2px rgba(35, 38, 42, .26);
+    }
+
+    body.theme-dark .settings-tab[aria-selected="true"] {
+      background: #3a4145;
+      color: var(--ink-93);
+      box-shadow: 0 2px 8px -2px rgba(0, 0, 0, .55);
+    }
+
+    /* Work tabs are a SCROLLING nav rail, which is a different control.
+       Segmented styling on a scrolling rail is what made it blocky: every
+       tab became a competing container, and the track drew a hard box
+       across the top of the content. Now it's a text tab bar - the pattern
+       every scrolling nav uses - with weight carried by ink and a single
+       gold underline on the active tab. Nothing to peek at but type, so
+       the edge fade does the work. */
+    /* A continuous hairline runs the full width of the rail and the active
+       indicator rides ON that line. This is what makes it read as one
+       rolling strip: the line is shared by every tab, so the indicator's
+       POSITION along it tells you where you are. Isolated pills couldn't
+       say that - a pill is a selection chip, which implies a set of
+       independent on/off filters, not a place on a continuous track.
+       The line inherits the rail's edge mask, so it fades into the peek
+       instead of stopping dead. */
+    .work-tabs {
+      background: transparent;
+      box-shadow: none;
+      padding-bottom: 0;
+      border-bottom: 1px solid rgba(70, 74, 77, .16);
+    }
+
+    body.theme-dark .work-tabs {
+      border-bottom-color: rgba(232, 234, 235, .14);
+    }
+
+    .work-tab {
+      color: #7c8288;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .work-tab[aria-selected="true"] {
+      position: relative;
+      background: transparent;
+      color: var(--ink-93);
+      box-shadow: none;
+    }
+
+    /* Gold earns its keep here: it's the one accent on the screen, and
+       putting it on the nav indicator keeps it distinct from navy, which
+       means "action" (Publish). Nav is not an action. */
+    .work-tab[aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 0;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--gold);
+      pointer-events: none;
+    }
+
+    body.theme-dark .work-tab {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    body.theme-dark .work-tab[aria-selected="true"] {
+      background: transparent;
+      color: var(--ink-93);
+      box-shadow: none;
+    }
+
+
+
+    /* Count chips: neutral, not solid gold dots */
+    .tab-badge {
+      background: rgba(70, 74, 77, .13);
+      color: #5f666c;
+      font-weight: 700;
+    }
+
+    body.theme-dark .tab-badge {
+      background: rgba(232, 234, 235, .14);
+      color: var(--ink-84);
+    }
+
+    .work-tab[aria-selected="true"] .tab-badge {
+      background: rgba(70, 74, 77, .2);
+      color: var(--ink-93);
+    }
+
+    body.theme-dark .work-tab[aria-selected="true"] .tab-badge {
+      background: rgba(232, 234, 235, .2);
+      color: var(--ink-93);
+    }
+
+    /* --------------------------------------------------------
+       SURFACES / OVERLAYS
+       -------------------------------------------------------- */
+    .header-menu {
+      border-color: rgba(70, 74, 77, .1);
+      background: rgba(255, 255, 255, .84);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      backdrop-filter: saturate(180%) blur(20px);
+      box-shadow: 0 14px 32px rgba(35, 38, 42, .2);
+    }
+
+    body.theme-dark .header-menu {
+      border-color: rgba(232, 234, 235, .09);
+      background: rgba(36, 40, 43, .84);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, .55);
+    }
+
+    .header-menu-row + .header-menu-row {
+      border-top-color: rgba(70, 74, 77, .12);
+    }
+
+    body.theme-dark .header-menu-row + .header-menu-row {
+      border-top-color: rgba(232, 234, 235, .08);
+    }
+
+    .header-menu-row[aria-pressed="true"] .menu-toggle {
+      background: var(--navy);
+    }
+
+    .dialog {
+      background: rgba(255, 255, 255, .9);
+      -webkit-backdrop-filter: saturate(180%) blur(24px);
+      backdrop-filter: saturate(180%) blur(24px);
+      box-shadow: 0 22px 48px -10px rgba(35, 38, 42, .34);
+    }
+
+    body.theme-dark .dialog {
+      background: rgba(36, 40, 43, .9);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, .62);
+    }
+
+    .toast {
+      border-color: rgba(255, 255, 255, .1);
+      background: rgba(30, 34, 37, .84);
+      -webkit-backdrop-filter: saturate(180%) blur(16px);
+      backdrop-filter: saturate(180%) blur(16px);
+      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, .42);
+    }
+
+    .auth-card {
+      border-color: var(--surface-border);
+      background: var(--surface);
+      box-shadow: var(--surface-shadow);
+    }
+
+    /* Focus ring picks up brand navy */
+    input[type="date"]:focus,
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: rgba(31, 63, 102, .7);
+      box-shadow: 0 0 0 3px rgba(31, 63, 102, .13);
+    }
+
+
+    /* --------------------------------------------------------
+       WARM-CREAM CLEANUP
+       The base sheet hardcodes parchment (#fffaf0 / #fffdf8 /
+       rgba(243,239,230)) in ~14 places that don't route through a
+       variable. Left alone they leave yellow patches floating in a
+       cool grey UI, which is exactly the mismatched look we're
+       trying to kill.
+       -------------------------------------------------------- */
+    input[type="date"],
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="password"],
+    textarea {
+      background: #f4f6f7;
+      border-color: rgba(70, 74, 77, .15);
+    }
+
+    body:not(.theme-dark) #noteInput {
+      background: #f4f6f7;
+      border-color: rgba(70, 74, 77, .15);
+    }
+
+    select {
+      background:
+        linear-gradient(45deg, transparent 50%, var(--ink-84) 50%) calc(100% - 18px) 18px / 6px 6px no-repeat,
+        linear-gradient(135deg, var(--ink-84) 50%, transparent 50%) calc(100% - 12px) 18px / 6px 6px no-repeat,
+        #f4f6f7;
+      border-color: rgba(70, 74, 77, .15);
+    }
+
+    body.theme-dark input[type="date"],
+    body.theme-dark input[type="text"],
+    body.theme-dark input[type="email"],
+    body.theme-dark input[type="number"],
+    body.theme-dark input[type="password"],
+    body.theme-dark textarea,
+    body.theme-dark #noteInput,
+    body.theme-dark .sender-value,
+    body.theme-dark .staff-transfer-option,
+    body.theme-dark .decision-button,
+    body.theme-dark .recipient-summary summary {
+      background: #2f3437;
+      border-color: rgba(232, 234, 235, .13);
+      color: var(--ink);
+    }
+
+    body.theme-dark select {
+      background:
+        linear-gradient(45deg, transparent 50%, var(--ink-84) 50%) calc(100% - 18px) 18px / 6px 6px no-repeat,
+        linear-gradient(135deg, var(--ink-84) 50%, transparent 50%) calc(100% - 12px) 18px / 6px 6px no-repeat,
+        #2f3437;
+      border-color: rgba(232, 234, 235, .13);
+    }
+
+    .decision-button {
+      background: #f4f6f7;
+      border-color: rgba(70, 74, 77, .15);
+      color: var(--ink-84);
+    }
+
+    .sender-value,
+    .recipient-summary summary,
+    .supply-needed {
+      background: #f4f6f7;
+      border-color: rgba(70, 74, 77, .15);
+    }
+
+    body.theme-dark .supply-needed {
+      background: rgba(232, 234, 235, .06);
+      border-color: rgba(232, 234, 235, .1);
+    }
+
+    .metric {
+      background: #f4f6f7;
+      border-color: rgba(70, 74, 77, .13);
+    }
+
+    body.theme-dark .metric {
+      background: var(--surface);
+      border-color: var(--surface-border);
+    }
+
+    /* Sticky subnav shell + its fade, in cool grey */
+    .work-nav {
+      background: rgba(238, 240, 241, .95);
+    }
+
+    .work-nav::after {
+      background: linear-gradient(180deg, rgba(238, 240, 241, .95), rgba(238, 240, 241, 0));
+    }
+
+    body.theme-dark .work-nav {
+      background: rgba(25, 28, 30, .95);
+      box-shadow:
+        0 -1px 0 rgba(232, 234, 235, .07),
+        0 1px 0 rgba(232, 234, 235, .07);
+    }
+
+    body.theme-dark .work-nav::after {
+      background: linear-gradient(180deg, rgba(25, 28, 30, .95), rgba(25, 28, 30, 0));
+    }
+
+    .item-no-match,
+    .settings-panel section {
+      background: rgba(70, 74, 77, .05);
+      border-color: rgba(70, 74, 77, .1);
+    }
+
+    body.theme-dark .item-no-match,
+    body.theme-dark .settings-panel section {
+      background: rgba(232, 234, 235, .04);
+      border-color: rgba(232, 234, 235, .07);
+    }
+
+    .settings-tabs {
+      border-color: rgba(70, 74, 77, .1);
+    }
+
+    .menu-toggle::after {
+      background: #ffffff;
+    }
+
+    body.theme-dark .menu-toggle::after {
+      background: #24282b;
+    }
+
+    .reset-dialog-actions .danger {
+      border-color: rgba(70, 74, 77, .18);
+      background: #ffffff;
+      color: var(--ink-93);
+      box-shadow: none;
+    }
+
+    body.theme-dark .reset-dialog-actions .danger {
+      border-color: rgba(232, 234, 235, .14);
+      background: #2f3437;
+      color: var(--ink-93);
+    }
+
+    .reset-dialog-actions .secondary {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .14),
+        0 8px 16px -9px rgba(120, 40, 32, .5);
+    }
+
+    /* Empty state well reads as a proper card, brighter than the page,
+       rather than a grey hole punched in the layout. */
+    .empty,
+    .empty-panel {
+      background: rgba(255, 255, 255, .72);
+      box-shadow:
+        inset 0 0 0 1px rgba(70, 74, 77, .08),
+        0 1px 2px rgba(35, 38, 42, .04);
+    }
+
+    body.theme-dark .empty,
+    body.theme-dark .empty-panel {
+      background: rgba(232, 234, 235, .035);
+      box-shadow: inset 0 0 0 1px rgba(232, 234, 235, .07);
+    }
+
+
+    /* Staff pool / current-shift chips: were parchment tiles, now
+       clean white rows. Selected state uses navy (matches the
+       primary action) with gold reserved as the accent rule. */
+    .staff-transfer-option {
+      background: #ffffff;
+      border-color: rgba(70, 74, 77, .14);
+      color: var(--ink-84);
+      box-shadow: 0 1px 2px rgba(35, 38, 42, .05);
+    }
+
+    .staff-transfer-option.active {
+      background: linear-gradient(180deg, #26496f 0%, #1c3a5e 100%);
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .12),
+        0 4px 10px -5px rgba(20, 30, 45, .55);
+    }
+
+    body.theme-dark .staff-transfer-option.active {
+      background: linear-gradient(180deg, #34618f 0%, #2a5079 100%);
+      color: #ffffff;
+    }
+
+    .staff-transfer-column {
+      background: rgba(70, 74, 77, .05);
+      border-color: rgba(70, 74, 77, .09);
+    }
+
+    body.theme-dark .staff-transfer-column {
+      background: rgba(232, 234, 235, .035);
+    }
+
+    /* Primary-coloured settings action follows the same navy rule
+       rather than a gold slab */
+    .settings-action {
+      background: linear-gradient(180deg, #26496f 0%, #1c3a5e 100%);
+      color: #ffffff;
+    }
+
+    body.theme-dark .settings-action {
+      background: linear-gradient(180deg, #34618f 0%, #2a5079 100%);
+      color: #ffffff;
+    }
+
+    /* Yes / No decisions: colour only on the chosen answer, so an
+       untouched checklist stays calm instead of candy-striped */
+    .decision-button[aria-pressed="true"] {
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 10px -5px rgba(35, 38, 42, .4);
+    }
+
+    .decision-button[data-tabs-closed="yes"][aria-pressed="true"],
+    .decision-button[data-decision-value="yes"][aria-pressed="true"],
+    .decision-button[data-modal-decision-value="yes"][aria-pressed="true"] {
+      background: linear-gradient(180deg, #35855d 0%, #2b6f4d 100%);
+    }
+
+    .decision-button[data-tabs-closed="no"][aria-pressed="true"],
+    .decision-button[data-decision-value="no"][aria-pressed="true"],
+    .decision-button[data-modal-decision-value="no"][aria-pressed="true"] {
+      background: linear-gradient(180deg, #bd4a41 0%, #a53c34 100%);
+    }
+
+
+    /* Supplies / Inventory rows: parchment stripe removed. Rows are a
+       cool neutral so the NEED toggle is the only thing carrying colour. */
+    .supply-row {
+      background: rgba(70, 74, 77, .05);
+    }
+
+    .inventory-row {
+      background: rgba(70, 74, 77, .05);
+    }
+
+    body.theme-dark .supply-row,
+    body.theme-dark .inventory-row {
+      background: rgba(232, 234, 235, .045);
+    }
+
+    /* NEED = a real state change, so it gets the accent; unset stays quiet */
+    .supply-needed[aria-pressed="true"] {
+      background: linear-gradient(180deg, #bd4a41 0%, #a53c34 100%);
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow: 0 4px 10px -5px rgba(120, 40, 32, .55);
+    }
+
+    /* Inventory mode toggle: navy selected, matching every other
+       "this one is chosen" state in the app */
+    .inventory-mode button[aria-pressed="true"] {
+      background: linear-gradient(180deg, #26496f 0%, #1c3a5e 100%);
+      border-color: transparent;
+      color: #ffffff;
+    }
+
+    body.theme-dark .inventory-mode button[aria-pressed="true"] {
+      background: linear-gradient(180deg, #34618f 0%, #2a5079 100%);
+      color: #ffffff;
+    }
+
+
+    /* --------------------------------------------------------
+       HEADER CLEANUP
+       -------------------------------------------------------- */
+
+    /* 1. The menu control loses its filled chip. It is a low-frequency
+          affordance sitting next to the brand - it should recede, not
+          compete. Only the open state gets a wash. */
+    .icon-button.settings-button {
+      background: transparent;
+      color: var(--ink-84);
+      box-shadow: none;
+    }
+
+    .icon-button.settings-button[aria-expanded="true"] {
+      background: rgba(70, 74, 77, .1);
+      box-shadow: none;
+    }
+
+    body.theme-dark .icon-button.settings-button {
+      background: transparent;
+      color: var(--ink-84);
+    }
+
+    body.theme-dark .icon-button.settings-button[aria-expanded="true"] {
+      background: rgba(232, 234, 235, .1);
+    }
+
+    /* 2. Mark matches the height of the two-line lockup beside it
+          (measured: the Miss Tasty / Truck Notes stack is 47px), so the
+          brand block reads as one unit instead of a small square floating
+          next to bigger type. */
+    .brand img {
+      width: 47px;
+      height: 47px;
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px rgba(35, 38, 42, .07);
+    }
+
+    body.theme-dark .brand img {
+      box-shadow: 0 0 0 1px rgba(232, 234, 235, .1);
+    }
+
+    /* 3. Shift date + Start New Day. The row was misaligned because the
+          two controls were different heights - a 38px input next to a 48px
+          button, bottom-aligned, so their tops disagreed. Both are 48px now
+          and Start New Day is restyled as a field-weight control so the row
+          reads as two matched controls rather than a label with a button
+          stapled to it. */
+    #shiftDate {
+      min-height: 48px;
+    }
+
+    .day-button {
+      min-height: 48px;
+      align-self: end;
+      background: #ffffff;
+      color: var(--ink-84);
+      box-shadow: inset 0 0 0 1px rgba(70, 74, 77, .16);
+      font-size: 14px;
+    }
+
+    body.theme-dark .day-button {
+      background: #2f3437;
+      color: var(--ink-84);
+      box-shadow: inset 0 0 0 1px rgba(232, 234, 235, .13);
+    }
+
+    /* 4. Count chip: the digit sat low because the chip centred a line box
+          whose font metrics are top-heavy. Flex centring on the glyph box
+          plus line-height 1 puts it optically dead centre. */
+    .tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      /* Optical centring is FONT-DEPENDENT: digits have no descender, so a
+         centred line box parks the ink high by an amount that depends on the
+         font's ascent/descent. A hardcoded px nudge is therefore only ever
+         right for one font - and this app renders in Univers in production,
+         a condensed fallback in the panel, and something else again on a
+         machine with no typekit. The nudge is measured at runtime instead
+         (see #claude-badge-metrics) and re-measured once webfonts land. */
+      padding: var(--tab-badge-pad-top, 0px) 5px var(--tab-badge-pad-bottom, 0px);
+      font-family: var(--field-font);
+      font-size: 10.5px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+
+    /* --------------------------------------------------------
+       SECTION GLYPHS
+       The filled dark discs behind the little section icons were the
+       most dated thing left on screen - that "icon in a solid circle"
+       treatment reads 2014 Android. Stripped to a plain stroke glyph
+       in muted ink: lighter, and it stops competing with the label
+       it's supposed to be introducing.
+       -------------------------------------------------------- */
+    .section-title.with-icon svg,
+    .sender-title svg {
+      width: 19px;
+      height: 19px;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      stroke: var(--muted);
+      box-shadow: none;
+    }
+
+    body.theme-dark .section-title.with-icon svg,
+    body.theme-dark .sender-title svg {
+      background: transparent;
+      stroke: var(--muted);
+      box-shadow: none;
+    }
+
+    /* --------------------------------------------------------
+       SUBNAV PEEK
+       The partial-reveal affordance stays - it's doing real work.
+       What changes is how the edge terminates: the mask depth goes
+       from 24px to 46px so the next tab visibly DISSOLVES instead of
+       being guillotined mid-word. A fading label reads "keep going";
+       a hard-clipped one reads "CSS bug".
+       -------------------------------------------------------- */
+    .work-tabs {
+      --horizontal-scroll-mask-depth: 52px;
+    }
+
+
+
+    /* --------------------------------------------------------
+       HEADER: shift date is metadata, not a headline
+       With Start New Day gone, a full-width date field made the least
+       important thing on the screen the biggest. It's now a compact
+       inline control - label and value on one line - parked on the
+       right edge under the menu button, which balances the brand
+       lockup on the left.
+       -------------------------------------------------------- */
+    .shift-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .date-field {
+      width: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    #shiftDate {
+      width: auto;
+      min-width: 152px;
+      min-height: 42px;
+    }
+
+    /* Start New Day in the overflow menu.
+       Not red: red is for irreversible damage, and this is a routine
+       once-a-shift state change that already has a confirm step. Ringing
+       the alarm on a daily action trains people to ignore the alarm. It
+       reads as a normal row, set apart by a rule and a muted glyph. */
+    .header-menu-row.menu-row-reset,
+    body.theme-dark .header-menu-row.menu-row-reset {
+      color: var(--ink-84);
+    }
+
+    .header-menu-row.menu-row-reset svg {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      stroke: var(--muted);
+    }
+
+
+    /* --------------------------------------------------------
+       NEW NOTE COMPOSER
+       The "New note" section title said the same thing as the
+       placeholder sitting directly under it. Dropping the title hands
+       its line back to the input: same card footprint, more room to
+       actually write. The heading stays in the DOM so the section keeps
+       its accessible name via aria-labelledby.
+       -------------------------------------------------------- */
+    #noteTitle {
+      display: none;
+    }
+
+    #noteInput {
+      min-height: 172px;
+    }
+
+
+    /* --------------------------------------------------------
+       STAFF: sender / operator controls
+       The value column was pinned to a hard 175px, which clipped
+       "Choose operator" mid-word. It now fills its grid column, and the
+       column got a little wider, so the longest placeholder fits.
+       -------------------------------------------------------- */
+    .sender-row {
+      grid-template-columns: minmax(0, 1fr) minmax(150px, 58%);
+    }
+
+    .sender-row select,
+    .sender-value {
+      min-width: 0;
+      max-width: none;
+      width: 100%;
+    }
+
+    /* --------------------------------------------------------
+       SHIFT DATE
+       The label is redundant next to a date value with a calendar
+       glyph, in an app whose every screen is one shift. Hidden
+       visually, kept for screen readers - a bare <label> with no text
+       would strip the input's accessible name.
+       -------------------------------------------------------- */
+    .date-field span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
+
+    /* --------------------------------------------------------
+       DELETE CONFIRMATION
+       -------------------------------------------------------- */
+    .delete-note-preview {
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--wash);
+      color: var(--ink-84);
+      font-family: var(--copy-font);
+      font-size: 15px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* --------------------------------------------------------
+       CURRENT SHIFT: empty column now says what to do.
+       A two-column transfer list only works if you know it IS one,
+       and an empty box teaches nothing.
+       -------------------------------------------------------- */
+    #staffList:empty {
+      align-content: center;
+    }
+
+    #staffList:empty::before {
+      content: "Tap a name in Pool to add them to this shift";
+      display: block;
+      padding: 0 14px;
+      color: var(--muted);
+      font-family: var(--copy-font);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.35;
+      text-align: center;
+      text-wrap: balance;
+    }
+
+    /* --------------------------------------------------------
+       "ALL tabs closed?" - underline reads as a link on a phone.
+       Caps + weight carries the same emphasis with no false
+       affordance.
+       -------------------------------------------------------- */
+    .decision-row u,
+    .modal-decision-row u {
+      text-decoration: none;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    /* --------------------------------------------------------
+       CURRENCY FIELDS
+       No CSS "$" prefix here: the app already formats the committed
+       value as "$1,284.50", so adding one produced "$ $1,284.50" and
+       forced a second typeface next to the placeholder. The field just
+       needs a hint that is obviously a hint - the small italic
+       placeholder "0.00" reads as format guidance, where the original
+       "$0" read as an already-entered value in a field where zero is
+       legal.
+       -------------------------------------------------------- */
+
+
+    /* Note number: 850 weight at full 18px text size made the index shout
+       louder than the note it labels. Down ~15% on both axes (850 -> 720,
+       18px -> 15.3px). The #notesSection selector is needed to outrank the
+       app's own id-scoped rule. */
+    .note-index,
+    #notesSection .note-index {
+      font-size: .85em;
+      font-weight: 720;
+      color: var(--muted);
+    }
+
+
+    /* --------------------------------------------------------
+       HEADER ALIGNMENT
+       Measured: the header sat on 20px side padding while the tab
+       rail and every card below sit on 16px. So the logo's left edge
+       was 4px inboard of every card under it, and the menu button's
+       right edge 4px inboard of theirs. Four pixels is small enough
+       to be unnameable and big enough to read as "off" - there was no
+       single left rail running down the screen. Now there is.
+       -------------------------------------------------------- */
+    header {
+      padding-inline: 16px;
+    }
+
+    /* --------------------------------------------------------
+       NOTE CARD: quiet delete
+       A destructive control repeated on every row, in the accent
+       colour, made "Delete" the loudest recurring word on the screen -
+       competing with the notes themselves, which are the thing you
+       came to read. It's a muted glyph in the corner now, and the
+       footer row it used to occupy is gone, which gives roughly 29px
+       back to every card.
+       -------------------------------------------------------- */
+    .note-card {
+      position: relative;
+    }
+
+    .note-text {
+      padding-right: 30px;
+    }
+
+    #notesSection .delete-note,
+    .delete-note {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      width: 44px;
+      height: 44px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color .12s ease, background .12s ease;
+    }
+
+    .delete-note svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+    }
+
+    .delete-note:active {
+      color: var(--accent);
+      background: rgba(168, 56, 44, .1);
+    }
+
+    body.theme-dark .delete-note:active {
+      background: rgba(210, 105, 94, .16);
+    }
+
+
+    /* --------------------------------------------------------
+       LABEL WEIGHT
+       Sender / Operator / ALL tabs closed? / Propane filled? were all
+       850 weight at 18px, and the Yes/No pair 900. When every label is
+       maximum weight nothing is emphasised - the screen just reads
+       loud, and the answers (which are the part that changes) can't
+       stand out from the questions (which never change).
+       Questions drop to 600. Yes/No drops to 700 and goes muted until
+       chosen, so the SELECTED answer is the only thing shouting.
+       -------------------------------------------------------- */
+    .sender-title,
+    .decision-row > span,
+    .modal-decision-row > span,
+    .check-row > span {
+      font-weight: 600;
+    }
+
+    .decision-button {
+      font-weight: 700;
+      color: var(--muted);
+    }
+    /* --------------------------------------------------------
+       SKIN BADGE - comparison only, non-interactive
+       -------------------------------------------------------- */
+    .claude-skin-badge {
+      position: absolute;
+      top: -4px;
+      left: -46px;
+      z-index: 95;
+      width: 128px;
+      padding: 2px 0 3px;
+      transform: rotate(-45deg);
+      background: linear-gradient(180deg, #26496f, #1c3a5e);
+      color: #ffffff;
+      font-family: var(--display-font);
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-align: center;
+      text-transform: uppercase;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .3);
+      pointer-events: none;
+      user-select: none;
+    }
+  </style>
+
+  <script id="claude-badge-metrics">
+    /* Optically centres the digit in the count chip, for ANY font.
+
+       Canvas font metrics alone are not enough - fontBoundingBoxAscent does
+       not always match the ascent the layout engine uses to place the
+       baseline, so a formula built on it lands ~1px out. So: the BASELINE is
+       measured from the real DOM (zero-height inline-block probe, whose top
+       edge sits exactly on the baseline) and only the INK extent comes from
+       canvas, which is what canvas measures reliably.
+
+         padTop = lineHeight - 2*baselineOffset + 2*inkCentreAboveBaseline
+
+       Re-runs on fonts.ready, so it self-corrects when Univers loads and
+       stays correct in the panel where a fallback face is used instead. */
+    (function () {
+      var ctx = null;
+
+      function measure() {
+        var badge = document.querySelector(".tab-badge");
+        if (!badge) return null;
+        var cs = getComputedStyle(badge);
+
+        var probe = document.createElement("span");
+        probe.setAttribute("aria-hidden", "true");
+        probe.style.cssText =
+          "position:fixed;left:-9999px;top:0;visibility:hidden;white-space:nowrap;display:block;" +
+          "padding:0;border:0;margin:0;" +
+          "font-family:" + cs.fontFamily + ";font-size:" + cs.fontSize +
+          ";font-weight:" + cs.fontWeight + ";font-style:" + cs.fontStyle +
+          ";line-height:" + cs.lineHeight + ";";
+        probe.appendChild(document.createTextNode("0"));
+
+        var marker = document.createElement("span");
+        marker.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline;";
+        probe.appendChild(marker);
+        document.body.appendChild(probe);
+
+        var probeRect = probe.getBoundingClientRect();
+        var markerRect = marker.getBoundingClientRect();
+        var lineHeight = probeRect.height;
+        var baselineOffset = markerRect.top - probeRect.top;
+        document.body.removeChild(probe);
+
+        if (!ctx) {
+          var canvas = document.createElement("canvas");
+          if (!canvas.getContext) return null;
+          ctx = canvas.getContext("2d");
+        }
+        if (!ctx) return null;
+        ctx.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+        var sample = (badge.textContent || "").trim() || "0";
+        var m = ctx.measureText(/^[0-9]+$/.test(sample) ? sample : "0");
+        if (!m || typeof m.actualBoundingBoxAscent !== "number") return null;
+        var inkCentre = (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+
+        var pad = lineHeight - (2 * baselineOffset) + (2 * inkCentre);
+        return isFinite(pad) ? pad : null;
+      }
+
+      function tune() {
+        var pad = measure();
+        if (pad === null) return;
+        var root = document.documentElement.style;
+        root.setProperty("--tab-badge-pad-top", Math.max(0, pad).toFixed(2) + "px");
+        root.setProperty("--tab-badge-pad-bottom", Math.max(0, -pad).toFixed(2) + "px");
+      }
+
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", tune);
+      else tune();
+      window.addEventListener("load", tune);
+      if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+        document.fonts.ready.then(tune).catch(function () {});
+      }
+      window.__tuneBadge = tune;
+    })();
+  </script>
 </head>
 <body>
   <div class="phone" role="application" aria-label="Food truck shift notes">
@@ -2944,6 +4216,10 @@
                 <span id="signedInLabel">Sign out</span>
                 <span aria-hidden="true">›</span>
               </button>
+              <button class="header-menu-row menu-row-reset" id="resetButton" type="button">
+                <span>Start New Day</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4.5V10h5.5"></path></svg>
+              </button>
             </div>
           </div>
         </div>
@@ -2952,7 +4228,6 @@
             <span>Shift date</span>
             <input id="shiftDate" type="date" autocomplete="off">
           </label>
-          <button class="small-button day-button" id="resetButton" type="button">Start New Day</button>
         </div>
       </header>
 
@@ -3026,11 +4301,11 @@
                 <div class="money-grid">
                   <label class="pill-field" for="netSalesInput">
                     <span class="field-label">Net sales</span>
-                    <input id="netSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0" required>
+                    <input id="netSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
                   </label>
                   <label class="pill-field" for="changeBoxInput">
                     <span class="field-label">Change box</span>
-                    <input id="changeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0" required>
+                    <input id="changeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
                   </label>
                 </div>
                 <div class="check-list section">
@@ -3215,6 +4490,17 @@
       </div>
     </div>
 
+    <div class="scrim hidden" id="deleteNoteDialog" role="dialog" aria-modal="true" aria-labelledby="deleteNoteTitle">
+      <div class="dialog">
+        <h2 id="deleteNoteTitle">Delete this note?</h2>
+        <p class="delete-note-preview" id="deleteNotePreview"></p>
+        <div class="dialog-actions">
+          <button class="secondary" id="cancelDeleteNoteButton" type="button">Cancel</button>
+          <button class="danger" id="confirmDeleteNoteButton" type="button">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <div class="scrim hidden" id="staffRequiredDialog" role="dialog" aria-modal="true" aria-labelledby="staffRequiredTitle">
       <div class="dialog">
         <h2 id="staffRequiredTitle">Add staff before sending notes</h2>
@@ -3233,11 +4519,11 @@
           <div class="money-grid closeout-modal-money-grid">
             <label class="pill-field closeout-modal-field" data-closeout-modal-field="netSales" for="modalNetSalesInput">
               <span class="field-label">Net sales</span>
-              <input id="modalNetSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
+              <input id="modalNetSalesInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00">
             </label>
             <label class="pill-field closeout-modal-field" data-closeout-modal-field="changeBox" for="modalChangeBoxInput">
               <span class="field-label">Change box</span>
-              <input id="modalChangeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="$0">
+              <input id="modalChangeBoxInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00">
             </label>
           </div>
           <div class="decision-row modal-decision-row" data-closeout-modal-field="tabsClosed" role="group" aria-label="All tabs closed">
@@ -4819,9 +6105,9 @@
         ? displayNotes.map((note) => `
           <article class="note-card">
             <p class="note-text"><span class="note-index">${noteOrder.get(note.id)}.</span> ${escapeHtml(note.text)}</p>
-            <div class="note-footer">
-              <button class="delete-note" type="button" data-delete-note="${note.id}">Delete</button>
-            </div>
+            <button class="delete-note" type="button" data-delete-note="${note.id}" aria-label="Delete note ${noteOrder.get(note.id)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7h15"></path><path d="M10 4.5h4"></path><path d="M6.5 7l.9 12.5h9.2L17.5 7"></path><path d="M10.2 10.5v6"></path><path d="M13.8 10.5v6"></path></svg>
+            </button>
           </article>
         `).join("")
         : `<div class="empty">No shift notes yet.</div>`;
@@ -6148,10 +7434,43 @@
       render();
     });
 
+    const deleteNoteDialog = document.getElementById("deleteNoteDialog");
+    const deleteNotePreview = document.getElementById("deleteNotePreview");
+    let pendingDeleteNoteId = null;
+
+    function closeDeleteNoteDialog() {
+      pendingDeleteNoteId = null;
+      deleteNoteDialog.classList.add("hidden");
+    }
+
+    function openDeleteNoteDialog(noteId) {
+      const note = state.notes.find((entry) => entry.id === noteId);
+      if (!note) return;
+      pendingDeleteNoteId = noteId;
+      deleteNotePreview.textContent = note.text;
+      deleteNoteDialog.classList.remove("hidden");
+    }
+
     refs.noteList.addEventListener("click", (event) => {
       const button = event.target.closest("[data-delete-note]");
       if (!button) return;
-      state.notes = state.notes.filter((note) => note.id !== button.dataset.deleteNote);
+      openDeleteNoteDialog(button.dataset.deleteNote);
+    });
+
+    document.getElementById("cancelDeleteNoteButton").addEventListener("click", closeDeleteNoteDialog);
+
+    deleteNoteDialog.addEventListener("click", (event) => {
+      if (event.target === deleteNoteDialog) closeDeleteNoteDialog();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !deleteNoteDialog.classList.contains("hidden")) closeDeleteNoteDialog();
+    });
+
+    document.getElementById("confirmDeleteNoteButton").addEventListener("click", () => {
+      if (!pendingDeleteNoteId) return;
+      state.notes = state.notes.filter((note) => note.id !== pendingDeleteNoteId);
+      closeDeleteNoteDialog();
       render();
       showToast("Note deleted.");
     });
@@ -6210,7 +7529,10 @@
 
     refs.copyReportButton.addEventListener("click", copyReport);
     refs.emailReportButton.addEventListener("click", emailNotes);
-    refs.resetButton.addEventListener("click", () => refs.resetDialog.classList.remove("hidden"));
+    refs.resetButton.addEventListener("click", () => {
+      closeHeaderMenu();
+      refs.resetDialog.classList.remove("hidden");
+    });
     refs.cancelResetButton.addEventListener("click", () => refs.resetDialog.classList.add("hidden"));
     refs.confirmResetButton.addEventListener("click", resetShift);
     refs.resetDialog.addEventListener("click", (event) => {
