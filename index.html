@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-04-rhino-professional">
+  <meta name="app-version" content="2026-08-04-rhino-professional-2">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -3330,9 +3330,7 @@
        -------------------------------------------------------- */
     .header-menu {
       border-color: rgba(70, 74, 77, .1);
-      background: rgba(255, 255, 255, .84);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-      backdrop-filter: saturate(180%) blur(20px);
+      background: #fdfefe;
       box-shadow: 0 14px 32px rgba(35, 38, 42, .2);
     }
 
@@ -3355,9 +3353,7 @@
     }
 
     .dialog {
-      background: rgba(255, 255, 255, .9);
-      -webkit-backdrop-filter: saturate(180%) blur(24px);
-      backdrop-filter: saturate(180%) blur(24px);
+      background: #fdfefe;
       box-shadow: 0 22px 48px -10px rgba(35, 38, 42, .34);
     }
 
@@ -3368,9 +3364,7 @@
 
     .toast {
       border-color: rgba(255, 255, 255, .1);
-      background: rgba(30, 34, 37, .84);
-      -webkit-backdrop-filter: saturate(180%) blur(16px);
-      backdrop-filter: saturate(180%) blur(16px);
+      background: #23272a;
       box-shadow: 0 16px 32px -8px rgba(0, 0, 0, .42);
     }
 
@@ -4077,7 +4071,44 @@
       pointer-events: none;
       user-select: none;
     }
-  </style>
+  
+    /* --------------------------------------------------------
+       SWIPE PERFORMANCE
+       .work-track animates transform, so every frame composites
+       whatever sits under it. Two things in this skin made that
+       expensive on a phone: backdrop-filter (removed - it forces a
+       layer that re-rasterises the moving content behind it every
+       frame) and wide soft card shadows repainting across the whole
+       track. Shadows collapse for the duration of a drag, so the GPU
+       moves finished pixels instead of redrawing blur.
+       Gesture code, thresholds and timings are untouched.
+       -------------------------------------------------------- */
+    .work-track {
+      backface-visibility: hidden;
+    }
+
+    .work-sections.dragging .staff-panel,
+    .work-sections.dragging .sender-panel,
+    .work-sections.dragging .money-panel,
+    .work-sections.dragging .check-panel,
+    .work-sections.dragging .composer,
+    .work-sections.dragging .note-card,
+    .work-sections.dragging .report-panel,
+    .work-sections.dragging .inventory-panel,
+    .work-sections.dragging .item-panel {
+      box-shadow: 0 1px 2px rgba(35, 38, 42, .06);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .primary,
+      .secondary,
+      .danger,
+      .small-button,
+      .delete-note {
+        transition: none;
+      }
+    }
+</style>
 
   <script id="claude-badge-metrics">
     /* Optically centres the digit in the count chip, for ANY font.
