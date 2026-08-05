@@ -1,2 +1,14 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Auto detect text files. Normalise to LF in the repo AND in the working tree,
+# so Git stops rewriting endings on checkout - that rewrite is what produces the
+# "LF will be replaced by CRLF" warning on every add.
+* text=auto eol=lf
+
+# Windows script hosts are the exception: cmd.exe and PowerShell want CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary - never touch these.
+*.png binary
+*.pdf binary
+*.ico binary
