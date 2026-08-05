@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-04-rhino-professional-2">
+  <meta name="app-version" content="2026-08-04-rhino-professional-4">
+  <meta name="build-tag" content="v0804d">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -779,7 +780,12 @@
       transition:
         height .18s ease,
         transform .34s cubic-bezier(.22, 1, .36, 1);
-      will-change: height, transform;
+      /* was: will-change: height, transform.
+         height is a LAYOUT property - it cannot be promoted to the GPU, so
+         hinting it just keeps the element flagged for layout thrash while the
+         composited transform runs alongside it. Only transform is promotable,
+         so only transform is hinted. Motion and timing are unchanged. */
+      will-change: transform;
     }
 
     .work-sections.dragging {
@@ -806,6 +812,7 @@
       width: 100%;
       min-width: 100%;
       flex: 0 0 100%;
+      contain: layout;
     }
 
     #notesSection,
@@ -4108,8 +4115,33 @@
         transition: none;
       }
     }
+
+    /* Build tag - tiny, muted, sits after the brand eyebrow so you can see
+       at a glance which build a device actually has loaded. */
+    .build-tag {
+      margin-left: 5px;
+      color: var(--muted);
+      font-family: var(--field-font);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: none;
+      vertical-align: 2px;
+      opacity: .8;
+    }
 </style>
 
+  <script id="claude-build-tag">
+    (function () {
+      function paint() {
+        var el = document.getElementById("buildTag");
+        var meta = document.querySelector('meta[name="build-tag"]');
+        if (el && meta) el.textContent = meta.content;
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", paint);
+      else paint();
+    })();
+  </script>
   <script id="claude-badge-metrics">
     /* Optically centres the digit in the count chip, for ANY font.
 
@@ -4224,7 +4256,7 @@
           <div class="brand">
             <img src="icon.png" alt="">
             <div>
-              <p class="eyebrow">Miss Tasty</p>
+              <p class="eyebrow">Miss Tasty <span class="build-tag" id="buildTag"></span></p>
               <h1>Truck Notes</h1>
             </div>
           </div>
