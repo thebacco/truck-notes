@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-04-rhino-professional-13">
-  <meta name="build-tag" content="v0804m">
+  <meta name="app-version" content="2026-08-05-bottom-bar-1">
+  <meta name="build-tag" content="v0805a">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4328,6 +4328,89 @@
       window.__tuneBadge = tune;
     })();
   </script>
+
+  <style id="claude-bottombar">
+    /* ================================================================
+       BOTTOM BAR - one action, always full width, always same place.
+
+       Was: two 52px buttons at 1fr 1fr, where the left one was navigation
+       ("Review Notes" / "Back to Notes") dressed as an action and given the
+       same weight as publishing the shift. Both slots also changed verb
+       between views, so one pixel did two jobs and muscle memory could not
+       form.
+
+       Now: the bar holds the action for the current screen and nothing
+       else. Back is a header chevron, where iOS puts it. Review Notes is a
+       menu row, because it is a destination. Settings has no action, so
+       the bar is gone there.
+       ================================================================ */
+    .footer {
+      grid-template-columns: 1fr;
+    }
+
+    body.subview-settings .footer {
+      display: none;
+    }
+
+    /* 8px on a 52px control is 15% of its height and reads stubby next to
+       iOS, which sits nearer 25%. Actions only - cards and inputs keep 8px
+       so the change is isolated. */
+    .primary,
+    .secondary,
+    .danger {
+      border-radius: 13px;
+    }
+
+    /* Header back: text weight, no fill, no box. It is a way out, not a
+       thing to do. 44px target, glyph pulled onto the left rail. */
+    .header-back {
+      display: none;
+      align-items: center;
+      gap: 1px;
+      margin-left: -7px;
+      padding: 0 6px 0 0;
+      min-height: 44px;
+      border: 0;
+      background: none;
+      color: var(--navy);
+      font-family: var(--display-font);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity .1s ease;
+    }
+
+    .header-back svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+    }
+
+    .header-back:active {
+      opacity: .5;
+    }
+
+    body.subview .header-back {
+      display: inline-flex;
+    }
+
+    /* In a subview the mark stops earning its space - you know what app you
+       are in. Dropping it keeps the row to one line. */
+    body.subview .brand img,
+    body.subview .eyebrow {
+      display: none;
+    }
+
+    body.subview .brand {
+      gap: 0;
+    }
+
+    body.theme-dark .header-back {
+      color: #8fb0d6;
+    }
+  </style>
 </head>
 <body>
   <div class="phone" role="application" aria-label="Food truck shift notes">
@@ -4363,6 +4446,10 @@
 
       <header>
         <div class="brand-row">
+          <button class="header-back" id="headerBackButton" type="button" aria-label="Back to notes">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+            <span>Notes</span>
+          </button>
           <div class="brand">
             <img src="icon.png" alt="">
             <div>
@@ -4377,6 +4464,10 @@
               </svg>
             </button>
             <div class="header-menu hidden" id="headerMenu">
+              <button class="header-menu-row" id="menuReviewButton" type="button">
+                <span>Review Notes</span>
+                <span aria-hidden="true">›</span>
+              </button>
               <button class="header-menu-row" id="menuNightModeButton" type="button" aria-pressed="false">
                 <span>Night mode</span>
                 <span class="menu-toggle" aria-hidden="true"></span>
@@ -4647,7 +4738,7 @@
       </main>
 
       <div class="footer">
-        <button class="secondary gold-outline" id="toggleViewButton" type="button">Review Notes</button>
+        <button class="secondary gold-outline hidden" id="toggleViewButton" type="button">Review Notes</button>
         <button class="primary" id="sendButton" type="button">Publish</button>
       </div>
     </div>
@@ -6488,6 +6579,9 @@
       refs.headerMenuButton.classList.toggle("hidden", showingSettings);
       if (showingSettings) closeHeaderMenu();
       refs.toggleViewButton.classList.toggle("wide-action", showingSettings);
+      document.body.classList.toggle("subview", showingReport || showingSettings);
+      document.body.classList.toggle("subview-settings", showingSettings);
+      document.getElementById("menuReviewButton").classList.toggle("hidden", showingReport);
       refs.shiftControls.classList.toggle("hidden", showingSettings);
     }
 
@@ -7735,6 +7829,17 @@
         reviewNotes();
         return;
       }
+      currentView = "notes";
+      render();
+    });
+
+    document.getElementById("menuReviewButton").addEventListener("click", () => {
+      closeHeaderMenu();
+      reviewNotes();
+    });
+
+    document.getElementById("headerBackButton").addEventListener("click", () => {
+      if (currentView === "settings") { returnFromSettings(); return; }
       currentView = "notes";
       render();
     });
