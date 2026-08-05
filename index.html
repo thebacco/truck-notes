@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-04-rhino-professional-6">
-  <meta name="build-tag" content="v0804f">
+  <meta name="app-version" content="2026-08-04-rhino-professional-7">
+  <meta name="build-tag" content="v0804g">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -6942,13 +6942,31 @@
       workSwipeStart.lastAt = now;
 
       if (!workSwipeStart.dragging) {
-        if (Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(deltaX) * 1.15) {
+        // Directional lock, decided ONCE at a small movement threshold.
+        //
+        // The old logic had an undecided window: it released to vertical only
+        // when |dY| > 8 AND dY dominated by 1.15x, but claimed horizontal only
+        // at |dX| >= 12 AND 1.45x dominance. A finger between those (say 10px
+        // down, 9px across) matched neither, so the code kept waiting while the
+        // browser had already begun panning. touch-action and preventDefault are
+        // both evaluated when a gesture starts - once native scrolling is under
+        // way, neither can take it back. That is how a scroll and a swipe ended
+        // up running at the same time.
+        //
+        // Now: below the gate, do nothing and claim nothing. At the gate, decide
+        // exhaustively - horizontal is claimed or the gesture is released to the
+        // scroller. There is no third state, so the browser is never left panning
+        // while this code is still making up its mind.
+        const absX = Math.abs(deltaX);
+        const absY = Math.abs(deltaY);
+        const moved = Math.max(absX, absY);
+        const gate = workSwipeStart.startedInScrollList ? 14 : 8;
+        if (moved < gate) return;
+        const requiredAxisRatio = workSwipeStart.startedInScrollList ? 1.6 : 1.2;
+        if (absX < absY * requiredAxisRatio) {
           workSwipeStart = null;
           return;
         }
-        const requiredAxisRatio = workSwipeStart.startedInScrollList ? 1.8 : 1.45;
-        const requiredDistance = workSwipeStart.startedInScrollList ? 18 : 12;
-        if (Math.abs(deltaX) < requiredDistance || Math.abs(deltaX) < Math.abs(deltaY) * requiredAxisRatio) return;
         workSwipeStart.dragging = true;
         setWorkSwipeDuration(280);
         refs.workSections.classList.add("dragging");
