@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-04-rhino-professional-4">
-  <meta name="build-tag" content="v0804d">
+  <meta name="app-version" content="2026-08-04-rhino-professional-6">
+  <meta name="build-tag" content="v0804f">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -800,7 +800,12 @@
       display: flex;
       align-items: flex-start;
       gap: 16px;
-      transition: transform var(--work-swipe-duration, .28s) cubic-bezier(.2, .82, .18, 1);
+      /* iOS settle curve. The old (.2,.82,.18,1) put its second control
+         point at x=.18, so the value reached 1 almost immediately and then
+         flattened - motion stopped abruptly, which is the hard snap. The
+         iOS curve keeps a strong start but trails x to 0, giving the long
+         soft glide a spring produces. */
+      transition: transform var(--work-swipe-duration, .32s) cubic-bezier(.32, .72, 0, 1);
       will-change: transform;
     }
 
@@ -2279,7 +2284,7 @@
     }
 
     #settingsView {
-      transition: transform var(--settings-swipe-duration, .28s) cubic-bezier(.2, .82, .18, 1);
+      transition: transform var(--settings-swipe-duration, .32s) cubic-bezier(.32, .72, 0, 1);
       will-change: transform;
     }
 
@@ -6973,8 +6978,13 @@
       const currentIndex = getWorkSectionIndex();
       const nextIndex = currentIndex + direction;
       if (nextIndex < 0 || nextIndex >= workSectionOrder.length) return;
-      const remainingRatio = Math.max(0, Math.min(1, 1 - (Math.abs(deltaX) / width)));
-      setWorkSwipeDuration(Math.round(180 + remainingRatio * 120));
+      // iOS settles a page by distance / velocity, not on a fixed clock: a hard
+      // flick finishes fast, a slow release glides in. The old formula used
+      // remaining distance only, so finishing a long drag left ~180ms to cover
+      // the last stretch - the hard snap. Clamped so it is never jarring or sluggish.
+      const remainingPx = Math.max(0, width - Math.abs(deltaX));
+      const glideMs = remainingPx / Math.max(velocity, .4);
+      setWorkSwipeDuration(Math.round(Math.min(440, Math.max(260, glideMs))));
       setWorkSection(workSectionOrder[nextIndex], false);
       return true;
     }
@@ -6991,7 +7001,11 @@
       refs.workSections.classList.remove("dragging");
       const didAdvance = finishWorkSwipe(deltaX, deltaY, velocityX);
       if (!didAdvance) {
-        setWorkSwipeDuration(240);
+        // Snap-back also scales with distance and release speed rather than
+        // using one fixed 240ms for both a 10px nudge and a half-screen drag.
+        const returnPx = Math.abs(deltaX);
+        const returnMs = returnPx / Math.max(Math.abs(velocityX), .45);
+        setWorkSwipeDuration(Math.round(Math.min(400, Math.max(220, returnMs))));
         updateWorkTrackTransform();
       }
     }, { passive: true });
@@ -7491,6 +7505,29 @@
         addNote();
       }
     });
+
+    // iOS puts a native accessory bar above the keyboard (chevrons + Done).
+    // A web page cannot hide or reconfigure it - it is keyboard chrome, not
+    // page content - and its Done button only dismisses the keyboard. With
+    // Enter intercepted as "send", a user who tapped Done was left with typed
+    // text and no obvious way to commit it.
+    //
+    // Committing on blur makes Done behave as send, and also protects the note
+    // if the user taps a tab or the footer while text is pending. Enter already
+    // clears the field, so this cannot double-post.
+    function commitPendingNote() {
+      if (!refs.noteInput || !refs.noteInput.value.trim()) return;
+      addNote();
+    }
+
+    refs.noteInput.addEventListener("blur", commitPendingNote);
+
+    // Backgrounding the app does not always fire blur on iOS, so catch that too
+    // rather than lose whatever was typed.
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) commitPendingNote();
+    });
+    window.addEventListener("pagehide", commitPendingNote);
 
     refs.noteSortButton.addEventListener("click", () => {
       state.noteSort = state.noteSort === "oldest" ? "newest" : "oldest";
