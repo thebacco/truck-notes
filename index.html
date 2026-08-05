@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-04-rhino-professional-7">
-  <meta name="build-tag" content="v0804g">
+  <meta name="app-version" content="2026-08-04-rhino-professional-13">
+  <meta name="build-tag" content="v0804m">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -805,7 +805,7 @@
          flattened - motion stopped abruptly, which is the hard snap. The
          iOS curve keeps a strong start but trails x to 0, giving the long
          soft glide a spring produces. */
-      transition: transform var(--work-swipe-duration, .32s) cubic-bezier(.32, .72, 0, 1);
+      transition: transform var(--work-swipe-duration, .32s) var(--work-swipe-ease, cubic-bezier(.32, .72, 0, 1));
       will-change: transform;
     }
 
@@ -822,7 +822,14 @@
 
     #notesSection,
     #closeoutSection {
-      min-height: calc(var(--work-section-min-height, 510px) + 157px);
+      /* Scroll runway: extra height beyond a full screen so the browser has
+         something real to scroll and iOS can supply its own rubber-band. Was
+         +157px, which on a sparse screen is a third of a viewport of empty
+         grey. 96px is still more travel than the bounce needs.
+         This is a FLOOR only - updateWorkSectionHeight() uses
+         max(panel height, minimum), so once there are real notes the content
+         drives the height and this value stops mattering. */
+      min-height: calc(var(--work-section-min-height, 510px) + 96px);
     }
 
     #suppliesSection,
@@ -2936,7 +2943,7 @@
         0 1px 2px rgba(35, 38, 42, .05),
         0 14px 26px -14px rgba(35, 38, 42, .3);
 
-      --navy: #1f3f66;
+      --navy: #3d5c9d;
       --gold: #c9992f;
       --green: #2f6b52;
       --accent: #a8382c;
@@ -3096,8 +3103,12 @@
        BUTTONS - navy primary, quiet neutral secondary.
        Subtle gradient + shadow. Depth, not a bevel.
        -------------------------------------------------------- */
+    /* Blue sampled straight out of icon.png: the mark is a single flat
+       #3d5c9d across 936k of its 1M pixels. The gradient sits just above it
+       and lands ON it, so the button bottom is literally the logo colour.
+       White on #3d5c9d measures 6.53:1 - clear of AA. */
     .primary {
-      background: linear-gradient(180deg, #26496f 0%, #1c3a5e 100%);
+      background: linear-gradient(180deg, #4a6bb0 0%, #3d5c9d 100%);
       color: #ffffff;
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, .12),
@@ -3107,7 +3118,7 @@
     }
 
     body.theme-dark .primary {
-      background: linear-gradient(180deg, #34618f 0%, #2a5079 100%);
+      background: linear-gradient(180deg, #5075bb 0%, #43639f 100%);
       color: #ffffff;
     }
 
@@ -3340,15 +3351,28 @@
     /* --------------------------------------------------------
        SURFACES / OVERLAYS
        -------------------------------------------------------- */
+    /* Frosted glass is back on the menu and dialog.
+       It was removed to chase the swipe stutter, but the evidence says the
+       real culprit was the layout thrash on .work-sections - the stutter
+       persisted after this came out and only cleared once will-change and
+       containment were fixed. And these panels are display:none when closed,
+       so they render nothing at all during a swipe; when either is open the
+       carousel is not moving. The cost this was supposedly paying never
+       existed on this element.
+       The toast deliberately does NOT get this - see below. */
     .header-menu {
       border-color: rgba(70, 74, 77, .1);
-      background: #fdfefe;
+      background: rgba(253, 254, 254, .82);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      backdrop-filter: saturate(180%) blur(20px);
       box-shadow: 0 14px 32px rgba(35, 38, 42, .2);
     }
 
     body.theme-dark .header-menu {
       border-color: rgba(232, 234, 235, .09);
-      background: rgba(36, 40, 43, .84);
+      background: rgba(30, 34, 37, .86);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      backdrop-filter: saturate(180%) blur(20px);
       box-shadow: 0 16px 36px rgba(0, 0, 0, .55);
     }
 
@@ -3365,19 +3389,34 @@
     }
 
     .dialog {
-      background: #fdfefe;
+      background: rgba(253, 254, 254, .86);
+      -webkit-backdrop-filter: saturate(180%) blur(24px);
+      backdrop-filter: saturate(180%) blur(24px);
       box-shadow: 0 22px 48px -10px rgba(35, 38, 42, .34);
     }
 
     body.theme-dark .dialog {
-      background: rgba(36, 40, 43, .9);
+      background: rgba(30, 34, 37, .9);
+      -webkit-backdrop-filter: saturate(180%) blur(24px);
+      backdrop-filter: saturate(180%) blur(24px);
       box-shadow: 0 22px 50px rgba(0, 0, 0, .62);
     }
 
+    /* The toast is the ONE overlay that can be on screen mid-swipe - it fires
+       after a note is added and lingers ~2.2s, so a swipe can start underneath
+       it. That is exactly the case where backdrop-filter would re-rasterise
+       moving content every frame, so this one stays opaque. */
     .toast {
       border-color: rgba(255, 255, 255, .1);
       background: #23272a;
       box-shadow: 0 16px 32px -8px rgba(0, 0, 0, .42);
+    }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .header-menu { background: #fdfefe; }
+      body.theme-dark .header-menu { background: #202427; }
+      .dialog { background: #fdfefe; }
+      body.theme-dark .dialog { background: #202427; }
     }
 
     .auth-card {
@@ -3693,13 +3732,25 @@
       background: rgba(232, 234, 235, .1);
     }
 
-    /* 2. Mark matches the height of the two-line lockup beside it
-          (measured: the Miss Tasty / Truck Notes stack is 47px), so the
+    /* 2. Mark matches the height of the two-line lockup beside it, so the
           brand block reads as one unit instead of a small square floating
-          next to bigger type. */
+          next to bigger type.
+
+          This was a hardcoded 47px, measured off a render - but that render
+          used FALLBACK fonts, because Adobe Fonts is domain-locked and does
+          not resolve in a preview. On a real device the Voltage/Centrifuge
+          stack is a different height, so a fixed 47px left the icon short at
+          the bottom. It now stretches to whatever the text stack actually is,
+          with aspect-ratio keeping it square, so it stays flush in any font. */
     .brand img {
+      /* 47px is only a sane default to avoid a flash before measurement -
+         #claude-brand-mark below sets the real value from the rendered text
+         stack. Do not trust a hardcoded number here: it depends on which
+         fonts actually resolved. */
       width: 47px;
       height: 47px;
+      flex: 0 0 auto;
+      object-fit: cover;
       border-radius: 10px;
       box-shadow: 0 0 0 1px rgba(35, 38, 42, .07);
     }
@@ -3819,10 +3870,32 @@
       gap: 9px;
     }
 
+    /* Date affordance.
+       <input type="date"> draws ::-webkit-calendar-picker-indicator in Chrome
+       but iOS Safari draws NOTHING - it shows bare text and opens the wheel
+       picker when you tap anywhere in the field. So on the actual phone there
+       was a large invisible tap target with no hint the date was editable.
+       Chrome's native indicator is hidden visually but kept clickable, and we
+       paint our own glyph in the same spot, so both platforms match. */
     #shiftDate {
       width: auto;
       min-width: 152px;
       min-height: 42px;
+      padding-right: 38px;
+      background-image: url("data:image/svg+xml;charset=utf-8,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23767c82'%20stroke-width='1.9'%20stroke-linecap='round'%20stroke-linejoin='round'><rect%20x='3.5'%20y='5'%20width='17'%20height='15.5'%20rx='2.5'/><path%20d='M3.5%209.5h17'/><path%20d='M8%203.5v3'/><path%20d='M16%203.5v3'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 11px center;
+      background-size: 18px 18px;
+      cursor: pointer;
+    }
+
+    body.theme-dark #shiftDate {
+      background-image: url("data:image/svg+xml;charset=utf-8,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%239aa1a6'%20stroke-width='1.9'%20stroke-linecap='round'%20stroke-linejoin='round'><rect%20x='3.5'%20y='5'%20width='17'%20height='15.5'%20rx='2.5'/><path%20d='M3.5%209.5h17'/><path%20d='M8%203.5v3'/><path%20d='M16%203.5v3'/></svg>");
+    }
+
+    #shiftDate::-webkit-calendar-picker-indicator {
+      opacity: 0;
+      cursor: pointer;
     }
 
     /* Start New Day in the overflow menu.
@@ -4136,6 +4209,38 @@
     }
 </style>
 
+  <script id="claude-brand-mark">
+    /* Sizes the brand mark to the actual rendered height of the two-line
+       lockup beside it.
+
+       This cannot be a fixed px value. Adobe Fonts is domain-locked, so the
+       Voltage/Centrifuge stack renders at one height on theblindrhino.com and
+       a different height anywhere the fonts do not resolve - a number measured
+       in a preview leaves the icon short on a real device. Measuring the live
+       DOM is the only thing correct in both places.
+
+       Re-runs on fonts.ready so it corrects itself the moment the real faces
+       arrive and the stack changes height. */
+    (function () {
+      function sizeMark() {
+        var img = document.querySelector("header .brand img");
+        var stack = document.querySelector("header .brand > div");
+        if (!img || !stack) return;
+        var h = Math.round(stack.getBoundingClientRect().height);
+        if (h > 12 && h < 200) {
+          img.style.width = h + "px";
+          img.style.height = h + "px";
+        }
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", sizeMark);
+      else sizeMark();
+      window.addEventListener("load", sizeMark);
+      window.addEventListener("resize", sizeMark, { passive: true });
+      if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+        document.fonts.ready.then(sizeMark).catch(function () {});
+      }
+    })();
+  </script>
   <script id="claude-build-tag">
     (function () {
       function paint() {
@@ -5974,6 +6079,15 @@
 
     function setWorkSection(section, shouldScroll = true) {
       if (!workSectionOrder.includes(section)) return;
+      // shouldScroll is false only when a swipe release drives this, so this
+      // branch is the from-rest case: tapping a tab, a dot, or a jump-to button.
+      if (shouldScroll) {
+        const distance = Math.abs(workSectionOrder.indexOf(section) - getWorkSectionIndex());
+        if (distance > 0) {
+          setWorkSwipeEase(WORK_EASE_TAP);
+          setWorkSwipeDuration(Math.min(460, 300 + (distance - 1) * 80));
+        }
+      }
       activeWorkSection = section;
       renderWorkSections();
       window.requestAnimationFrame(() => syncActiveWorkTab());
@@ -6016,6 +6130,23 @@
 
     function setWorkSwipeDuration(ms) {
       refs.workTrack.style.setProperty("--work-swipe-duration", `${ms}ms`);
+    }
+
+    // A flick and a tap need different curves, and using one for both is what
+    // makes tapping a tab look like a jump.
+    //
+    // cubic-bezier(.32,.72,0,1) is a DECELERATION curve: it assumes the finger
+    // already supplied the speed, so it starts fast and coasts out. Measured, it
+    // covers 86% of the distance in the first 80ms of a 320ms transition. That
+    // is correct when continuing a swipe and wrong from a standstill - from rest
+    // it reads as an instant jump followed by a barely visible settle.
+    //
+    // A tap starts at zero velocity, so it needs to ease IN as well as out.
+    const WORK_EASE_FLICK = "cubic-bezier(.32, .72, 0, 1)";
+    const WORK_EASE_TAP = "cubic-bezier(.4, 0, .2, 1)";
+
+    function setWorkSwipeEase(ease) {
+      refs.workTrack.style.setProperty("--work-swipe-ease", ease);
     }
 
     function setSettingsSwipeDuration(ms) {
@@ -7000,6 +7131,7 @@
       // flick finishes fast, a slow release glides in. The old formula used
       // remaining distance only, so finishing a long drag left ~180ms to cover
       // the last stretch - the hard snap. Clamped so it is never jarring or sluggish.
+      setWorkSwipeEase(WORK_EASE_FLICK);
       const remainingPx = Math.max(0, width - Math.abs(deltaX));
       const glideMs = remainingPx / Math.max(velocity, .4);
       setWorkSwipeDuration(Math.round(Math.min(440, Math.max(260, glideMs))));
@@ -7021,6 +7153,7 @@
       if (!didAdvance) {
         // Snap-back also scales with distance and release speed rather than
         // using one fixed 240ms for both a 10px nudge and a half-screen drag.
+        setWorkSwipeEase(WORK_EASE_FLICK);
         const returnPx = Math.abs(deltaX);
         const returnMs = returnPx / Math.max(Math.abs(velocityX), .45);
         setWorkSwipeDuration(Math.round(Math.min(400, Math.max(220, returnMs))));

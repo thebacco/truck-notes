@@ -13,6 +13,13 @@ same `AGENTS.md` into:
 Commit and push all affected repos. Keep the four copies byte-for-byte in sync
 unless a user explicitly asks for a repo-specific exception.
 
+**What this guide standardises and what it deliberately does not.**
+Shared across every Rhino app: interaction physics, motion timing, gesture
+rules, performance constraints, structure, accessibility, and the quality bar.
+Not shared: colour values, iconography, typography choices, and copy. Those live
+in each app's own `:root` and markup. The apps should feel like they were built
+by the same hand — they should not look like the same app.
+
 ## Project Setup
 
 Start a new Rhino PWA by copying the starter:
@@ -95,27 +102,56 @@ For every production PWA commit, bump the app version marker and service worker
 cache name unless the commit is documentation-only and cannot affect runtime
 assets.
 
+Also render a short visible build tag in the header (for example `v0804m`),
+small and muted next to the brand mark. Without it there is no way to tell which
+build is actually on a phone, which makes every "is this fixed?" answer a guess.
+It cannot be the commit SHA — the SHA does not exist until the commit is made —
+so use a short dated marker, or stamp the real SHA at deploy time from CI.
+
 ## Visual Design Defaults
 
 Use the Rhino mobile staff-tool look:
 
-- Warm off-white panel surface: `#fffdf8`.
-- Charcoal ink: `#161616`, with darker headings around `#121110`.
-- Muted text: `#6b6760`.
-- Soft divider line: `#ded8cc`.
-- Wash/background control fill: `#f3efe6`.
-- Red primary accent: `#b12f24`.
-- Navy secondary action: `#1f3f66`.
-- Green operational accent: `#386a55`.
-- Gold accent: `#c58d3b`.
-- Light text on filled buttons: `#fff8ef`.
+**These are roles, not values. Every app picks its own colours.** Rhino apps
+should share physics, structure and quality bar — they should not look like each
+other. Each app declares its own palette in its `:root`; this section only says
+what each slot is for and what makes a slot wrong.
+
+- **Page ground** — a flat neutral, one clear step darker than the card surface.
+  Depth comes from that contrast plus a soft shadow, never from borders. A card
+  that needs a 1px outline to separate from its background is a card on the wrong
+  background.
+- **Card/panel surface** — the brightest surface in light mode, and a lifted
+  neutral in dark mode. Cards sit on the ground, not in it.
+- **Ink** — one body colour, one darker heading colour, one muted colour for
+  secondary text. Three is enough.
+- **Primary action** — the app's own brand colour, *sampled from that app's icon
+  rather than guessed*. Open the icon, read the dominant value, use it. Verify
+  white or dark text on it clears 4.5:1.
+- **Accent** — exactly one, and it appears **once per screen**, marking state or
+  position (active nav, current step). Never fill a button with the accent.
+  Accent-filled buttons everywhere is the single loudest "unfinished" tell.
+- **Destructive/alert** — reserve red for irreversible damage. A routine action
+  with a confirm step does not get red; spending the alarm on daily actions
+  trains people to tap through it.
+
+Derive both themes from the same roles so light and dark are the same design,
+not two designs.
+
+Empty states are never a dashed placeholder box. A 1px dashed rectangle reads as
+a wireframe and is the loudest "unfinished project" signal available. Use a soft
+recessed well, a centred glyph, and a quiet caption.
 
 Typography:
 
-- Use the app's established brand/typekit stack when present. Current Rhino
-  staff tools use Centrifuge for compact UI labels and action text, Voltage for
-  the Miss Tasty brand mark, and Univers for entered data, selected values,
-  readable field content, names, quantities, and other operational data.
+- Typefaces are per-app, but the ROLES are shared. Every app defines three:
+  a brand face for the mark, a display face for compact UI labels and action
+  text, and a copy face for entered data, selected values, names, quantities and
+  anything the user must read back. Declare them once as `--brand-font`,
+  `--display-font`, `--copy-font` and never reference a family name directly.
+- Licensed webfont kits are typically domain-locked, so the real faces will not
+  resolve in previews or sandboxes. Never take a measurement from a render where
+  they failed to load.
 - Keep letter spacing at `0`.
 - Use compact, strong labels for staff workflows.
 - Avoid oversized marketing-style hero typography inside operational tools.
@@ -131,6 +167,9 @@ Geometry:
   around 52px high.
 - Use restrained shadows. Surfaces should feel polished, not like stacked heavy
   cards.
+- Every surface shares one left rail. Header, subnav and content cards must sit
+  on identical side padding. A 4px mismatch is small enough to be unnameable and
+  large enough to read as "off".
 - For material surface experiments, preserve the established 8px geometry and
   interaction wiring. Test softer borders, subtle layered fills, very light
   texture, and rounded-surface-aware shadows before changing layout.
@@ -185,7 +224,20 @@ Mobile-first behavior is the default.
 Use:
 
 - `-webkit-tap-highlight-color: transparent` on buttons.
-- Native controls where possible.
+- **Native controls before custom ones, always.** `<input type="date">`,
+  `<select>`, and `inputmode` hand us Apple's own pickers, keyboards, haptics,
+  VoiceOver support and localisation for one word of markup, and they keep
+  improving without us maintaining them. Only build a custom control when the
+  native one genuinely cannot do the job.
+- Accept that native controls barely allow styling. Where that leaves no visible
+  affordance, add the hint alongside — do not replace the control. iOS draws no
+  calendar indicator on a date input, so paint one and hide the desktop
+  browser's native indicator (`opacity: 0`, keep it clickable) so both platforms
+  match.
+- iOS shows a native accessory bar above the keyboard whose Done button only
+  dismisses the keyboard. A web page cannot hide or reconfigure it. If Enter is
+  intercepted as submit, also commit on `blur`, `visibilitychange` and
+  `pagehide`, or Done will strand the user's text with no way to send it.
 - Persistent visible controls on phone-first interactions. Do not rely on
   hover-only UI such as desktop number spinners.
 - Short toasts for lightweight confirmations, typically around 2200ms.
@@ -204,16 +256,47 @@ For swipe or paged workflows:
 
 - Only add swipe when it reduces real mobile friction.
 - Track finger movement continuously where possible.
-- Distinguish horizontal swipes from vertical scrolls before taking ownership.
 - Use velocity and distance thresholds, not distance alone.
-- Add rubber-band resistance at edges.
-- Settle with a short cubic-bezier transition near `.2, .82, .18, 1`.
 - Keep tabs/buttons available as a visible non-gesture alternative.
-- Do not let nested scroll lists steal unrelated gestures.
+
+Directional lock — the decision must be exhaustive:
+
+- Below a small gate (8px, or 14px if the gesture began inside a nested scroll
+  list) claim nothing and do nothing.
+- At the gate, decide once and finally: either claim horizontal, or release the
+  gesture to the scroller. Never leave a third "still deciding" state.
+- Asymmetric thresholds create an undecided window, and the browser does not
+  wait through it. `touch-action` and `preventDefault()` are both evaluated when
+  a gesture starts, so once native panning is under way neither can take it
+  back — you get a scroll and a swipe running at the same time.
+
+Settle motion — a flick and a tap are not the same event:
+
+- Flick release (finger already supplied velocity): `cubic-bezier(.32, .72, 0, 1)`.
+  This is a deceleration curve; it starts fast and coasts out.
+- Tap on a tab or dot (starts from rest): `cubic-bezier(.4, 0, .2, 1)`.
+  Using the deceleration curve from rest covers ~86% of the distance in the
+  first 80ms and reads as an instant jump with an invisible settle.
+- Duration is distance divided by velocity, clamped roughly 260-440ms, the way
+  UIScrollView paging behaves. A fixed duration always feels wrong at one end of
+  the speed range.
+- Scale tap duration with how many panels are being crossed.
+
+Rubber band at the edges — use Apple's formula, do not invent one:
+
+    offset = (x * d * c) / (d + c * x)        // c = 0.55, d = dimension
+
+Resistance should fall from about 51% to 43% as the pull lengthens. If it is
+linear, it is wrong.
 
 For scrollable lists:
 
 - Prefer faded edge masks as scroll affordances when scrollbars are hidden.
+- Partial reveal works by revealing a **shape**, not text. A half-visible row is
+  unambiguous. A word cut mid-glyph reads as an overflow bug, because users have
+  seen a thousand broken text clips and almost no intentional peeking labels. If
+  the peeking element has no container of its own, give it one or use a
+  different affordance.
 - Prefer a partial-item reveal at the scroll edge when possible. Seeing a cut
   off item is the strongest affordance that more content exists.
 - Start with native scroll plus native iOS overscroll bounce/rubber-band. Use
@@ -224,6 +307,28 @@ For scrollable lists:
 - Keep list height and padding stable so dynamic content does not shift controls.
 - Avoid hard clipping at scroll boundaries unless there is no better option.
   Use soft fades and partial-item reveal instead.
+
+## Animation Performance
+
+Anything that animates `transform` composites whatever sits beneath it on every
+frame. Three things reliably wreck that, and all three are invisible in code
+review:
+
+- **`backdrop-filter` on anything that can be on screen during the animation.**
+  It forces a layer that re-rasterises the moving content behind it every frame.
+  Frosted glass is fine on overlays that are `display: none` when closed (menus,
+  dialogs) — those render nothing during a swipe. It is not fine on anything that
+  can coexist with motion, such as a toast.
+- **`will-change` on a layout property.** `height` cannot be promoted to the GPU.
+  Hinting it only flags the element for layout thrash while the composited
+  transform runs alongside. Hint `transform` and `opacity`; never `height`,
+  `width`, `top`, or `left`.
+- **Wide soft shadows across many elements in the moving container.** Collapse
+  them to something cheap for the duration of the drag and restore on release.
+
+Use `contain: layout` on each paged section so a height change on the track
+cannot force a relayout of everything around it. Do not add `paint` containment
+unless clipping is acceptable — it will cut off card shadows.
 
 ## Persistence Defaults
 
@@ -259,6 +364,16 @@ Prevent common mobile irritants where appropriate:
 
 ## Engineering Defaults
 
+- **Measure before changing, and report the measurement.** A plausible mechanism
+  is not a diagnosis. Isolate the cause, then fix it, then verify with a number.
+- **Never hardcode a value that depends on the rendering environment.** Fonts,
+  viewport and platform differ between a phone, a preview and a build container,
+  so a constant measured in one is wrong in the other two. Measure at runtime
+  and re-measure on `document.fonts.ready`. This applies to anything sized
+  against text: optical centring, icons matched to a type stack, control heights.
+- Adobe Fonts (Typekit) web projects are **domain-locked**. The brand faces do
+  not resolve on any origin that is not on the kit's allow-list, so previews and
+  sandboxes always render fallbacks. Never take a type measurement from one.
 - Keep changes scoped and static unless the app needs more machinery.
 - Prefer existing local patterns over introducing new abstractions.
 - Keep all edited files ASCII unless the file already uses non-ASCII content for
