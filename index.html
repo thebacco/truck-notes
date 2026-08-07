@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-11">
-  <meta name="build-tag" content="v0807-nav11">
+  <meta name="app-version" content="2026-08-07-bottom-nav-12">
+  <meta name="build-tag" content="v0807-nav12">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4306,50 +4306,6 @@
       if (window.visualViewport) window.visualViewport.addEventListener("resize", sync);
       document.addEventListener("DOMContentLoaded", sync);
       window.addEventListener("load", sync);
-    })();
-  </script>
-  <script id="claude-bottom-probe">
-    /* TEMPORARY. Appends the numbers that would settle the bottom-gap
-       question to the build tag, so one screenshot answers it instead of
-       another round of guessing. Remove once the gap is confirmed closed. */
-    (function () {
-      function probe() {
-        var el = document.getElementById("buildTag");
-        if (!el) return;
-        var tabbar = document.querySelector(".tabbar");
-        var phone = document.querySelector(".phone");
-        var probeEl = document.createElement("div");
-        probeEl.style.cssText = "position:fixed;bottom:0;height:env(safe-area-inset-bottom);width:1px;";
-        document.body.appendChild(probeEl);
-        var inset = Math.round(probeEl.getBoundingClientRect().height);
-        document.body.removeChild(probeEl);
-
-        var topEl = document.createElement("div");
-        topEl.style.cssText = "position:fixed;top:0;height:env(safe-area-inset-top);width:1px;";
-        document.body.appendChild(topEl);
-        var insetTop = Math.round(topEl.getBoundingClientRect().height);
-        document.body.removeChild(topEl);
-
-        /* A hard marker pinned to the LAST renderable pixel row. Wherever
-           this magenta line lands in a screenshot is, by definition, the
-           bottom of the web view - which settles whether the missing strip
-           is below the viewport or inside it. Temporary. */
-        var edge = document.createElement("div");
-        edge.style.cssText = "position:fixed;left:0;right:0;bottom:0;height:3px;"
-          + "background:#ff00aa;z-index:99999;pointer-events:none;";
-        document.body.appendChild(edge);
-        var t = tabbar ? tabbar.getBoundingClientRect() : null;
-        var p = phone ? phone.getBoundingClientRect() : null;
-        el.textContent += " · ih" + window.innerHeight
-          + " sh" + (window.screen && window.screen.height)
-          + " sa" + inset + " st" + insetTop
-          + " ph" + (p ? Math.round(p.height) : "?")
-          + " tb" + (t ? Math.round(t.bottom) : "?")
-          + " th" + (t ? Math.round(t.height) : "?")
-          + " ah" + (getComputedStyle(document.documentElement).getPropertyValue("--app-h") || "-").trim()
-          + " sf" + (getComputedStyle(document.documentElement).getPropertyValue("--vp-shortfall") || "-").trim();
-      }
-      window.addEventListener("load", function () { setTimeout(probe, 900); });
     })();
   </script>
   <script id="claude-badge-metrics">
