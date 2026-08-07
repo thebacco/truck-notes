@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-18">
-  <meta name="build-tag" content="v0807-nav18">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="app-version" content="2026-08-07-bottom-nav-19">
+  <meta name="build-tag" content="v0807-nav19">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Truck Notes">
+  <meta name="apple-mobile-web-app-title" content="TN Nav">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="stylesheet" href="https://use.typekit.net/gpb6eqz.css">
@@ -4548,6 +4547,37 @@
       }
       if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", watch);
       else watch();
+    })();
+  </script>
+  <script id="claude-viewport-probe">
+    /* TEMPORARY. Reports whether dropping the manifest link and the
+       user-scalable/maximum-scale terms lets iOS hand back the full screen
+       height. Remove once answered. */
+    (function () {
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          var el = document.getElementById("buildTag");
+          if (!el) return;
+          function inset(side) {
+            var d = document.createElement("div");
+            d.style.cssText = "position:fixed;" + side + ":0;width:1px;height:env(safe-area-inset-" + side + ");";
+            document.body.appendChild(d);
+            var v = Math.round(d.getBoundingClientRect().height);
+            document.body.removeChild(d);
+            return v;
+          }
+          var f = document.createElement("div");
+          f.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;";
+          document.body.appendChild(f);
+          var fb = Math.round(f.getBoundingClientRect().bottom);
+          document.body.removeChild(f);
+          el.textContent += " · ih" + window.innerHeight
+            + " sh" + (window.screen && window.screen.height)
+            + " st" + inset("top") + " sb" + inset("bottom")
+            + " fb" + fb
+            + " ns" + (window.navigator.standalone === true ? "1" : "0");
+        }, 900);
+      });
     })();
   </script>
   <style id="claude-pwa-ground">
