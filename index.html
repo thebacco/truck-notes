@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-05-bottom-nav-1">
-  <meta name="build-tag" content="v0805-nav1">
+  <meta name="app-version" content="2026-08-07-bottom-nav-2">
+  <meta name="build-tag" content="v0807-nav2">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4411,6 +4411,115 @@
       color: #8fb0d6;
     }
   </style>
+
+  <style id="claude-tabbar-5">
+    /* ================================================================
+       BOTTOM TAB BAR - the five shift sections, moved off the top strip
+       and down to the thumb end of the phone.
+
+       The top .work-nav strip is hidden, not removed: its buttons, ids and
+       badge elements stay live so swipe physics, badge counts and
+       syncActiveWorkTab keep working untouched. These tabs call the same
+       setWorkSection() the strip did.
+
+       Publish keeps its own full-width row above this bar. A tab bar is for
+       destinations; mixing an action into it is the problem the
+       single-action footer already fixed once.
+
+       Net chrome cost vs the solo-Publish footer: roughly a wash. The
+       bottom grows ~54px, the top strip's ~58px goes away.
+       ================================================================ */
+    .work-nav { display: none; }
+
+    .footer {
+      display: block;
+      padding: 0;
+      border-top: 0;
+    }
+
+    .footer-action {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 10px 20px 10px;
+    }
+
+    body.subview-settings .footer-action { display: none; }
+
+    /* Review and Settings are full-screen views with no shift sections, so
+       section tabs would be lying about where you are. */
+    body.subview .tabbar { display: none; }
+
+    .tabbar {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-items: stretch;
+      padding: 0 4px max(4px, calc(env(safe-area-inset-bottom) - 18px));
+    }
+
+    .tabbar::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .tabbar-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      min-height: 49px;
+      padding: 6px 1px 4px;
+      border: 0;
+      background: none;
+      color: var(--muted);
+      font-family: var(--display-font);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .01em;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color .12s ease;
+    }
+
+    .tabbar-item svg {
+      width: 25px;
+      height: 25px;
+      stroke: currentColor;
+    }
+
+    .tabbar-item[aria-selected="true"] { color: var(--navy); }
+
+    body.theme-dark .tabbar-item[aria-selected="true"] { color: #8fb0d6; }
+
+    .tabbar-item:active { opacity: .55; }
+
+    .tabbar-badge {
+      position: absolute;
+      top: 2px;
+      left: 50%;
+      margin-left: 6px;
+      min-width: 17px;
+      padding: 0 4px;
+      border-radius: 9px;
+      background: #e5342a;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 17px;
+      text-align: center;
+      box-shadow: 0 0 0 2px var(--panel);
+    }
+
+    .tabbar-badge.zero { display: none; }
+  </style>
 </head>
 <body>
   <div class="phone" role="application" aria-label="Food truck shift notes">
@@ -4738,8 +4847,17 @@
       </main>
 
       <div class="footer">
-        <button class="secondary gold-outline hidden" id="toggleViewButton" type="button">Review Notes</button>
-        <button class="primary" id="sendButton" type="button">Publish</button>
+        <div class="footer-action">
+          <button class="secondary gold-outline hidden" id="toggleViewButton" type="button">Review Notes</button>
+          <button class="primary" id="sendButton" type="button">Publish</button>
+        </div>
+        <nav class="tabbar tabbar-5" role="tablist" aria-label="Shift sections">
+          <button class="tabbar-item" type="button" role="tab" data-tabbar-section="notes"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Notes</span><span class="tabbar-badge zero" id="tabbarBadge_notes">0</span></button>
+          <button class="tabbar-item" type="button" role="tab" data-tabbar-section="staff"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.2"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.6-3.4"/><path d="M15.5 5a3.2 3.2 0 0 1 0 6"/></svg><span>Staff</span><span class="tabbar-badge zero" id="tabbarBadge_staff">0</span></button>
+          <button class="tabbar-item" type="button" role="tab" data-tabbar-section="closeout"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M10 4h4v2h-4z"/><path d="M9.5 13l1.8 1.8 3.4-3.6"/></svg><span>Closeout</span></button>
+          <button class="tabbar-item" type="button" role="tab" data-tabbar-section="supplies"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5 12 13l9-4.5"/><path d="M12 13v7"/></svg><span>Supplies</span></button>
+          <button class="tabbar-item" type="button" role="tab" data-tabbar-section="inventory"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M3 4.5h18V8H3z"/><path d="M10 12h4"/></svg><span>Inventory</span></button>
+        </nav>
       </div>
     </div>
 
@@ -6583,6 +6701,7 @@
       document.body.classList.toggle("subview-settings", showingSettings);
       document.getElementById("menuReviewButton").classList.toggle("hidden", showingReport);
       refs.shiftControls.classList.toggle("hidden", showingSettings);
+      if (window.__syncTabbar) window.__syncTabbar();
     }
 
     function updateVerticalScrollCue(list) {
@@ -7843,6 +7962,37 @@
       currentView = "notes";
       render();
     });
+
+    /* The bottom tabs drive the SAME setWorkSection() the hidden top strip
+       used, so swipe physics, tap easing and section state are untouched. */
+    document.querySelectorAll("[data-tabbar-section]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (currentView !== "notes") { currentView = "notes"; render(); }
+        setWorkSection(button.dataset.tabbarSection);
+        syncTabbar();
+      });
+    });
+
+    /* Mirror the existing badge elements rather than recounting anything -
+       one source of truth. Writes only on change, because the observer
+       watches characterData and an unconditional write would retrigger
+       itself forever. */
+    function syncTabbar() {
+      document.querySelectorAll("[data-tabbar-section]").forEach((button) => {
+        button.setAttribute("aria-selected",
+          String(currentView === "notes" && button.dataset.tabbarSection === activeWorkSection));
+      });
+      [["noteCount", "tabbarBadge_notes"], ["staffCount", "tabbarBadge_staff"]].forEach(([from, to]) => {
+        const src = document.getElementById(from);
+        const dst = document.getElementById(to);
+        if (!src || !dst) return;
+        if (dst.textContent !== src.textContent) dst.textContent = src.textContent;
+        dst.classList.toggle("zero", (src.textContent || "0").trim() === "0");
+      });
+    }
+    window.__syncTabbar = syncTabbar;
+    new MutationObserver(syncTabbar).observe(document.body, { subtree: true, childList: true, characterData: true });
+    syncTabbar();
 
     refs.settingsButton.addEventListener("click", () => {
       closeHeaderMenu();
