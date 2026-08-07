@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-17">
-  <meta name="build-tag" content="v0807-nav17">
+  <meta name="app-version" content="2026-08-07-bottom-nav-18">
+  <meta name="build-tag" content="v0807-nav18">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -662,7 +662,7 @@
       flex-direction: column;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 0 16px calc(148px + env(safe-area-inset-bottom));
+      padding: 0 16px calc(132px + env(safe-area-inset-bottom));
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -4590,40 +4590,38 @@
   </style>
   <style id="claude-tabbar-5">
     /* ================================================================
-       BOTTOM TAB BAR - the five shift sections, moved off the top strip
-       and down to the thumb end of the phone.
+       BOTTOM TAB BAR
 
-       The top .work-nav strip is hidden, not removed: its buttons, ids and
-       badge elements stay live so swipe physics, badge counts and
-       syncActiveWorkTab keep working untouched. These tabs call the same
-       setWorkSection() the strip did.
+       The tab bar is now the footer's ONLY row, occupying the exact slot
+       main's Publish button occupied. Every geometry override this branch
+       had added is gone: `.footer` keeps main's own `position: absolute;
+       bottom: 0`, its padding (including the safe-area term), its height
+       and its background. Nothing here re-declares any of that.
 
-       Publish keeps its own full-width row above this bar. A tab bar is for
-       destinations; mixing an action into it is the problem the
-       single-action footer already fixed once.
+       Removed, deliberately - each was a bottom-nav invention that fought
+       main's working footer:
+         - on .footer: display block, padding 0, border-top 0, a --wash
+           background and its own box-shadow
+         - the .footer-action wrapper inside the footer; Publish now lives
+           at the end of <main> instead
+         - on .tabbar: a safe-area bottom padding, its own background,
+           border-radius and box-shadow. The footer already supplies all of
+           these, exactly as it does on main.
 
-       Net chrome cost vs the solo-Publish footer: roughly a wash. The
-       bottom grows ~54px, the top strip's ~58px goes away.
+       The top .work-nav strip stays hidden rather than deleted, so its
+       buttons, ids and badge elements remain live and swipe physics, badge
+       counts and syncActiveWorkTab keep working untouched. These tabs call
+       the same setWorkSection() the strip did.
        ================================================================ */
     .work-nav { display: none; }
 
-    .footer {
-      display: block;
-      padding: 0;
-      border-top: 0;
-      /* The action row stops being a white slab and becomes a recessed
-         shelf. The tab tray below it is then the bright surface, so the two
-         separate by brightness rather than by yet another hairline - which
-         is the rule this skin already states for cards. */
-      background: var(--wash);
-      box-shadow: 0 -10px 20px -14px rgba(35, 38, 42, .45);
-    }
-
+    /* Publish sits at the end of the scrolling content now that the footer
+       belongs to the tab bar. Full width, unchanged styling. */
     .footer-action {
       display: grid;
       grid-template-columns: 1fr;
       gap: 10px;
-      padding: 10px 20px 10px;
+      padding: 4px 0 2px;
     }
 
     body.subview-settings .footer-action { display: none; }
@@ -4632,34 +4630,13 @@
        section tabs would be lying about where you are. */
     body.subview .tabbar { display: none; }
 
+    /* Fills the footer. No positioning, no padding, no background of its
+       own - the footer already handles all of that, the same way it does on
+       main. */
     .tabbar {
-      position: relative;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       align-items: stretch;
-      /* The -18px trim was tuned while the frame was stopping ~67px short of
-         the real bottom edge, so the labels only *looked* like they cleared
-         the home indicator - there was dead space underneath doing the work.
-         Now that the frame is full-bleed (see the standalone block above),
-         the bar genuinely ends at the bottom of the screen and needs real
-         clearance. 28px on a 34px inset: snug, still clear of the indicator.
-         Net content gain is still ~55px, since 67px of waste went away. */
-      /* Exactly main's footer bottom padding, so the menu bar lands in the
-         same slot main's Publish button occupies. */
-      padding: 0 4px max(8px, calc(env(safe-area-inset-bottom) - 16px));
-      /* A tray, not a strip: bright surface, rounded top, docked flush to
-         the bottom edge and lifted a hair off the shelf behind it. The tray
-         also paints its own ground, so nothing can ever show through in the
-         safe-area band under the labels. */
-      background: var(--panel);
-      border-radius: 14px 14px 0 0;
-      box-shadow: 0 -6px 16px -12px rgba(35, 38, 42, .5);
-    }
-
-    /* The hairline is redundant now - the tray's own edge does that job,
-       and a line across a rounded top reads as a mistake. */
-    .tabbar::before {
-      display: none;
     }
 
     .tabbar-item {
@@ -5072,13 +5049,14 @@
 
           </div>
         </section>
-      </main>
 
-      <div class="footer">
         <div class="footer-action">
           <button class="secondary gold-outline hidden" id="toggleViewButton" type="button">Review Notes</button>
           <button class="primary" id="sendButton" type="button">Publish</button>
         </div>
+      </main>
+
+      <div class="footer">
         <nav class="tabbar tabbar-5" role="tablist" aria-label="Shift sections">
           <button class="tabbar-item" type="button" role="tab" data-tabbar-section="notes"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Notes</span><span class="tabbar-badge zero" id="tabbarBadge_notes">0</span></button>
           <button class="tabbar-item" type="button" role="tab" data-tabbar-section="staff"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.2"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.6-3.4"/><path d="M15.5 5a3.2 3.2 0 0 1 0 6"/></svg><span>Staff</span><span class="tabbar-badge zero" id="tabbarBadge_staff">0</span></button>
