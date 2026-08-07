@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-16">
-  <meta name="build-tag" content="v0807-nav16">
+  <meta name="app-version" content="2026-08-07-bottom-nav-17">
+  <meta name="build-tag" content="v0807-nav17">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4497,6 +4497,95 @@
       body.theme-dark .staff-transfer-option.landed {
         animation: none;
       }
+    }
+  </style>
+  <script id="claude-pwa-flag">
+    /* Flags the installed-PWA case on <html> so CSS can react to it without
+       relying on the display-mode media query alone. Both signals are read:
+       navigator.standalone is the iOS-only one and is the more reliable of
+       the two inside a home-screen app; display-mode is the standard. Either
+       being true is enough - requiring both would silently miss the case
+       where iOS reports one and not the other, which is the exact situation
+       this is meant to cover. */
+    (function () {
+      function flag() {
+        var iosStandalone = window.navigator.standalone === true;
+        var mediaStandalone = window.matchMedia
+          && window.matchMedia("(display-mode: standalone)").matches;
+        document.documentElement.classList.toggle(
+          "pwa-installed", !!(iosStandalone || mediaStandalone)
+        );
+      }
+      flag();
+      document.addEventListener("DOMContentLoaded", flag);
+      window.addEventListener("load", flag);
+
+      /* The dark palette is declared on `body.theme-dark`, so <html> can't
+         see it - `var(--panel)` on <html> would resolve to the LIGHT value
+         and paint the reserved strip white in dark mode, which is the whole
+         bug this is meant to close. Mirror the theme class up to <html> so
+         both elements resolve the same variables. */
+      function mirrorTheme() {
+        if (!document.body) return;
+        document.documentElement.classList.toggle(
+          "theme-dark", document.body.classList.contains("theme-dark")
+        );
+        /* Copy the resolved panel colour up to <html>. Mirroring the class
+           alone isn't enough - the dark palette is declared on
+           `body.theme-dark`, so <html> never inherits those variables and
+           `var(--panel)` there would resolve to the LIGHT value. Reading the
+           computed value keeps this DRY: no palette hex is duplicated, and
+           it stays correct if the theme colours ever change. */
+        var panel = getComputedStyle(document.body).getPropertyValue("--panel").trim();
+        if (panel) document.documentElement.style.setProperty("--panel-mirror", panel);
+      }
+      function watch() {
+        if (!document.body) return;
+        mirrorTheme();
+        new MutationObserver(mirrorTheme).observe(document.body, {
+          attributes: true, attributeFilter: ["class"]
+        });
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", watch);
+      else watch();
+    })();
+  </script>
+  <style id="claude-pwa-ground">
+    /* ================================================================
+       THE STRIP BELOW THE VIEWPORT
+
+       In an installed iOS PWA the web view is shorter than the screen by
+       the top safe-area inset (measured on device: 894 of 956, inset 62).
+       That leftover strip is NOT renderable - nothing can be laid out in
+       it, and forcing the frame taller just clips the tab bar off. iOS
+       fills it with the page's own background instead.
+
+       So the only way to close the gap is to make everything that could
+       paint into that strip carry the SAME colour as the tab bar. Then the
+       reserved band reads as a continuation of the bar rather than a gap.
+
+       The page ground moves to `main` so the grey card-on-ground look is
+       preserved exactly where it's visible, while the frame itself goes
+       flat panel.
+       ================================================================ */
+    html.pwa-installed {
+      background: var(--panel-mirror, var(--panel));
+    }
+
+    html.pwa-installed body,
+    html.pwa-installed body.theme-dark,
+    html.pwa-installed .phone,
+    html.pwa-installed .screen,
+    html.pwa-installed body.theme-dark .screen {
+      background: var(--panel);
+    }
+
+    html.pwa-installed main {
+      background: linear-gradient(180deg, #e4e6e6 0%, #d8dbdb 100%);
+    }
+
+    html.pwa-installed body.theme-dark main {
+      background: linear-gradient(180deg, #191c1e 0%, #131517 100%);
     }
   </style>
   <style id="claude-tabbar-5">
