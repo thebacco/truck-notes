@@ -88,6 +88,39 @@ Every Rhino PWA should include:
 - `theme_color` and `background_color` matching the warm panel color.
 - `apple-mobile-web-app-capable`, `apple-mobile-web-app-title`, and
   `apple-mobile-web-app-status-bar-style` meta tags.
+- **`apple-mobile-web-app-status-bar-style` must be `default`. Never
+  `black-translucent`.** This one value decides where iOS anchors the web
+  view inside the screen, and getting it wrong is not obvious from the
+  symptom. On a home-screen iPhone install the web view is always shorter
+  than the screen by the status-bar inset. With `default`, iOS puts the web
+  view *below* the status bar, so its bottom edge lands on the physical
+  bottom of the screen and a footer pinned to `bottom: 0` sits where you
+  expect. With `black-translucent`, iOS anchors it at y=0 under the notch or
+  Dynamic Island instead, and the leftover inset is dumped at the BOTTOM as
+  a strip nothing can render into — a permanent gap under the footer that no
+  amount of CSS can close. Measured on a 16 Pro Max: 956pt screen, 894pt web
+  view, 62pt inset. `black-translucent` gave 0→894 (gap at the bottom);
+  `default` gives 62→956 (flush).
+
+  Three things make this expensive to diagnose, which is why it is a hard
+  rule rather than a preference:
+    1. **The height is identical either way.** `window.innerHeight` reads
+       894 in both cases. Only the *anchor* differs. Measuring the viewport
+       height tells you nothing; you have to check where the app starts
+       painting. If the status bar sits on app-coloured pixels rather than
+       page background, it is anchored at 0 and the meta is wrong.
+    2. **It cannot be fixed at runtime.** The frame is set before any CSS or
+       JS runs. Forcing the frame to `screen.height` renders the footer
+       off-screen. There is no CSS workaround — only the meta.
+    3. **iOS reads it once, at install time, and caches it with the icon.**
+       Deploying a corrected value changes nothing on an already-installed
+       app. The icon must be deleted and re-added. An app installed before
+       this rule existed keeps its old behaviour indefinitely, so a working
+       install is not evidence the current file is correct.
+
+  When changing this value, delete and re-add the home screen icon before
+  judging the result, and check whether anyone else installed the app under
+  the old value.
 - A one-time install prompt or install affordance.
 - `beforeinstallprompt` handling when supported.
 - A fallback toast telling the user to use browser install or Add to Home Screen.
