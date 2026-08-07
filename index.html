@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-6">
-  <meta name="build-tag" content="v0807-nav6">
+  <meta name="app-version" content="2026-08-07-bottom-nav-8">
+  <meta name="build-tag" content="v0807-nav8">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4565,7 +4565,7 @@
          the bar genuinely ends at the bottom of the screen and needs real
          clearance. 28px on a 34px inset: snug, still clear of the indicator.
          Net content gain is still ~55px, since 67px of waste went away. */
-      padding: 0 4px max(8px, calc(env(safe-area-inset-bottom) - 6px));
+      padding: 0 4px max(8px, calc(env(safe-area-inset-bottom) - 12px));
       /* A tray, not a strip: bright surface, rounded top, docked flush to
          the bottom edge and lifted a hair off the shelf behind it. The tray
          also paints its own ground, so nothing can ever show through in the
@@ -4607,12 +4607,12 @@
     .tabbar-item::before {
       content: "";
       position: absolute;
-      top: 2px;
-      right: 5px;
-      bottom: 2px;
-      left: 5px;
+      top: 3px;
+      right: 9px;
+      bottom: 3px;
+      left: 9px;
       z-index: 0;
-      border-radius: 13px;
+      border-radius: 12px;
       background: transparent;
       transition: background .16s ease;
     }
@@ -4625,8 +4625,12 @@
       background: rgba(143, 176, 214, .20);
     }
 
+    /* The badge is a span too, and `.tabbar-item > span` (0,1,1) outranks
+       `.tabbar-badge` (0,1,0) - so a blanket rule here silently turned the
+       badge's `position: absolute` into `relative`, dropping it into the
+       flow below the label and inflating the whole bar. Exclude it. */
     .tabbar-item svg,
-    .tabbar-item > span {
+    .tabbar-item > span:not(.tabbar-badge) {
       position: relative;
       z-index: 1;
     }
