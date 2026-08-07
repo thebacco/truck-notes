@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-10">
-  <meta name="build-tag" content="v0807-nav10">
+  <meta name="app-version" content="2026-08-07-bottom-nav-11">
+  <meta name="build-tag" content="v0807-nav11">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4253,36 +4253,30 @@
     })();
   </script>
   <script id="claude-app-height">
-    /* WHY THE BAR WOULDN'T REACH THE BOTTOM.
+    /* WHY THE BAR WOULDN'T REACH THE BOTTOM - measured, not guessed.
 
-       In an `apple-mobile-web-app-capable` standalone app, iOS reports a
-       viewport height that has the TOP safe-area inset subtracted from it,
-       while still painting content underneath that inset. On a 956pt
-       screen with a 62pt Dynamic Island, the page believes it is 894pt
-       tall. Every CSS length agrees with that number - 100vh, 100dvh,
-       `position: fixed; inset: 0`, window.innerHeight - because they all
-       read the same viewport. So the frame ends 62pt above the physical
-       bottom and nothing expressed in CSS can see past it. That dead strip
-       is the gap, and its size is the top inset, which is why it changes
-       with the phone: ~62pt on Dynamic Island models, ~47pt on notch
-       models, 0 on Touch ID models (where this bug doesn't appear at all).
+       On this phone the probe returned: innerHeight 894, screen.height 956,
+       safe-area-inset-bottom 34. So in a standalone home-screen app the web
+       view really is only 894pt tall on a 956pt screen. The remaining 62pt
+       strip along the bottom is not part of the viewport at all - nothing
+       can be laid out in it. iOS simply floods it with the page's own
+       background colour, which is exactly why the very first screenshot
+       showed a grey band there (body was #d3d6d6 at the time) and why the
+       band turned white the moment body's background was corrected.
 
-       The one source that knows the real screen is `screen.height`, which
-       reports logical points and is unaffected by the viewport bug. So:
-       take the tallest height the viewport APIs offer, then let the screen
-       correct it upward if it disagrees.
+       That strip is already covering the home indicator. But the tab bar
+       was ALSO reserving env(safe-area-inset-bottom) on top of it, so the
+       clearance got counted twice and the labels floated ~88pt up.
 
-       Deliberately model-agnostic - no device sizes are hardcoded, so it
-       covers SE through the current Pro Max and no-ops entirely on any
-       device or browser where the viewport already reports full height.
+       Trying to grow the frame to 956 (the previous attempt) is worse: the
+       extra 62pt lands outside the visible web view and the bar is simply
+       cut off.
 
-       Two guards keep it from ever overshooting:
-         - Rotation: iOS is inconsistent about whether screen.width/height
-           swap on rotation, so both are normalised by orientation rather
-           than trusted as-is.
-         - Sanity: the correction is only accepted if it is inset-sized
-           (<= 120pt). A real orientation mismatch is hundreds of points
-           and gets rejected. */
+       So: keep the frame at the true viewport height, and publish the
+       shortfall as --vp-shortfall so the tab bar can subtract what the
+       strip is already providing. On any device where the viewport is
+       honest the shortfall is 0 and the bar reserves the safe area itself,
+       exactly as before - no device sizes are hardcoded anywhere. */
     (function () {
       function sync() {
         var h = Math.max(
@@ -4290,15 +4284,21 @@
           document.documentElement.clientHeight || 0,
           (window.visualViewport && window.visualViewport.height) || 0
         );
+        if (h <= 0) return;
 
         var sw = (window.screen && window.screen.width) || 0;
         var sh = (window.screen && window.screen.height) || 0;
         var portrait = window.innerHeight >= window.innerWidth;
         var screenH = portrait ? Math.max(sw, sh) : Math.min(sw, sh);
 
-        if (screenH > h && screenH - h <= 120) h = screenH;
+        // Only inset-sized shortfalls are real; anything larger is an
+        // orientation mismatch, where screen.* stays portrait-shaped.
+        var shortfall = 0;
+        if (screenH > h && screenH - h <= 120) shortfall = screenH - h;
 
-        if (h > 0) document.documentElement.style.setProperty("--app-h", h + "px");
+        var root = document.documentElement;
+        root.style.setProperty("--app-h", h + "px");
+        root.style.setProperty("--vp-shortfall", shortfall + "px");
       }
       sync();
       window.addEventListener("resize", sync);
@@ -4323,15 +4323,31 @@
         document.body.appendChild(probeEl);
         var inset = Math.round(probeEl.getBoundingClientRect().height);
         document.body.removeChild(probeEl);
+
+        var topEl = document.createElement("div");
+        topEl.style.cssText = "position:fixed;top:0;height:env(safe-area-inset-top);width:1px;";
+        document.body.appendChild(topEl);
+        var insetTop = Math.round(topEl.getBoundingClientRect().height);
+        document.body.removeChild(topEl);
+
+        /* A hard marker pinned to the LAST renderable pixel row. Wherever
+           this magenta line lands in a screenshot is, by definition, the
+           bottom of the web view - which settles whether the missing strip
+           is below the viewport or inside it. Temporary. */
+        var edge = document.createElement("div");
+        edge.style.cssText = "position:fixed;left:0;right:0;bottom:0;height:3px;"
+          + "background:#ff00aa;z-index:99999;pointer-events:none;";
+        document.body.appendChild(edge);
         var t = tabbar ? tabbar.getBoundingClientRect() : null;
         var p = phone ? phone.getBoundingClientRect() : null;
         el.textContent += " · ih" + window.innerHeight
           + " sh" + (window.screen && window.screen.height)
-          + " sa" + inset
+          + " sa" + inset + " st" + insetTop
           + " ph" + (p ? Math.round(p.height) : "?")
           + " tb" + (t ? Math.round(t.bottom) : "?")
           + " th" + (t ? Math.round(t.height) : "?")
-          + " ah" + (getComputedStyle(document.documentElement).getPropertyValue("--app-h") || "-").trim();
+          + " ah" + (getComputedStyle(document.documentElement).getPropertyValue("--app-h") || "-").trim()
+          + " sf" + (getComputedStyle(document.documentElement).getPropertyValue("--vp-shortfall") || "-").trim();
       }
       window.addEventListener("load", function () { setTimeout(probe, 900); });
     })();
@@ -4540,8 +4556,11 @@
         /* --app-h is measured in JS from whichever viewport API reports the
            tallest value. Falls back to the inset-driven auto height if the
            script hasn't run yet. */
+        /* True viewport height. Never screen.height - see claude-app-height:
+           the strip beyond the viewport is not renderable, so growing into
+           it just clips the tab bar off the bottom. */
         height: var(--app-h, auto);
-        min-height: var(--app-h, auto);
+        min-height: 0;
         max-height: none;
       }
 
@@ -4656,7 +4675,11 @@
          the bar genuinely ends at the bottom of the screen and needs real
          clearance. 28px on a 34px inset: snug, still clear of the indicator.
          Net content gain is still ~55px, since 67px of waste went away. */
-      padding: 0 4px max(8px, calc(env(safe-area-inset-bottom) - 12px));
+      /* Subtract whatever the out-of-viewport bottom strip is already
+         covering (--vp-shortfall). On a phone where the viewport is
+         honest that value is 0 and this reduces to the plain safe-area
+         reservation. */
+      padding: 0 4px max(10px, calc(env(safe-area-inset-bottom) - 12px - var(--vp-shortfall, 0px)));
       /* A tray, not a strip: bright surface, rounded top, docked flush to
          the bottom edge and lifted a hair off the shelf behind it. The tray
          also paints its own ground, so nothing can ever show through in the
