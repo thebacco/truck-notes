@@ -1,10 +1,10 @@
-﻿{
+{
   "name": "Truck Notes",
   "short_name": "TN Nav",
   "description": "A no-login PWA for food truck staff to collect shift notes and email the nightly report.",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#fffdf8",
   "theme_color": "#fffdf8",
   "orientation": "portrait",
@@ -17,6 +17,3 @@
     }
   ]
 }
-
-
-
