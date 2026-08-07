@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-13">
-  <meta name="build-tag" content="v0807-nav13">
+  <meta name="app-version" content="2026-08-07-bottom-nav-14">
+  <meta name="build-tag" content="v0807-nav14">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -662,7 +662,7 @@
       flex-direction: column;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 0 16px calc(132px + env(safe-area-inset-bottom));
+      padding: 0 16px calc(148px + env(safe-area-inset-bottom));
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -4430,7 +4430,17 @@
        cascade back for standalone mode only - the desktop/browser page
        ground is untouched. */
     @media (display-mode: standalone) and (max-width: 520px) {
-      body {
+      /* The 62pt strip below the viewport is not renderable - iOS floods it
+         with the page's own background colour instead. So body's background
+         has to match the TAB BAR's surface, or that strip reads as a gap
+         under the bar.
+
+         `body` alone was not enough: `body.theme-dark` is more specific AND
+         later in the file, so dark mode kept #101213 while the tray was
+         #24282b - a visible band, which is exactly the "gap" being chased.
+         Light mode hid the same bug only because both colours were white. */
+      body,
+      body.theme-dark {
         background: var(--panel);
       }
 
