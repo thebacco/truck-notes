@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-3">
-  <meta name="build-tag" content="v0807-nav3">
+  <meta name="app-version" content="2026-08-07-bottom-nav-4">
+  <meta name="build-tag" content="v0807-nav4">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4522,7 +4522,7 @@
          also paints its own ground, so nothing can ever show through in the
          safe-area band under the labels. */
       background: var(--panel);
-      border-radius: 20px 20px 0 0;
+      border-radius: 14px 14px 0 0;
       box-shadow: 0 -6px 16px -12px rgba(35, 38, 42, .5);
     }
 
@@ -4553,6 +4553,35 @@
       transition: color .12s ease;
     }
 
+    /* Selected tab sits in its own soft pod. It travels with selection, so
+       it marks where you are instead of permanently promoting one section. */
+    .tabbar-item::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      right: 5px;
+      bottom: 2px;
+      left: 5px;
+      z-index: 0;
+      border-radius: 13px;
+      background: transparent;
+      transition: background .16s ease;
+    }
+
+    .tabbar-item[aria-selected="true"]::before {
+      background: rgba(61, 92, 157, .10);
+    }
+
+    body.theme-dark .tabbar-item[aria-selected="true"]::before {
+      background: rgba(143, 176, 214, .15);
+    }
+
+    .tabbar-item svg,
+    .tabbar-item > span {
+      position: relative;
+      z-index: 1;
+    }
+
     .tabbar-item svg {
       width: 25px;
       height: 25px;
@@ -4567,6 +4596,7 @@
 
     .tabbar-badge {
       position: absolute;
+      z-index: 2;
       top: 2px;
       left: 50%;
       margin-left: 6px;
