@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-21">
-  <meta name="build-tag" content="v0807-nav21">
+  <meta name="app-version" content="2026-08-07-bottom-nav-22">
+  <meta name="build-tag" content="v0807-nav22">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="TN Nav">
@@ -4506,6 +4506,64 @@
       }
     }
   </style>
+  <script id="claude-standalone-anchor-guard">
+    /* GUARD - stops the status-bar-style bug from ever shipping silently.
+
+       Background: `apple-mobile-web-app-status-bar-style` decides whether
+       iOS anchors the web view at y=0 (black-translucent) or below the
+       status bar (default). Wrong value = an unrenderable strip at the
+       bottom that looks exactly like a CSS bug and cannot be fixed in CSS.
+       It cost about twenty builds to find once. See AGENTS.md.
+
+       Detection: the viewport height is IDENTICAL under both values, so
+       height proves nothing. What differs is the top inset. When the web
+       view is correctly anchored below the status bar, that strip is
+       outside the viewport and env(safe-area-inset-top) reads 0. When it's
+       wrongly anchored at y=0 the app paints under the notch, the inset
+       reads the status-bar height, and exactly that much dead space appears
+       at the bottom - so innerHeight + insetTop === screen.height.
+
+       Both conditions must hold before this fires, so a device that simply
+       reports a top inset can't trip it. If it ever does fire the app is
+       already visibly broken, which is why it's loud rather than a silent
+       console line - the whole point is that nobody chases it blind again. */
+    (function () {
+      function check() {
+        var standalone = window.navigator.standalone === true
+          || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+        if (!standalone || !document.body) return;
+
+        var probe = document.createElement("div");
+        probe.style.cssText = "position:fixed;top:0;width:1px;height:env(safe-area-inset-top);";
+        document.body.appendChild(probe);
+        var insetTop = Math.round(probe.getBoundingClientRect().height);
+        document.body.removeChild(probe);
+
+        var screenH = Math.max(window.screen.width || 0, window.screen.height || 0);
+        var portrait = window.innerHeight >= window.innerWidth;
+        var deadStrip = portrait && Math.abs((window.innerHeight + insetTop) - screenH) <= 2;
+
+        if (insetTop < 20 || !deadStrip) return;
+
+        console.error(
+          "[truck-notes] apple-mobile-web-app-status-bar-style is anchoring the "
+          + "web view at y=0. Set it to `default`, then DELETE and re-add the home "
+          + "screen icon - iOS caches this at install time. innerHeight="
+          + window.innerHeight + " insetTop=" + insetTop + " screen=" + screenH
+        );
+
+        var bar = document.createElement("div");
+        bar.setAttribute("role", "alert");
+        bar.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:99999;"
+          + "padding:calc(6px + env(safe-area-inset-top)) 12px 6px;background:#a8382c;"
+          + "color:#fff;font:600 12px/1.35 ui-sans-serif,system-ui,sans-serif;text-align:center;";
+        bar.textContent = "Layout bug: status bar style must be `default`, then reinstall the icon. See AGENTS.md.";
+        document.body.appendChild(bar);
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", check);
+      else check();
+    })();
+  </script>
   <style id="claude-tabbar-5">
     /* ================================================================
        BOTTOM TAB BAR
