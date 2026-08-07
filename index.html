@@ -4483,6 +4483,12 @@
       display: block;
       padding: 0;
       border-top: 0;
+      /* The action row stops being a white slab and becomes a recessed
+         shelf. The tab tray below it is then the bright surface, so the two
+         separate by brightness rather than by yet another hairline - which
+         is the rule this skin already states for cards. */
+      background: var(--wash);
+      box-shadow: 0 -10px 20px -14px rgba(35, 38, 42, .45);
     }
 
     .footer-action {
@@ -4503,20 +4509,27 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       align-items: stretch;
-      padding: 0 4px max(4px, calc(env(safe-area-inset-bottom) - 18px));
-      /* The bar paints its own ground so nothing behind it can ever show
-         through in the strip below the icons. */
+      /* The -18px trim was tuned while the frame was stopping ~67px short of
+         the real bottom edge, so the labels only *looked* like they cleared
+         the home indicator - there was dead space underneath doing the work.
+         Now that the frame is full-bleed (see the standalone block above),
+         the bar genuinely ends at the bottom of the screen and needs real
+         clearance. 28px on a 34px inset: snug, still clear of the indicator.
+         Net content gain is still ~55px, since 67px of waste went away. */
+      padding: 0 4px max(8px, calc(env(safe-area-inset-bottom) - 6px));
+      /* A tray, not a strip: bright surface, rounded top, docked flush to
+         the bottom edge and lifted a hair off the shelf behind it. The tray
+         also paints its own ground, so nothing can ever show through in the
+         safe-area band under the labels. */
       background: var(--panel);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -6px 16px -12px rgba(35, 38, 42, .5);
     }
 
+    /* The hairline is redundant now - the tray's own edge does that job,
+       and a line across a rounded top reads as a mistake. */
     .tabbar::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      left: 0;
-      height: 1px;
-      background: var(--line);
+      display: none;
     }
 
     .tabbar-item {
