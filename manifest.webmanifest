@@ -4,7 +4,7 @@
   "description": "A no-login PWA for food truck staff to collect shift notes and email the nightly report.",
   "start_url": "./",
   "scope": "./",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#fffdf8",
   "theme_color": "#fffdf8",
   "orientation": "portrait",

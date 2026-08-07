@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-15">
-  <meta name="build-tag" content="v0807-nav15">
+  <meta name="app-version" content="2026-08-07-bottom-nav-16">
+  <meta name="build-tag" content="v0807-nav16">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4250,38 +4250,6 @@
       }
       if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", paint);
       else paint();
-    })();
-  </script>
-  <script id="claude-viewport-probe">
-    /* TEMPORARY - single purpose: report whether manifest `display:
-       fullscreen` gets iOS to hand back the full 956pt viewport, or whether
-       894 is a hard ceiling. Remove once answered. */
-    (function () {
-      window.addEventListener("load", function () {
-        setTimeout(function () {
-          var el = document.getElementById("buildTag");
-          if (!el) return;
-          function inset(side) {
-            var d = document.createElement("div");
-            d.style.cssText = "position:fixed;" + side + ":0;width:1px;height:env(safe-area-inset-" + side + ");";
-            document.body.appendChild(d);
-            var v = Math.round(d.getBoundingClientRect().height);
-            document.body.removeChild(d);
-            return v;
-          }
-          var f = document.createElement("div");
-          f.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;";
-          document.body.appendChild(f);
-          var fixedBottom = Math.round(f.getBoundingClientRect().bottom);
-          document.body.removeChild(f);
-          el.textContent += " · ih" + window.innerHeight
-            + " sh" + (window.screen && window.screen.height)
-            + " st" + inset("top") + " sb" + inset("bottom")
-            + " fb" + fixedBottom
-            + " dm" + (window.matchMedia("(display-mode: fullscreen)").matches ? "full"
-                     : window.matchMedia("(display-mode: standalone)").matches ? "stand" : "browser");
-        }, 900);
-      });
     })();
   </script>
   <script id="claude-badge-metrics">
