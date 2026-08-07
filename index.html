@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-22">
-  <meta name="build-tag" content="v0807-nav22">
+  <meta name="app-version" content="2026-08-07-bottom-nav-25">
+  <meta name="build-tag" content="v0807-nav25">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="TN Nav">
@@ -4568,18 +4568,19 @@
     /* ================================================================
        BOTTOM TAB BAR
 
-       The tab bar is now the footer's ONLY row, occupying the exact slot
-       main's Publish button occupied. Every geometry override this branch
-       had added is gone: `.footer` keeps main's own `position: absolute;
-       bottom: 0`, its padding (including the safe-area term), its height
-       and its background. Nothing here re-declares any of that.
+       The footer now stacks two rows: Publish (and the dormant Review
+       Notes toggle) on top, the tab bar below it, both fixed in the
+       footer so neither one scrolls away. `.footer` is still main's own
+       `position: absolute; bottom: 0` box - same padding (including the
+       safe-area term), same background - so the tab bar keeps landing
+       flush with the physical bottom edge exactly as main's Publish row
+       always has. Nothing here re-declares that geometry; the two rows
+       just stack inside it via the footer's existing single-column grid.
 
        Removed, deliberately - each was a bottom-nav invention that fought
        main's working footer:
          - on .footer: display block, padding 0, border-top 0, a --wash
            background and its own box-shadow
-         - the .footer-action wrapper inside the footer; Publish now lives
-           at the end of <main> instead
          - on .tabbar: a safe-area bottom padding, its own background,
            border-radius and box-shadow. The footer already supplies all of
            these, exactly as it does on main.
@@ -4591,15 +4592,54 @@
        ================================================================ */
     .work-nav { display: none; }
 
-    /* Publish sits at the end of the scrolling content now that the footer
-       belongs to the tab bar. Full width, unchanged styling. */
+    /* Hiding .work-nav also deleted the ~58px of breathing room it used to
+       provide between the header and the first card (its own top padding,
+       the tab row, and its bottom margin) - so the "New note" composer was
+       left touching the header's border directly. Restored as a single
+       top margin, sized to roughly what that stack added, on the one
+       element that's now first in the scroll area. */
+    .work-sections {
+      margin-top: 18px;
+    }
+
+    /* "Review Notes" row in the ⋮ menu: deactivated, not removed. It's a
+       leftover from before the tab bar existed and the menu was never a
+       good permanent home for it - but ripping it out silently would lose
+       the reminder that it needs one. Dimmed and inert; the click handler
+       is still wired in JS but pointer-events:none stops it firing, so
+       re-activating this later is a one-line CSS revert, not a rebuild. */
+    .header-menu-row.deactivated-row {
+      opacity: .4;
+      pointer-events: none;
+    }
+
+    .deactivated-tag {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(107, 103, 96, .14);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    body.theme-dark .deactivated-tag {
+      background: rgba(154, 161, 166, .16);
+    }
+
+    /* Publish's own row, back inside the footer and stacked above the tab
+       bar. Full width, unchanged styling; the footer's grid gap supplies
+       the space between this row and the tab bar below it, so no padding
+       of its own is needed. */
     .footer-action {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 10px;
-      padding: 4px 0 2px;
     }
 
+    /* Settings has no shift sections and no publish action - the whole
+       footer is already hidden there (see claude-bottombar above), so this
+       just keeps the row from taking up grid space if that ever changes. */
     body.subview-settings .footer-action { display: none; }
 
     /* Review and Settings are full-screen views with no shift sections, so
@@ -4700,6 +4740,67 @@
     }
 
     .tabbar-badge.zero { display: none; }
+
+    /* ================================================================
+       HEADER SIMPLIFICATION
+
+       Two changes, tested as a side-by-side preview before landing here:
+
+       1. The app icon is dropped from the header. It duplicated the
+          home-screen icon the user just tapped and carried no information -
+          there's one truck, so it couldn't be distinguishing anything. The
+          title now stands alone, the way Mail/Notes/Reminders do it (plain
+          large title, no icon card), rather than the dashboard/workspace-
+          switcher convention (Slack, Gmail) where the icon's job is to say
+          WHICH thing you're in.
+
+       2. The date field moves off its own row and onto the title row. The
+          two-row layout had dead space on both sides - blank to the right
+          of the title in row 1, blank to the left of the date chip in row
+          2 - because each row was used from a different edge. One row,
+          both edges used, no gap, and the header loses a full row of
+          height.
+       ================================================================ */
+    .brand-title-only img { display: none; }
+
+    .brand-title-only h1 {
+      font-size: 26px;
+      line-height: 1.05;
+    }
+
+    .brand-title-only .eyebrow {
+      order: 2;
+      margin: 3px 0 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-title-only > div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-row {
+      flex-wrap: nowrap;
+    }
+
+    .brand-title-only {
+      flex: 1;
+      min-width: 0;
+    }
+
+    #shiftControls {
+      flex: none;
+      margin-top: 0;
+    }
+
+    /* Was 152px across two rows with room to spare; now sharing a row with
+       the title and menu button, so it's trimmed to what the date text and
+       icon actually need. */
+    #shiftDate {
+      min-width: 128px;
+    }
   </style>
 </head>
 <body>
@@ -4740,12 +4841,17 @@
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
             <span>Notes</span>
           </button>
-          <div class="brand">
-            <img src="icon.png" alt="">
+          <div class="brand brand-title-only">
             <div>
-              <p class="eyebrow">Miss Tasty <span class="build-tag" id="buildTag"></span></p>
               <h1>Truck Notes</h1>
+              <p class="eyebrow">Miss Tasty <span class="build-tag" id="buildTag"></span></p>
             </div>
+          </div>
+          <div class="shift-row" id="shiftControls">
+            <label class="date-field" for="shiftDate">
+              <span>Shift date</span>
+              <input id="shiftDate" type="date" autocomplete="off">
+            </label>
           </div>
           <div class="header-actions">
             <button class="icon-button settings-button" id="headerMenuButton" type="button" aria-label="Menu" aria-expanded="false" aria-controls="headerMenu">
@@ -4754,9 +4860,14 @@
               </svg>
             </button>
             <div class="header-menu hidden" id="headerMenu">
-              <button class="header-menu-row" id="menuReviewButton" type="button">
+              <!-- Deactivated, not deleted. The ⋮ menu was never the right
+                   home for this - it's kept visible as a marker that Review
+                   needs a real destination (a tab, most likely) rather than
+                   silently disappearing. aria-disabled + pointer-events:none
+                   in claude-tabbar-5 below is what actually turns it off. -->
+              <button class="header-menu-row deactivated-row" id="menuReviewButton" type="button" aria-disabled="true" title="Not live here right now">
                 <span>Review Notes</span>
-                <span aria-hidden="true">›</span>
+                <span class="deactivated-tag" aria-hidden="true">soon</span>
               </button>
               <button class="header-menu-row" id="menuNightModeButton" type="button" aria-pressed="false">
                 <span>Night mode</span>
@@ -4776,12 +4887,6 @@
               </button>
             </div>
           </div>
-        </div>
-        <div class="shift-row" id="shiftControls">
-          <label class="date-field" for="shiftDate">
-            <span>Shift date</span>
-            <input id="shiftDate" type="date" autocomplete="off">
-          </label>
         </div>
       </header>
 
@@ -5025,14 +5130,13 @@
 
           </div>
         </section>
+      </main>
 
+      <div class="footer">
         <div class="footer-action">
           <button class="secondary gold-outline hidden" id="toggleViewButton" type="button">Review Notes</button>
           <button class="primary" id="sendButton" type="button">Publish</button>
         </div>
-      </main>
-
-      <div class="footer">
         <nav class="tabbar tabbar-5" role="tablist" aria-label="Shift sections">
           <button class="tabbar-item" type="button" role="tab" data-tabbar-section="notes"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Notes</span><span class="tabbar-badge zero" id="tabbarBadge_notes">0</span></button>
           <button class="tabbar-item" type="button" role="tab" data-tabbar-section="staff"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.2"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.6-3.4"/><path d="M15.5 5a3.2 3.2 0 0 1 0 6"/></svg><span>Staff</span><span class="tabbar-badge zero" id="tabbarBadge_staff">0</span></button>
