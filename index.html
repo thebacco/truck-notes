@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-5">
-  <meta name="build-tag" content="v0807-nav5">
+  <meta name="app-version" content="2026-08-07-bottom-nav-6">
+  <meta name="build-tag" content="v0807-nav6">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4460,6 +4460,55 @@
       }
     }
   </style>
+  <style id="claude-staff-landing">
+    /* ================================================================
+       STAFF TRANSFER ACKNOWLEDGEMENT
+
+       Tapping a name rebuilds both columns wholesale, so the row simply
+       disappears from one list and materialises in the other. On a phone,
+       mid-shift, that reads as "did that register?" - especially since the
+       destination column may be below the fold.
+
+       The arriving row now settles into place and flashes a ring for half
+       a second. It's spatial rather than a toast: it says WHERE the name
+       went, not just that something happened, and it doesn't stack up when
+       four people get added in a row.
+       ================================================================ */
+    @keyframes staffLandedSettle {
+      0%   { transform: scale(.94); }
+      55%  { transform: scale(1.025); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes staffLandedRing {
+      0%   { box-shadow: 0 0 0 3px rgba(61, 92, 157, .30); }
+      100% { box-shadow: 0 0 0 3px rgba(61, 92, 157, 0); }
+    }
+
+    .staff-transfer-option.landed {
+      animation:
+        staffLandedSettle .26s cubic-bezier(.32, .72, 0, 1),
+        staffLandedRing .5s ease-out;
+    }
+
+    body.theme-dark .staff-transfer-option.landed {
+      animation:
+        staffLandedSettle .26s cubic-bezier(.32, .72, 0, 1),
+        staffLandedRingDark .5s ease-out;
+    }
+
+    @keyframes staffLandedRingDark {
+      0%   { box-shadow: 0 0 0 3px rgba(143, 176, 214, .38); }
+      100% { box-shadow: 0 0 0 3px rgba(143, 176, 214, 0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .staff-transfer-option.landed,
+      body.theme-dark .staff-transfer-option.landed {
+        animation: none;
+      }
+    }
+  </style>
   <style id="claude-tabbar-5">
     /* ================================================================
        BOTTOM TAB BAR - the five shift sections, moved off the top strip
@@ -6348,17 +6397,26 @@
       renderItemList("supplies");
     }
     function renderStaff() {
+      // Both lists are rebuilt from innerHTML, so a name moving between
+      // columns just blinks out of one and into the other with nothing
+      // connecting the two. Tag the row that just moved so it can announce
+      // itself on arrival - see the .landed rule.
+      const justMoved = staffJustMoved;
+      staffJustMoved = null;
+      const landed = (name) => (
+        justMoved && name.toLowerCase() === justMoved.toLowerCase() ? " landed" : ""
+      );
       const availableDefaultStaff = normalizeNameList(state.defaultStaff).filter((name) => (
         !state.shiftStaff.some((shiftName) => shiftName.toLowerCase() === name.toLowerCase())
       ));
       refs.defaultStaffDayList.innerHTML = availableDefaultStaff.map((name) => `
-        <button class="staff-transfer-option" type="button" data-default-staff-day="${escapeHtml(name)}">
+        <button class="staff-transfer-option${landed(name)}" type="button" data-default-staff-day="${escapeHtml(name)}">
           ${escapeHtml(name)}
         </button>
       `).join("");
       refs.defaultStaffDayList.classList.toggle("hidden", availableDefaultStaff.length === 0);
       refs.staffList.innerHTML = state.shiftStaff.map((name) => `
-        <button class="staff-transfer-option active" type="button" data-active-staff-day="${escapeHtml(name)}">
+        <button class="staff-transfer-option active${landed(name)}" type="button" data-active-staff-day="${escapeHtml(name)}">
           ${escapeHtml(name)}
         </button>
       `).join("");
@@ -6889,12 +6947,17 @@
     function addInventoryItem(name) {
       addItemFromSearch("inventory", name);
     }
+    // Name that just crossed between the pool and the shift column, in
+    // either direction. Consumed by the next renderStaff() and cleared.
+    let staffJustMoved = null;
+
     function addShiftStaff(name, input = refs.staffNameInput) {
       const clean = name.trim().replace(/\s+/g, " ");
       if (!clean) return;
       if (!state.shiftStaff.some((existing) => existing.toLowerCase() === clean.toLowerCase())) {
         state.shiftStaff.push(clean);
       }
+      staffJustMoved = clean;
       if ("value" in input && input.tagName !== "SELECT") input.value = "";
       render();
       if (input.tagName === "INPUT") input.blur();
@@ -6902,6 +6965,7 @@
 
     function removeShiftStaff(name) {
       state.shiftStaff = state.shiftStaff.filter((existing) => existing !== name);
+      staffJustMoved = name;
       render();
       showToast("Staff removed.");
     }
