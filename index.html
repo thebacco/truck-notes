@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-9">
-  <meta name="build-tag" content="v0807-nav9">
+  <meta name="app-version" content="2026-08-07-bottom-nav-10">
+  <meta name="build-tag" content="v0807-nav10">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4253,13 +4253,36 @@
     })();
   </script>
   <script id="claude-app-height">
-    /* The frame was still stopping short of the bottom edge on device even
-       with `position: fixed; inset: 0`, which means iOS is handing back a
-       layout viewport that excludes the home-indicator band. Rather than
-       keep guessing at which CSS length iOS honours, measure it: take the
-       largest height any of the three APIs reports and drive the frame off
-       that. Belt and braces on top of the CSS rule - whichever is taller
-       wins, so this can only ever fix, never shrink. */
+    /* WHY THE BAR WOULDN'T REACH THE BOTTOM.
+
+       In an `apple-mobile-web-app-capable` standalone app, iOS reports a
+       viewport height that has the TOP safe-area inset subtracted from it,
+       while still painting content underneath that inset. On a 956pt
+       screen with a 62pt Dynamic Island, the page believes it is 894pt
+       tall. Every CSS length agrees with that number - 100vh, 100dvh,
+       `position: fixed; inset: 0`, window.innerHeight - because they all
+       read the same viewport. So the frame ends 62pt above the physical
+       bottom and nothing expressed in CSS can see past it. That dead strip
+       is the gap, and its size is the top inset, which is why it changes
+       with the phone: ~62pt on Dynamic Island models, ~47pt on notch
+       models, 0 on Touch ID models (where this bug doesn't appear at all).
+
+       The one source that knows the real screen is `screen.height`, which
+       reports logical points and is unaffected by the viewport bug. So:
+       take the tallest height the viewport APIs offer, then let the screen
+       correct it upward if it disagrees.
+
+       Deliberately model-agnostic - no device sizes are hardcoded, so it
+       covers SE through the current Pro Max and no-ops entirely on any
+       device or browser where the viewport already reports full height.
+
+       Two guards keep it from ever overshooting:
+         - Rotation: iOS is inconsistent about whether screen.width/height
+           swap on rotation, so both are normalised by orientation rather
+           than trusted as-is.
+         - Sanity: the correction is only accepted if it is inset-sized
+           (<= 120pt). A real orientation mismatch is hundreds of points
+           and gets rejected. */
     (function () {
       function sync() {
         var h = Math.max(
@@ -4267,6 +4290,14 @@
           document.documentElement.clientHeight || 0,
           (window.visualViewport && window.visualViewport.height) || 0
         );
+
+        var sw = (window.screen && window.screen.width) || 0;
+        var sh = (window.screen && window.screen.height) || 0;
+        var portrait = window.innerHeight >= window.innerWidth;
+        var screenH = portrait ? Math.max(sw, sh) : Math.min(sw, sh);
+
+        if (screenH > h && screenH - h <= 120) h = screenH;
+
         if (h > 0) document.documentElement.style.setProperty("--app-h", h + "px");
       }
       sync();
@@ -4299,7 +4330,8 @@
           + " sa" + inset
           + " ph" + (p ? Math.round(p.height) : "?")
           + " tb" + (t ? Math.round(t.bottom) : "?")
-          + " th" + (t ? Math.round(t.height) : "?");
+          + " th" + (t ? Math.round(t.height) : "?")
+          + " ah" + (getComputedStyle(document.documentElement).getPropertyValue("--app-h") || "-").trim();
       }
       window.addEventListener("load", function () { setTimeout(probe, 900); });
     })();
