@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-25">
-  <meta name="build-tag" content="v0807-nav25">
+  <meta name="app-version" content="2026-08-07-bottom-nav-29">
+  <meta name="build-tag" content="v0807-nav29">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="TN Nav">
@@ -1593,6 +1593,13 @@
       font-size: 20px;
       font-weight: 400;
       line-height: 1.36;
+    }
+
+    /* Ghost text only, sized to match #notesSection .empty ("No shift notes
+       yet.") below it - same quiet caption, same size. Typed text keeps its
+       own larger size; only the placeholder shrinks. */
+    #noteInput::placeholder {
+      font-size: 15px;
     }
 
 
@@ -4564,13 +4571,23 @@
       else check();
     })();
   </script>
-  <style id="claude-tabbar-5">
+  <style id="claude-tabbar-3">
     /* ================================================================
        BOTTOM TAB BAR
 
-       The footer now stacks two rows: Publish (and the dormant Review
-       Notes toggle) on top, the tab bar below it, both fixed in the
-       footer so neither one scrolls away. `.footer` is still main's own
+       Three destinations now: Notes, Staff, Closeout. Supplies and
+       Inventory are fully built but deliberately dormant - not deleted,
+       just not wanted live right now (Matt: "tucked elsewhere and
+       activated at some point"). Their tab-bar buttons are gone; their
+       markers live as deactivated rows in the ⋮ menu instead, and
+       `workSectionOrder` (see script below) excludes them so the swipe
+       carousel can't reach their sections either. Reactivating either one
+       later is: add its button back here, add it back to
+       `workSectionOrder`, remove its ⋮ menu row.
+
+       The footer stacks two rows: Publish (and the dormant Review Notes
+       toggle) on top, the tab bar below it, both fixed in the footer so
+       neither one scrolls away. `.footer` is still main's own
        `position: absolute; bottom: 0` box - same padding (including the
        safe-area term), same background - so the tab bar keeps landing
        flush with the physical bottom edge exactly as main's Publish row
@@ -4651,7 +4668,7 @@
        main. */
     .tabbar {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       align-items: stretch;
     }
 
@@ -4860,15 +4877,14 @@
               </svg>
             </button>
             <div class="header-menu hidden" id="headerMenu">
-              <!-- Deactivated, not deleted. The ⋮ menu was never the right
-                   home for this - it's kept visible as a marker that Review
-                   needs a real destination (a tab, most likely) rather than
-                   silently disappearing. aria-disabled + pointer-events:none
-                   in claude-tabbar-5 below is what actually turns it off. -->
-              <button class="header-menu-row deactivated-row" id="menuReviewButton" type="button" aria-disabled="true" title="Not live here right now">
-                <span>Review Notes</span>
-                <span class="deactivated-tag" aria-hidden="true">soon</span>
-              </button>
+              <!-- Review Notes, Supplies, and Inventory all lost their menu
+                   entry points here (2026-08-07): Matt uses this menu daily
+                   and didn't want it padded with rows he can't tap. Nothing
+                   is deleted - Review's own screen is still reachable via
+                   Publish (see reviewNotes()/reportView), and Supplies/
+                   Inventory are fully built (see suppliesSection/
+                   inventorySection, and workSectionOrder above) - there is
+                   just no UI entry point into any of the three right now. -->
               <button class="header-menu-row" id="menuNightModeButton" type="button" aria-pressed="false">
                 <span>Night mode</span>
                 <span class="menu-toggle" aria-hidden="true"></span>
@@ -5141,8 +5157,13 @@
           <button class="tabbar-item" type="button" role="tab" data-tabbar-section="notes"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Notes</span><span class="tabbar-badge zero" id="tabbarBadge_notes">0</span></button>
           <button class="tabbar-item" type="button" role="tab" data-tabbar-section="staff"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.2"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.6-3.4"/><path d="M15.5 5a3.2 3.2 0 0 1 0 6"/></svg><span>Staff</span><span class="tabbar-badge zero" id="tabbarBadge_staff">0</span></button>
           <button class="tabbar-item" type="button" role="tab" data-tabbar-section="closeout"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M10 4h4v2h-4z"/><path d="M9.5 13l1.8 1.8 3.4-3.6"/></svg><span>Closeout</span></button>
-          <button class="tabbar-item" type="button" role="tab" data-tabbar-section="supplies"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5 12 13l9-4.5"/><path d="M12 13v7"/></svg><span>Supplies</span></button>
-          <button class="tabbar-item" type="button" role="tab" data-tabbar-section="inventory"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M3 4.5h18V8H3z"/><path d="M10 12h4"/></svg><span>Inventory</span></button>
+          <!-- Supplies and Inventory: deactivated, not deleted. Same treatment
+               as Review Notes below - fully built, not wanted live right now.
+               Their buttons here are removed rather than hidden because the
+               tab bar itself is the thing shrinking to 3; the dormant marker
+               for each now lives in the ⋮ menu instead. workSectionOrder no
+               longer includes them, so the swipe carousel can't reach their
+               sections either - see claude-tabbar-3 below. -->
         </nav>
       </div>
     </div>
@@ -5319,7 +5340,11 @@
       { id: "supply-ramekins", name: "ramekins", unit: "#", favorite: false, standard: true },
       { id: "supply-ramekin-lids", name: "ramekin LIDS", unit: "#", favorite: false, standard: true }
     ];
-    const workSectionOrder = ["notes", "staff", "closeout", "supplies", "inventory"];
+    // Supplies and Inventory stay built (see suppliesSection/inventorySection
+    // below) but are deliberately left out of the active order: the tab bar
+    // and ⋮ menu no longer offer a way in, so the swipe carousel shouldn't
+    // either. Add them back here to reactivate.
+    const workSectionOrder = ["notes", "staff", "closeout"];
     const settingsPin = "1521";
     const defaultState = {
       testerDataVersion,
@@ -6994,7 +7019,6 @@
       refs.toggleViewButton.classList.toggle("wide-action", showingSettings);
       document.body.classList.toggle("subview", showingReport || showingSettings);
       document.body.classList.toggle("subview-settings", showingSettings);
-      document.getElementById("menuReviewButton").classList.toggle("hidden", showingReport);
       refs.shiftControls.classList.toggle("hidden", showingSettings);
       if (window.__syncTabbar) window.__syncTabbar();
     }
@@ -8251,11 +8275,6 @@
       }
       currentView = "notes";
       render();
-    });
-
-    document.getElementById("menuReviewButton").addEventListener("click", () => {
-      closeHeaderMenu();
-      reviewNotes();
     });
 
     document.getElementById("headerBackButton").addEventListener("click", () => {

@@ -135,6 +135,31 @@ For every production PWA commit, bump the app version marker and service worker
 cache name unless the commit is documentation-only and cannot affect runtime
 assets.
 
+### Install-time-frozen fields — the only thing that forces a reinstall
+
+Everything above (`index.html`, CSS, JS, the cached asset list in `sw.js`)
+updates live on already-installed phones through the version-check + service
+worker path. iOS never re-reads the fields below after the icon is added —
+they are baked into the home-screen web clip at "Add to Home Screen" time and
+stay that way even after every later deploy:
+
+- `apple-mobile-web-app-status-bar-style`
+- the icon image itself (`apple-touch-icon`, manifest `icons`)
+- `apple-mobile-web-app-title`, manifest `name` / `short_name`
+- manifest `start_url`
+- manifest `display`
+- manifest `orientation`
+- `theme_color` / `background_color` (used for the auto-generated splash)
+
+Once any staff phone has installed a Rhino PWA, treat all of these as frozen.
+Changing one does nothing for phones already installed — the fix has to ship
+as "delete the icon, re-add it" on every device, which is disruptive and easy
+to under-communicate. Before the first install ever happens on a new app,
+get these right and stop touching them; route all later changes through the
+files that actually live-update instead. If a change to one of these is ever
+unavoidable, say so explicitly up front — it is a rollout event, not a normal
+deploy — and confirm on one real device before telling anyone else to update.
+
 Also render a short visible build tag in the header (for example `v0804m`),
 small and muted next to the brand mark. Without it there is no way to tell which
 build is actually on a phone, which makes every "is this fixed?" answer a guess.
