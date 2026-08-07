@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-32">
-  <meta name="build-tag" content="v0807-nav32">
+  <meta name="app-version" content="2026-08-07-bottom-nav-33">
+  <meta name="build-tag" content="v0807-nav33">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="TN Nav">
@@ -1552,6 +1552,15 @@
        fallback. */
     #notesSection #feedTitle.section-title {
       font-size: var(--feed-title-size, 16px);
+    }
+
+    /* Nudges the text (not the icon) so the two inks share a vertical
+       center - see claude-title-glyph-match for why size alone isn't
+       enough. inline-block so the translate is unambiguous on an inline
+       text run. */
+    #feedTitleText {
+      display: inline-block;
+      transform: translateY(var(--feed-title-offset, 0px));
     }
 
     #notesSection .section-title {
@@ -4329,7 +4338,7 @@
   </script>
 
   <script id="claude-title-glyph-match">
-    /* "Shift notes" title sized to match the rendered height of its own
+    /* "Shift notes" title sized AND vertically centred to match its own
        glyph icon, not a fixed px guess.
 
        Centrifuge is Adobe Fonts, domain-locked - it only resolves on
@@ -4340,47 +4349,85 @@
        above: measure the live font's actual ink height and re-measure
        once Centrifuge itself loads.
 
-       Method: measure the icon's actual PAINTED ink height, not its CSS
-       box. First cut used icon.getBoundingClientRect().height (the full
-       19x19 box), but these glyphs don't fill their viewBox - "Shift
-       notes"'s icon only draws from y=5 to y=19 of a 0-24 viewBox, so the
-       box overstates the ink by more than 40%. That is what made the
-       title come out looking ~20% bigger than the glyph next to it.
-       getBBox() gives the tight geometric extent in viewBox units (plus
-       the stroke's own width, which getBBox excludes), scaled by
-       renderedHeight/viewBoxHeight to convert to on-screen px. Title ink
-       height then comes from canvas actualBoundingBoxAscent/Descent (the
-       real drawn extent - not fontBoundingBox, which includes font-wide
-       leading no glyph in this string reaches), and the font-size scales
-       so the two match. The ratio is scale-invariant, so re-running this
-       after it has already adjusted the size doesn't drift. */
+       SIZE: measure the icon's actual PAINTED ink height, not its CSS box.
+       First cut used icon.getBoundingClientRect().height (the full 19x19
+       box), but these glyphs don't fill their viewBox - "Shift notes"'s
+       icon only draws from y=5 to y=19 of a 0-24 viewBox, so the box
+       overstated the ink by more than 40%, which is what made the title
+       come out ~20% bigger than the glyph. getBBox() gives the tight
+       geometric extent in viewBox units (plus the stroke's own width,
+       which getBBox excludes), scaled by renderedHeight/viewBoxHeight to
+       convert to on-screen px. Title ink height comes from canvas
+       actualBoundingBoxAscent/Descent (the real drawn extent - not
+       fontBoundingBox, which includes font-wide leading no glyph in this
+       string reaches). Font-size scales so the two heights match - this
+       ratio is scale-invariant, so re-running it after it has already
+       adjusted doesn't drift.
+
+       CENTERING: matching heights isn't the same as matching vertical
+       position. flexbox align-items:center centers each item's own BOX
+       (the icon's 19px box, the text's line box) - it has no idea where
+       the ink sits inside either box. "Shift notes" has no descenders
+       (all-caps, no g/y/p in the string), so its ink sits in the upper
+       part of the line box while the extra "descender" space below stays
+       empty; the icon's ink is roughly centred in its own box. Same
+       height, different position inside the box = the two inks land
+       off-centre from each other even after SIZE is correct. Fixed by
+       measuring each ink's offset from its own box's centre (icon: bbox
+       midpoint vs viewBox midpoint; text: baseline position - found via a
+       zero-height DOM probe the same way claude-badge-metrics does it -
+       combined with the canvas ascent/descent) and translateY-ing the text
+       span by the difference. Applied to #feedTitleText specifically, not
+       #feedTitle, so the icon itself never moves. */
     (function () {
       var ctx = null;
 
-      function iconInkHeight(icon) {
+      function iconMetrics(icon) {
         var renderedHeight = icon.getBoundingClientRect().height;
         if (!(renderedHeight > 0)) return null;
         var vb = icon.viewBox && icon.viewBox.baseVal;
         var viewBoxHeight = (vb && vb.height > 0) ? vb.height : 24;
         var bbox;
         try { bbox = icon.getBBox(); } catch (e) { bbox = null; }
-        if (!bbox || !(bbox.height > 0)) return renderedHeight;
         var strokeWidth = parseFloat(icon.getAttribute("stroke-width")) || 0;
         var scale = renderedHeight / viewBoxHeight;
-        return (bbox.height + strokeWidth) * scale;
+        if (!bbox || !(bbox.height > 0)) {
+          return { inkHeight: renderedHeight, centerOffsetPx: 0 };
+        }
+        var inkHeight = (bbox.height + strokeWidth) * scale;
+        var inkTop = (bbox.y - strokeWidth / 2) * scale;
+        var inkBottom = (bbox.y + bbox.height + strokeWidth / 2) * scale;
+        var inkCenter = (inkTop + inkBottom) / 2;
+        var boxCenter = renderedHeight / 2;
+        return { inkHeight: inkHeight, centerOffsetPx: inkCenter - boxCenter };
       }
 
-      function measure() {
-        var title = document.getElementById("feedTitle");
-        var icon = title && title.querySelector("svg");
-        if (!title || !icon) return null;
+      function textMetrics(span, currentSize) {
+        var cs = getComputedStyle(span);
 
-        var iconHeight = iconInkHeight(icon);
-        if (!(iconHeight > 2)) return null;
-
-        var cs = getComputedStyle(title);
-        var currentSize = parseFloat(cs.fontSize);
-        if (!(currentSize > 0)) return null;
+        // Zero-height inline-block probe: its top edge sits exactly on the
+        // text's baseline (vertical-align: baseline on a 0-height element
+        // means the element's own top is the baseline), so comparing it to
+        // the surrounding line box gives the baseline's offset from the
+        // top of that line box - the piece canvas metrics can't provide.
+        var probe = document.createElement("span");
+        probe.setAttribute("aria-hidden", "true");
+        probe.style.cssText =
+          "position:fixed;left:-9999px;top:0;visibility:hidden;white-space:nowrap;display:block;" +
+          "padding:0;border:0;margin:0;" +
+          "font-family:" + cs.fontFamily + ";font-size:" + currentSize + "px" +
+          ";font-weight:" + cs.fontWeight + ";font-style:" + cs.fontStyle +
+          ";line-height:" + cs.lineHeight + ";";
+        probe.appendChild(document.createTextNode("X"));
+        var marker = document.createElement("span");
+        marker.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline;";
+        probe.appendChild(marker);
+        document.body.appendChild(probe);
+        var probeRect = probe.getBoundingClientRect();
+        var markerRect = marker.getBoundingClientRect();
+        var lineHeight = probeRect.height;
+        var baselineOffset = markerRect.top - probeRect.top;
+        document.body.removeChild(probe);
 
         if (!ctx) {
           var canvas = document.createElement("canvas");
@@ -4391,20 +4438,56 @@
 
         // text-transform: uppercase is applied at paint time, not in
         // textContent - measure what actually gets drawn.
-        var sample = (title.textContent || "").trim().toUpperCase() || "X";
+        var sample = (span.textContent || "").trim().toUpperCase() || "X";
         ctx.font = cs.fontStyle + " " + cs.fontWeight + " " + currentSize + "px " + cs.fontFamily;
         var m = ctx.measureText(sample);
         if (!m || typeof m.actualBoundingBoxAscent !== "number") return null;
-        var inkHeight = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
-        if (!(inkHeight > 0)) return null;
+        var ascent = m.actualBoundingBoxAscent;
+        var descent = m.actualBoundingBoxDescent;
+        var inkHeight = ascent + descent;
+        if (!(inkHeight > 0) || !(lineHeight > 0)) return null;
 
-        return currentSize * (iconHeight / inkHeight);
+        var inkTop = baselineOffset - ascent;
+        var inkBottom = baselineOffset + descent;
+        var inkCenter = (inkTop + inkBottom) / 2;
+        var boxCenter = lineHeight / 2;
+        return { inkHeight: inkHeight, centerOffsetPx: inkCenter - boxCenter };
+      }
+
+      function measure() {
+        var title = document.getElementById("feedTitle");
+        var textSpan = document.getElementById("feedTitleText");
+        var icon = title && title.querySelector("svg");
+        if (!title || !textSpan || !icon) return null;
+
+        var iconM = iconMetrics(icon);
+        if (!iconM || !(iconM.inkHeight > 2)) return null;
+
+        var cs = getComputedStyle(title);
+        var currentSize = parseFloat(cs.fontSize);
+        if (!(currentSize > 0)) return null;
+
+        var textM = textMetrics(textSpan, currentSize);
+        if (!textM || !(textM.inkHeight > 0)) return null;
+
+        var fontSize = currentSize * (iconM.inkHeight / textM.inkHeight);
+
+        // Re-measure at the size we're actually about to apply, rather than
+        // scaling the first measurement by assumption - line-height isn't
+        // guaranteed to be a unitless ratio, so this avoids relying on the
+        // offset scaling perfectly linearly with font-size.
+        var textMAtFinalSize = textMetrics(textSpan, fontSize) || textM;
+        var translateY = iconM.centerOffsetPx - textMAtFinalSize.centerOffsetPx;
+
+        return { fontSize: fontSize, translateY: translateY };
       }
 
       function tune() {
-        var size = measure();
-        if (size === null) return;
-        document.documentElement.style.setProperty("--feed-title-size", size.toFixed(2) + "px");
+        var result = measure();
+        if (result === null) return;
+        var root = document.documentElement.style;
+        root.setProperty("--feed-title-size", result.fontSize.toFixed(2) + "px");
+        root.setProperty("--feed-title-offset", result.translateY.toFixed(2) + "px");
       }
 
       if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", tune);
@@ -4858,6 +4941,13 @@
     .brand-title-only h1 {
       font-size: 26px;
       line-height: 1.05;
+      /* Voltage is the Miss Tasty wordmark's own face (see --brand-font,
+         already used on the splash screen) - reused here since this IS the
+         wordmark now that "Truck Notes" is gone. Navy matches the Publish
+         button's own colour exactly (#3d5c9d - both trace back to the same
+         --navy). */
+      font-family: var(--brand-font);
+      color: var(--navy);
     }
 
     .brand-title-only .eyebrow {
@@ -5004,7 +5094,7 @@
 
               <section class="section" aria-labelledby="feedTitle">
                 <div class="notes-list-header">
-                  <p class="section-title with-icon" id="feedTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5h12"></path><path d="M6 12h12"></path><path d="M6 19h8"></path><path d="M4 5h.01"></path><path d="M4 12h.01"></path><path d="M4 19h.01"></path></svg>Shift notes</p>
+                  <p class="section-title with-icon" id="feedTitle"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5h12"></path><path d="M6 12h12"></path><path d="M6 19h8"></path><path d="M4 5h.01"></path><path d="M4 12h.01"></path><path d="M4 19h.01"></path></svg><span id="feedTitleText">Shift notes</span></p>
                   <button class="note-sort-button" id="noteSortButton" type="button" aria-label="Show oldest notes first" title="Newest first" data-sort="newest">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="m7 14 5 5 5-5"></path></svg>
                   </button>
@@ -7670,7 +7760,15 @@
         lastAt: now,
         velocityX: 0,
         dragging: false,
-        dragOffset: 0
+        dragOffset: 0,
+        // Measured once here instead of every touchmove below.
+        // getBoundingClientRect() forces the browser to flush layout before
+        // it can answer - calling it on every touchmove (dozens of times a
+        // second, mid-gesture) was a synchronous forced-reflow on the hot
+        // path of a drag whose only other work is a transform write. The
+        // container's width can't change mid-drag, so one read at
+        // touchstart is exactly as correct and costs nothing repeatedly.
+        width: refs.workSections.getBoundingClientRect().width || 1
       };
     }, { passive: true });
 
@@ -7718,7 +7816,7 @@
 
       event.preventDefault();
       const currentIndex = getWorkSectionIndex();
-      const width = refs.workSections.getBoundingClientRect().width || 1;
+      const width = workSwipeStart.width;
       const atStart = currentIndex === 0 && deltaX > 0;
       const atEnd = currentIndex === workSectionOrder.length - 1 && deltaX < 0;
       const resistedDelta = atStart || atEnd ? rubberBandOffset(deltaX, width) : deltaX;
