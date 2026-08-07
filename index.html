@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-2">
-  <meta name="build-tag" content="v0807-nav2">
+  <meta name="app-version" content="2026-08-07-bottom-nav-3">
+  <meta name="build-tag" content="v0807-nav3">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4433,6 +4433,31 @@
       body {
         background: var(--panel);
       }
+
+      /* FIX 2: the tab bar wasn't reaching the bottom edge of the screen.
+         `.phone` was sized with `height: 100dvh`, and iOS standalone does
+         not reliably give a dvh that includes the bottom safe area - so
+         the frame stopped short of the true bottom and left a strip of
+         bare body underneath the footer.
+
+         Pinning the frame to the viewport with `position: fixed; inset: 0`
+         removes the measurement from the equation entirely: the frame is
+         the viewport, edge to edge, so the footer's `bottom: 0` lands on
+         the actual bottom of the screen. The tab bar carries its own
+         background (see .tabbar below), so the safe-area strip under the
+         icons is bar, not gap. */
+      .phone {
+        position: fixed;
+        inset: 0;
+        width: auto;
+        height: auto;
+        max-height: none;
+      }
+
+      body.force-phone-frame .phone {
+        position: relative;
+        inset: auto;
+      }
     }
   </style>
   <style id="claude-tabbar-5">
@@ -4479,6 +4504,9 @@
       grid-template-columns: repeat(5, 1fr);
       align-items: stretch;
       padding: 0 4px max(4px, calc(env(safe-area-inset-bottom) - 18px));
+      /* The bar paints its own ground so nothing behind it can ever show
+         through in the strip below the icons. */
+      background: var(--panel);
     }
 
     .tabbar::before {
