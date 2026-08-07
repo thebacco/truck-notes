@@ -4412,6 +4412,29 @@
     }
   </style>
 
+  <style id="claude-standalone-bg-fix">
+    /* FIX: a later, unguarded `body { background: #d3d6d6; }` rule (added
+       for the desktop/browser "page ground" look) sits after the
+       standalone override above in source order. Since both are just
+       `body` with identical specificity, the later one wins regardless of
+       its media condition - so the installed app silently got the grey
+       desktop-preview background instead of staying white/cream.
+
+       On a real phone this shows up as a visible grey band wherever the
+       app doesn't paint over body's own background - most visibly below
+       the tab bar, in the home-indicator safe area. Not something this
+       tab bar patch introduced; the same unguarded rule exists on main
+       too and should get this same fix there.
+
+       Re-asserting the override here, after the offending rule, wins the
+       cascade back for standalone mode only - the desktop/browser page
+       ground is untouched. */
+    @media (display-mode: standalone) and (max-width: 520px) {
+      body {
+        background: var(--panel);
+      }
+    }
+  </style>
   <style id="claude-tabbar-5">
     /* ================================================================
        BOTTOM TAB BAR - the five shift sections, moved off the top strip
