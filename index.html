@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-30">
-  <meta name="build-tag" content="v0807-nav30">
+  <meta name="app-version" content="2026-08-07-bottom-nav-32">
+  <meta name="build-tag" content="v0807-nav32">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="TN Nav">
@@ -4340,24 +4340,43 @@
        above: measure the live font's actual ink height and re-measure
        once Centrifuge itself loads.
 
-       Method: read the icon's own rendered height (not a hardcoded 19px -
-       that's set once in CSS and could change), measure the title text's
-       ink height at its current font-size with canvas
-       actualBoundingBoxAscent/Descent (the real drawn extent - not
-       fontBoundingBox, which includes font-wide leading no glyph in this
-       string reaches), then scale the font-size so the two match. The
-       ratio is scale-invariant, so re-running this after it has already
-       adjusted the size doesn't drift. */
+       Method: measure the icon's actual PAINTED ink height, not its CSS
+       box. First cut used icon.getBoundingClientRect().height (the full
+       19x19 box), but these glyphs don't fill their viewBox - "Shift
+       notes"'s icon only draws from y=5 to y=19 of a 0-24 viewBox, so the
+       box overstates the ink by more than 40%. That is what made the
+       title come out looking ~20% bigger than the glyph next to it.
+       getBBox() gives the tight geometric extent in viewBox units (plus
+       the stroke's own width, which getBBox excludes), scaled by
+       renderedHeight/viewBoxHeight to convert to on-screen px. Title ink
+       height then comes from canvas actualBoundingBoxAscent/Descent (the
+       real drawn extent - not fontBoundingBox, which includes font-wide
+       leading no glyph in this string reaches), and the font-size scales
+       so the two match. The ratio is scale-invariant, so re-running this
+       after it has already adjusted the size doesn't drift. */
     (function () {
       var ctx = null;
+
+      function iconInkHeight(icon) {
+        var renderedHeight = icon.getBoundingClientRect().height;
+        if (!(renderedHeight > 0)) return null;
+        var vb = icon.viewBox && icon.viewBox.baseVal;
+        var viewBoxHeight = (vb && vb.height > 0) ? vb.height : 24;
+        var bbox;
+        try { bbox = icon.getBBox(); } catch (e) { bbox = null; }
+        if (!bbox || !(bbox.height > 0)) return renderedHeight;
+        var strokeWidth = parseFloat(icon.getAttribute("stroke-width")) || 0;
+        var scale = renderedHeight / viewBoxHeight;
+        return (bbox.height + strokeWidth) * scale;
+      }
 
       function measure() {
         var title = document.getElementById("feedTitle");
         var icon = title && title.querySelector("svg");
         if (!title || !icon) return null;
 
-        var iconHeight = icon.getBoundingClientRect().height;
-        if (!(iconHeight > 4)) return null;
+        var iconHeight = iconInkHeight(icon);
+        if (!(iconHeight > 2)) return null;
 
         var cs = getComputedStyle(title);
         var currentSize = parseFloat(cs.fontSize);
@@ -4916,8 +4935,8 @@
           </button>
           <div class="brand brand-title-only">
             <div>
-              <h1>Truck Notes</h1>
-              <p class="eyebrow">Miss Tasty <span class="build-tag" id="buildTag"></span></p>
+              <h1>Miss Tasty</h1>
+              <p class="eyebrow"><span class="build-tag" id="buildTag"></span></p>
             </div>
           </div>
           <div class="shift-row" id="shiftControls">
