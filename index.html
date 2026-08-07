@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-20">
-  <meta name="build-tag" content="v0807-nav20">
+  <meta name="app-version" content="2026-08-07-bottom-nav-21">
+  <meta name="build-tag" content="v0807-nav21">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="TN Nav">
@@ -4506,26 +4506,6 @@
       }
     }
   </style>
-  <script id="claude-viewport-probe">
-    /* TEMPORARY - confirms the anchor moved. Remove once verified. */
-    (function () {
-      window.addEventListener("load", function () {
-        setTimeout(function () {
-          var el = document.getElementById("buildTag");
-          if (!el) return;
-          var f = document.createElement("div");
-          f.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;";
-          document.body.appendChild(f);
-          var fb = Math.round(f.getBoundingClientRect().bottom);
-          document.body.removeChild(f);
-          el.textContent += " · ih" + window.innerHeight
-            + " sh" + (window.screen && window.screen.height)
-            + " fb" + fb
-            + " ns" + (window.navigator.standalone === true ? "1" : "0");
-        }, 900);
-      });
-    })();
-  </script>
   <style id="claude-tabbar-5">
     /* ================================================================
        BOTTOM TAB BAR
