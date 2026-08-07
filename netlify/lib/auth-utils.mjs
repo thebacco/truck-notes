@@ -16,7 +16,11 @@ export function normalizeEmail(value = "") {
 
 export function getRequestOrigin(event) {
   const headers = event.headers || {};
-  const configuredUrl = process.env.AUTH_APP_URL || process.env.PUBLIC_APP_URL || process.env.URL || process.env.DEPLOY_PRIME_URL || "";
+  const isProduction = process.env.CONTEXT === "production";
+  const configuredUrl = process.env.AUTH_APP_URL
+    || process.env.PUBLIC_APP_URL
+    || (isProduction ? process.env.URL : process.env.DEPLOY_PRIME_URL || process.env.URL)
+    || "";
   const requestOrigin = headers.origin || headers.Origin || "";
 
   if (configuredUrl) return configuredUrl;

@@ -1,6 +1,6 @@
 ﻿{
   "name": "Truck Notes",
-  "short_name": "Truck Notes",
+  "short_name": "TN Nav",
   "description": "A no-login PWA for food truck staff to collect shift notes and email the nightly report.",
   "start_url": "./",
   "scope": "./",
