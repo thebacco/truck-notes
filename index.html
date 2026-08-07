@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-29">
-  <meta name="build-tag" content="v0807-nav29">
+  <meta name="app-version" content="2026-08-07-bottom-nav-30">
+  <meta name="build-tag" content="v0807-nav30">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="TN Nav">
@@ -1546,6 +1546,14 @@
 
 
 
+    /* #feedTitle's own font-size is measured at runtime (see
+       claude-title-glyph-match below) so it can match its icon's real
+       height in the real font. This 16px is only the pre-JS/no-canvas
+       fallback. */
+    #notesSection #feedTitle.section-title {
+      font-size: var(--feed-title-size, 16px);
+    }
+
     #notesSection .section-title {
       font-size: 16px;
     }
@@ -2810,17 +2818,11 @@
       grid-template-columns: 1fr;
     }
 
-    .reset-dialog-actions .secondary {
-      border: 0;
-      background: var(--accent);
-      color: var(--accent-ink);
-    }
-
-    .reset-dialog-actions .danger {
-      border: 1px solid var(--line);
-      background: #fffdf8;
-      color: var(--ink-93);
-    }
+    /* Was: Cancel filled with the accent colour, Start New Day (the actual
+       irreversible action) styled as the quiet outline button - inverted
+       from what the colours mean everywhere else. Removed so both buttons
+       fall back to the same base .secondary/.danger the delete-note
+       dialog already uses undecorated. */
 
     .toast {
       position: absolute;
@@ -3578,26 +3580,9 @@
       background: #24282b;
     }
 
-    .reset-dialog-actions .danger {
-      border-color: rgba(70, 74, 77, .18);
-      background: #ffffff;
-      color: var(--ink-93);
-      box-shadow: none;
-    }
-
-    body.theme-dark .reset-dialog-actions .danger {
-      border-color: rgba(232, 234, 235, .14);
-      background: #2f3437;
-      color: var(--ink-93);
-    }
-
-    .reset-dialog-actions .secondary {
-      background: var(--accent);
-      color: #ffffff;
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, .14),
-        0 8px 16px -9px rgba(120, 40, 32, .5);
-    }
+    /* Same inversion, second skin layer - removed alongside the light-mode
+       overrides above. Both dialog buttons now use the plain base
+       .secondary/.danger in dark mode too, matching delete-note. */
 
     /* Empty state well reads as a proper card, brighter than the page,
        rather than a grey hole punched in the layout. */
@@ -4340,6 +4325,77 @@
         document.fonts.ready.then(tune).catch(function () {});
       }
       window.__tuneBadge = tune;
+    })();
+  </script>
+
+  <script id="claude-title-glyph-match">
+    /* "Shift notes" title sized to match the rendered height of its own
+       glyph icon, not a fixed px guess.
+
+       Centrifuge is Adobe Fonts, domain-locked - it only resolves on
+       theblindrhino.com. A font-size picked by eye in any other
+       environment (this preview included) is tuned to whatever fallback
+       face is standing in for it there, and will be wrong on a real
+       device. Same reasoning as claude-brand-mark and claude-badge-metrics
+       above: measure the live font's actual ink height and re-measure
+       once Centrifuge itself loads.
+
+       Method: read the icon's own rendered height (not a hardcoded 19px -
+       that's set once in CSS and could change), measure the title text's
+       ink height at its current font-size with canvas
+       actualBoundingBoxAscent/Descent (the real drawn extent - not
+       fontBoundingBox, which includes font-wide leading no glyph in this
+       string reaches), then scale the font-size so the two match. The
+       ratio is scale-invariant, so re-running this after it has already
+       adjusted the size doesn't drift. */
+    (function () {
+      var ctx = null;
+
+      function measure() {
+        var title = document.getElementById("feedTitle");
+        var icon = title && title.querySelector("svg");
+        if (!title || !icon) return null;
+
+        var iconHeight = icon.getBoundingClientRect().height;
+        if (!(iconHeight > 4)) return null;
+
+        var cs = getComputedStyle(title);
+        var currentSize = parseFloat(cs.fontSize);
+        if (!(currentSize > 0)) return null;
+
+        if (!ctx) {
+          var canvas = document.createElement("canvas");
+          if (!canvas.getContext) return null;
+          ctx = canvas.getContext("2d");
+        }
+        if (!ctx) return null;
+
+        // text-transform: uppercase is applied at paint time, not in
+        // textContent - measure what actually gets drawn.
+        var sample = (title.textContent || "").trim().toUpperCase() || "X";
+        ctx.font = cs.fontStyle + " " + cs.fontWeight + " " + currentSize + "px " + cs.fontFamily;
+        var m = ctx.measureText(sample);
+        if (!m || typeof m.actualBoundingBoxAscent !== "number") return null;
+        var inkHeight = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+        if (!(inkHeight > 0)) return null;
+
+        return currentSize * (iconHeight / inkHeight);
+      }
+
+      function tune() {
+        var size = measure();
+        if (size === null) return;
+        document.documentElement.style.setProperty("--feed-title-size", size.toFixed(2) + "px");
+      }
+
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", tune);
+      else tune();
+      window.addEventListener("load", tune);
+      window.addEventListener("resize", tune, { passive: true });
+      if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+        document.fonts.ready.then(tune).catch(function () {});
+      }
+      window.__tuneFeedTitle = tune;
     })();
   </script>
 
