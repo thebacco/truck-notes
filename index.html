@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-8">
-  <meta name="build-tag" content="v0807-nav8">
+  <meta name="app-version" content="2026-08-07-bottom-nav-9">
+  <meta name="build-tag" content="v0807-nav9">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4252,6 +4252,58 @@
       else paint();
     })();
   </script>
+  <script id="claude-app-height">
+    /* The frame was still stopping short of the bottom edge on device even
+       with `position: fixed; inset: 0`, which means iOS is handing back a
+       layout viewport that excludes the home-indicator band. Rather than
+       keep guessing at which CSS length iOS honours, measure it: take the
+       largest height any of the three APIs reports and drive the frame off
+       that. Belt and braces on top of the CSS rule - whichever is taller
+       wins, so this can only ever fix, never shrink. */
+    (function () {
+      function sync() {
+        var h = Math.max(
+          window.innerHeight || 0,
+          document.documentElement.clientHeight || 0,
+          (window.visualViewport && window.visualViewport.height) || 0
+        );
+        if (h > 0) document.documentElement.style.setProperty("--app-h", h + "px");
+      }
+      sync();
+      window.addEventListener("resize", sync);
+      window.addEventListener("orientationchange", sync);
+      if (window.visualViewport) window.visualViewport.addEventListener("resize", sync);
+      document.addEventListener("DOMContentLoaded", sync);
+      window.addEventListener("load", sync);
+    })();
+  </script>
+  <script id="claude-bottom-probe">
+    /* TEMPORARY. Appends the numbers that would settle the bottom-gap
+       question to the build tag, so one screenshot answers it instead of
+       another round of guessing. Remove once the gap is confirmed closed. */
+    (function () {
+      function probe() {
+        var el = document.getElementById("buildTag");
+        if (!el) return;
+        var tabbar = document.querySelector(".tabbar");
+        var phone = document.querySelector(".phone");
+        var probeEl = document.createElement("div");
+        probeEl.style.cssText = "position:fixed;bottom:0;height:env(safe-area-inset-bottom);width:1px;";
+        document.body.appendChild(probeEl);
+        var inset = Math.round(probeEl.getBoundingClientRect().height);
+        document.body.removeChild(probeEl);
+        var t = tabbar ? tabbar.getBoundingClientRect() : null;
+        var p = phone ? phone.getBoundingClientRect() : null;
+        el.textContent += " · ih" + window.innerHeight
+          + " sh" + (window.screen && window.screen.height)
+          + " sa" + inset
+          + " ph" + (p ? Math.round(p.height) : "?")
+          + " tb" + (t ? Math.round(t.bottom) : "?")
+          + " th" + (t ? Math.round(t.height) : "?");
+      }
+      window.addEventListener("load", function () { setTimeout(probe, 900); });
+    })();
+  </script>
   <script id="claude-badge-metrics">
     /* Optically centres the digit in the count chip, for ANY font.
 
@@ -4448,9 +4500,16 @@
          icons is bar, not gap. */
       .phone {
         position: fixed;
-        inset: 0;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
         width: auto;
-        height: auto;
+        /* --app-h is measured in JS from whichever viewport API reports the
+           tallest value. Falls back to the inset-driven auto height if the
+           script hasn't run yet. */
+        height: var(--app-h, auto);
+        min-height: var(--app-h, auto);
         max-height: none;
       }
 
