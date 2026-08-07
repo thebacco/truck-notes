@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="app-version" content="2026-08-07-bottom-nav-12">
-  <meta name="build-tag" content="v0807-nav12">
+  <meta name="app-version" content="2026-08-07-bottom-nav-13">
+  <meta name="build-tag" content="v0807-nav13">
   <meta name="theme-color" content="#191613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Truck Notes">
@@ -4252,62 +4252,6 @@
       else paint();
     })();
   </script>
-  <script id="claude-app-height">
-    /* WHY THE BAR WOULDN'T REACH THE BOTTOM - measured, not guessed.
-
-       On this phone the probe returned: innerHeight 894, screen.height 956,
-       safe-area-inset-bottom 34. So in a standalone home-screen app the web
-       view really is only 894pt tall on a 956pt screen. The remaining 62pt
-       strip along the bottom is not part of the viewport at all - nothing
-       can be laid out in it. iOS simply floods it with the page's own
-       background colour, which is exactly why the very first screenshot
-       showed a grey band there (body was #d3d6d6 at the time) and why the
-       band turned white the moment body's background was corrected.
-
-       That strip is already covering the home indicator. But the tab bar
-       was ALSO reserving env(safe-area-inset-bottom) on top of it, so the
-       clearance got counted twice and the labels floated ~88pt up.
-
-       Trying to grow the frame to 956 (the previous attempt) is worse: the
-       extra 62pt lands outside the visible web view and the bar is simply
-       cut off.
-
-       So: keep the frame at the true viewport height, and publish the
-       shortfall as --vp-shortfall so the tab bar can subtract what the
-       strip is already providing. On any device where the viewport is
-       honest the shortfall is 0 and the bar reserves the safe area itself,
-       exactly as before - no device sizes are hardcoded anywhere. */
-    (function () {
-      function sync() {
-        var h = Math.max(
-          window.innerHeight || 0,
-          document.documentElement.clientHeight || 0,
-          (window.visualViewport && window.visualViewport.height) || 0
-        );
-        if (h <= 0) return;
-
-        var sw = (window.screen && window.screen.width) || 0;
-        var sh = (window.screen && window.screen.height) || 0;
-        var portrait = window.innerHeight >= window.innerWidth;
-        var screenH = portrait ? Math.max(sw, sh) : Math.min(sw, sh);
-
-        // Only inset-sized shortfalls are real; anything larger is an
-        // orientation mismatch, where screen.* stays portrait-shaped.
-        var shortfall = 0;
-        if (screenH > h && screenH - h <= 120) shortfall = screenH - h;
-
-        var root = document.documentElement;
-        root.style.setProperty("--app-h", h + "px");
-        root.style.setProperty("--vp-shortfall", shortfall + "px");
-      }
-      sync();
-      window.addEventListener("resize", sync);
-      window.addEventListener("orientationchange", sync);
-      if (window.visualViewport) window.visualViewport.addEventListener("resize", sync);
-      document.addEventListener("DOMContentLoaded", sync);
-      window.addEventListener("load", sync);
-    })();
-  </script>
   <script id="claude-badge-metrics">
     /* Optically centres the digit in the count chip, for ANY font.
 
@@ -4490,40 +4434,10 @@
         background: var(--panel);
       }
 
-      /* FIX 2: the tab bar wasn't reaching the bottom edge of the screen.
-         `.phone` was sized with `height: 100dvh`, and iOS standalone does
-         not reliably give a dvh that includes the bottom safe area - so
-         the frame stopped short of the true bottom and left a strip of
-         bare body underneath the footer.
-
-         Pinning the frame to the viewport with `position: fixed; inset: 0`
-         removes the measurement from the equation entirely: the frame is
-         the viewport, edge to edge, so the footer's `bottom: 0` lands on
-         the actual bottom of the screen. The tab bar carries its own
-         background (see .tabbar below), so the safe-area strip under the
-         icons is bar, not gap. */
-      .phone {
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 0;
-        bottom: 0;
-        width: auto;
-        /* --app-h is measured in JS from whichever viewport API reports the
-           tallest value. Falls back to the inset-driven auto height if the
-           script hasn't run yet. */
-        /* True viewport height. Never screen.height - see claude-app-height:
-           the strip beyond the viewport is not renderable, so growing into
-           it just clips the tab bar off the bottom. */
-        height: var(--app-h, auto);
-        min-height: 0;
-        max-height: none;
-      }
-
-      body.force-phone-frame .phone {
-        position: relative;
-        inset: auto;
-      }
+      /* Frame geometry is now IDENTICAL to main. main's footer sits where
+         Matt wants the menu bar, so this branch should not be inventing its
+         own frame sizing - it should inherit main's and simply stack a
+         second row inside the footer. */
     }
   </style>
   <style id="claude-staff-landing">
@@ -4631,11 +4545,9 @@
          the bar genuinely ends at the bottom of the screen and needs real
          clearance. 28px on a 34px inset: snug, still clear of the indicator.
          Net content gain is still ~55px, since 67px of waste went away. */
-      /* Subtract whatever the out-of-viewport bottom strip is already
-         covering (--vp-shortfall). On a phone where the viewport is
-         honest that value is 0 and this reduces to the plain safe-area
-         reservation. */
-      padding: 0 4px max(10px, calc(env(safe-area-inset-bottom) - 12px - var(--vp-shortfall, 0px)));
+      /* Exactly main's footer bottom padding, so the menu bar lands in the
+         same slot main's Publish button occupies. */
+      padding: 0 4px max(8px, calc(env(safe-area-inset-bottom) - 16px));
       /* A tray, not a strip: bright surface, rounded top, docked flush to
          the bottom edge and lifted a hair off the shelf behind it. The tray
          also paints its own ground, so nothing can ever show through in the
